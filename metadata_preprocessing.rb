@@ -1,7 +1,6 @@
 require 'FileUtils'
 
 require_relative '../bookmaker/header.rb'
-require_relative '../bookmaker/metadata.rb'
 
 # formerly in metadata.rb
 # testing to see if ISBN style exists
