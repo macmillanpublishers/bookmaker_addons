@@ -47,10 +47,10 @@ imprint = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageImprin
 authorname = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageAuthorNameau">.*?</).join(",").gsub(/<p class="TitlepageAuthorNameau">/,"").gsub(/</,"")
 
 # Finding book title
-booktitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<title>.*?<\/title>/).to_s.gsub(/<title>/,"").gsub(/<\/title>/,"")
+booktitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<title>.*?<\/title>/).to_s.gsub(/["<title>/,"").gsub(/<\/title>"]/,"")
 
 # Finding book subtitle
-booksubtitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageBookSubtitlestit">.*?</).to_s.gsub(/<p class="TitlepageBookSubtitlestit">/,"").gsub(/</,"")
+booksubtitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageBookSubtitlestit">.*?</).to_s.gsub(/["<p class="TitlepageBookSubtitlestit">/,"").gsub(/<"]/,"")
 
 configfile = File.join(Bkmkr::Paths.project_tmp_dir, "config.json")
 
@@ -58,13 +58,13 @@ configfile = File.join(Bkmkr::Paths.project_tmp_dir, "config.json")
 File.open(configfile, 'w+') do |f|
 	f.puts '{'
 	f.puts '"title":"' + booktitle + '",'
-	f.puts '"subtitle":"#{booksubtitle}",'
-	f.puts '"author":"#{authorname}",'
-	f.puts '"productid":"#{pisbn}",'
-	f.puts '"printid":"#{pisbn}",'
-	f.puts '"ebookid":"#{eisbn}",'
-	f.puts '"imprint":"#{imprint}",'
-	f.puts '"publisher":"#{imprint}",'
-	f.puts '"frontcover":"#{pisbn}_FC.jpg"'
+	f.puts '"subtitle":"' + booksubtitle + '",'
+	f.puts '"author":"' + authorname + '",'
+	f.puts '"productid":"' + pisbn + '",'
+	f.puts '"printid":"' + pisbn + '",'
+	f.puts '"ebookid":"' + eisbn + '",'
+	f.puts '"imprint":"' + imprint + '",'
+	f.puts '"publisher":"' + imprint + '",'
+	f.puts '"frontcover":"' + pisbn + '_FC.jpg"'
 	f.puts '}'
 end
