@@ -55,7 +55,7 @@ booksubtitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageB
 configfile = File.join(Bkmkr::Paths.project_tmp_dir, "config.json")
 
 # Printing the project json
-File.open(configfile, 'a+') do |f|
+File.open(configfile, 'w+') do |f|
 	f.puts '{'
 	f.puts '"title":"#{booktitle}",'
 	f.puts '"subtitle":"#{booksubtitle}",'
