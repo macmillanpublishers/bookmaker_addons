@@ -50,7 +50,7 @@ authorname = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageAut
 booktitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<title>.*?<\/title>/).to_s.gsub(/\["<title>/,"").gsub(/<\/title>"\]/,"")
 
 # Finding book subtitle
-booksubtitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageBookSubtitlestit">.*?</).to_s.gsub(/\["<p class="TitlepageBookSubtitlestit">/,"").gsub(/<"\]/,"")
+booksubtitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageBookSubtitlestit">.*?</).to_s.gsub(/\["<p class=\\"TitlepageBookSubtitlestit\\">/,"").gsub(/<"\]/,"")
 
 configfile = File.join(Bkmkr::Paths.project_tmp_dir, "config.json")
 
