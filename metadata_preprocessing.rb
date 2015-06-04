@@ -56,7 +56,7 @@ configfile = File.join(Bkmkr::Paths.project_tmp_dir, "config.json")
 
 # Printing the project json
 File.open(configfile, 'a+') do |f|
-	f.puts '"{'
+	f.puts '{'
 	f.puts '"title":"#{booktitle}",'
 	f.puts '"subtitle":"#{booksubtitle}",'
 	f.puts '"author":"#{authorname}",'
