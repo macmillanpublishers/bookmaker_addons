@@ -53,8 +53,8 @@ booktitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<title>.*?<\/title>/).t
 booksubtitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageBookSubtitlestit">.*?</).to_s.gsub(/\["<p class=\\"TitlepageBookSubtitlestit\\">/,"").gsub(/<"\]/,"")
 
 # print and epub css files
-epub_css_dir = File.join(Bkmkr::Paths.core_dir, "bookmaker_epubmaker", "css")
-pdf_css_file = File.join(Bkmkr::Paths.core_dir, "bookmaker_pdfmaker", "css", Bkmkr::Project.project_dir, "pdf.css")
+epub_css_dir = File.join(Bkmkr::Paths.core_dir, "epubmaker", "css")
+pdf_css_file = File.join(Bkmkr::Paths.core_dir, "pdfmaker", "css", Bkmkr::Project.project_dir, "pdf.css")
 
 if File.file?("#{epub_css_dir}/#{Bkmkr::Project.project_dir}/epub.css")
 	epub_css_file = "#{epub_css_dir}/#{Bkmkr::Project.project_dir}/epub.css"
@@ -62,7 +62,7 @@ else
  	epub_css_file = "#{epub_css_dir}/generic/epub.css"
 end
 
-pdf_js_file = File.join(Bkmkr::Paths.core_dir, "bookmaker_pdfmaker", "scripts", Bkmkr::Project.project_dir, "pdf.js")
+pdf_js_file = File.join(Bkmkr::Paths.core_dir, "pdfmaker", "scripts", Bkmkr::Project.project_dir, "pdf.js")
 
 configfile = File.join(Bkmkr::Paths.project_tmp_dir, "config.json")
 
