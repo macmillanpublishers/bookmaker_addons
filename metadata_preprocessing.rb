@@ -64,7 +64,7 @@ end
 
 pdf_js_file = File.join(Bkmkr::Paths.core_dir, "pdfmaker", "scripts", Bkmkr::Project.project_dir, "pdf.js")
 
-xml_file = "#{Bkmkr::Project.filename}.xml"
+xml_file = File.join(Bkmkr::Paths.project_tmp_dir, "#{Bkmkr::Project.filename}.xml")
 check_toc = File.read(xml_file).scan(/\="TOC/)
 if check_toc.any?
 	toc_value = "true"
