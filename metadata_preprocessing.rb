@@ -64,6 +64,14 @@ end
 
 pdf_js_file = File.join(Bkmkr::Paths.core_dir, "pdfmaker", "scripts", Bkmkr::Project.project_dir, "pdf.js")
 
+xml_file = File.join(Bkmkr::Project.filename, ".xml")
+check_toc = File.read(xml_file).scan(/\="TOC/)
+if check_toc.any?
+	toc_value = "true"
+else
+	toc_value = "false"
+end
+
 configfile = File.join(Bkmkr::Paths.project_tmp_dir, "config.json")
 
 # Printing the project json
@@ -80,6 +88,7 @@ File.open(configfile, 'w+') do |f|
 	f.puts '"printcss":"' + pdf_css_file + '",'
 	f.puts '"printjs":"' + pdf_js_file + '",'
 	f.puts '"ebookcss":"' + epub_css_file + '",'
+	f.puts '"pod_toc":"' + toc_value + '",'
 	f.puts '"frontcover":"' + pisbn + '_FC.jpg"'
 	f.puts '}'
 end
