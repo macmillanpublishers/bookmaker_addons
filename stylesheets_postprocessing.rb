@@ -1,8 +1,8 @@
 require 'fileutils'
 require 'json'
 
-require_relative '../header.rb'
-require_relative '../metadata.rb'
+require_relative '../bookmaker/core/header.rb'
+require_relative '../bookmaker/core/metadata.rb'
 
 configfile = File.join(Bkmkr::Paths.project_tmp_dir, "config.json")
 file = File.read(configfile)
