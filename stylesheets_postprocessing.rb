@@ -18,7 +18,6 @@ pdf_css_file = File.join(tmp_layout_dir, "pdf.css")
 epub_css_file = File.join(tmp_layout_dir, "epub.css")
 
 if File.file?(pdf_css_file)
-	pdf_css = File.read(pdf_css_file)
 	if chapterheads.count > 1
 		suppress_titles = " "
 	else
@@ -29,16 +28,17 @@ if File.file?(pdf_css_file)
 	else
 		suppress_toc = 'nav[data-type="toc"]{display:none;}'
 	end
-	File.open(pdf_css_file, 'w') do |p|
-		p.write "#{pdf_css}#{suppress_titles}#{suppress_toc}"
+	File.open(pdf_css_file, 'a+') do |p|
+		p.puts "#{suppress_titles}"
+		p.puts "#{suppress_toc}"
 	end
 end
 
 if File.file?(epub_css_file)
 	epub_css = File.read(epub_css_file)
 	unless chapterheads.count > 1
-		File.open(epub_css_file, 'w') do |e|
-			e.write "#{epub_css}h1.ChapTitlect{display:none;}"
+		File.open(epub_css_file, 'a+') do |e|
+			e.puts "h1.ChapTitlect{display:none;}"
 		end
 	end
 end
