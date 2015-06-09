@@ -25,12 +25,12 @@ if File.file?(pdf_css_file)
 		suppress_titles = "section[data-type='chapter']>h1{display:none;}"
 	end
 	if data_hash['pod_toc'] == "true"
-		preserve_toc = 'nav[data-type="toc"]{display:block;}'
+		suppress_toc = ''
 	else
-		preserve_toc = " "
+		suppress_toc = 'nav[data-type="toc"]{display:none;}'
 	end
 	File.open(pdf_css_file, 'w') do |p|
-		p.write "#{pdf_css}#{suppress_titles}#{preserve_toc}"
+		p.write "#{pdf_css}#{suppress_titles}#{suppress_toc}"
 	end
 end
 
