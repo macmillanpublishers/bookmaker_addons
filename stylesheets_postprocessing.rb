@@ -35,7 +35,6 @@ if File.file?(pdf_css_file)
 end
 
 if File.file?(epub_css_file)
-	epub_css = File.read(epub_css_file)
 	unless chapterheads.count > 1
 		File.open(epub_css_file, 'a+') do |e|
 			e.puts "h1.ChapTitlect{display:none;}"
