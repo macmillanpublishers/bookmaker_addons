@@ -58,7 +58,7 @@ stage_dir = Bkmkr::Project.input_file.split(Regexp.union(*[File::SEPARATOR, File
 
 # print and epub css files
 epub_css_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker", "css")
-pdf_css_file = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "css", Bkmkr::Project.project_dir, "pdf.css")
+pdf_css_file = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "css", project_dir, "pdf.css")
 
 if File.file?("#{epub_css_dir}/#{project_dir}/epub.css")
 	epub_css_file = "#{epub_css_dir}/#{project_dir}/epub.css"
@@ -66,7 +66,7 @@ else
  	epub_css_file = "#{epub_css_dir}/generic/epub.css"
 end
 
-pdf_js_file = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "scripts", Bkmkr::Project.project_dir, "pdf.js")
+pdf_js_file = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "scripts", project_dir, "pdf.js")
 
 xml_file = File.join(Bkmkr::Paths.project_tmp_dir, "#{Bkmkr::Project.filename}.xml")
 check_toc = File.read(xml_file).scan(/w:pStyle w:val\="TOC/)
