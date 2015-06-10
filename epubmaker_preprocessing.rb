@@ -13,6 +13,7 @@ project_dir = data_hash['project']
 
 epub_tmp_html = File.join(Bkmkr::Paths.project_tmp_dir, "epub_tmp.html")
 saxonpath = File.join(Bkmkr::Paths.resource_dir, "saxon", "saxon9pe.jar")
+assets_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker")
 
 # Adding imprint logo to title page
 # Removing images subdir from src attr
@@ -45,7 +46,7 @@ strip_halftitle_xsl = File.join(Bkmkr::Paths.core_dir, "epubmaker", "strip-halft
 `java -jar "#{saxonpath}" -s:"#{epub_tmp_html}" -xsl:"#{strip_halftitle_xsl}" -o:"#{epub_tmp_html}"`
 
 #set logo image based on project directory
-logo_img = File.join(Bkmkr::Paths.core_dir, "epubmaker", "images", project_dir, "logo.jpg")
+logo_img = File.join(assets_dir, "images", project_dir, "logo.jpg")
 epub_img_dir = File.join(Bkmkr::Paths.project_tmp_dir, "epubimg")
 
 unless File.exist?(epub_img_dir)

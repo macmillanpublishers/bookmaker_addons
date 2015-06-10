@@ -6,18 +6,20 @@ require_relative '../bookmaker/core/metadata.rb'
 # ftp url
 ftp_dir = "http://www.macmillan.tools.vhost.zerolag.com/bookmaker/bookmakerimg"
 
-assets_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker")
+pdftmp_dir = File.join(Bkmkr::Paths.project_tmp_dir_img, "pdftmp")
+pdfmaker_dir = File.join(Bkmkr::Paths.core_dir, "pdfmaker")
 pdf_tmp_html = File.join(Bkmkr::Paths.project_tmp_dir, "pdf_tmp.html")
+assets_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker")
 
-# images need to go in a predictable folder for bookmaker sourcing. maybe just a pdfimg folder, right at the outset? then the original images are preserved.
-
-imgtmp_dir = File.join(Bkmkr::Paths.project_tmp_dir_img, "imgtmp")
+# create pdf tmp directory
+unless File.exist?(pdftmp_dir)
+	Dir.mkdir(pdftmp_dir)
+end
 
 #if any images are in 'done' dir, grayscale and upload them to macmillan.tools site
 images = Dir.entries("#{Bkmkr::Paths.project_tmp_dir_img}").select {|f| !File.directory? f}
 image_count = images.count
 if image_count > 0
-	#using this model for Fileutils.cp to select all files in a dir (* won't work):  FileUtils.cp Dir["#{dir1}/*"].select {|f| test ?f, f}, "#{dir2}"
 	FileUtils.cp Dir["#{Bkmkr::Paths.project_tmp_dir_img}/*"].select {|f| test ?f, f}, pdftmp_dir
 	pdfimages = Dir.entries("#{Bkmkr::Paths.project_tmp_dir_img}/pdftmp").select { |f| !File.directory? f }
 	pdfimages.each do |i|
