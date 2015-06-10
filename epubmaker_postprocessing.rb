@@ -10,6 +10,6 @@ file = File.read(configfile)
 data_hash = JSON.parse(file)
 
 # Renames final epub for firstpass
-if data_hash['stage_dir'].include? "egalley" or data_hash['stage_dir'].include? "firstpass"
+if data_hash['stage'].include? "egalley" or data_hash['stage'].include? "firstpass"
   FileUtils.cp("#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{Metadata.eisbn}_EPUB.epub", "#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{Metadata.eisbn}_EPUBfirstpass.epub")
 end

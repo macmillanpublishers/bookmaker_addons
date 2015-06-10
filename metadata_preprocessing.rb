@@ -52,6 +52,10 @@ booktitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<title>.*?<\/title>/).t
 # Finding book subtitle
 booksubtitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageBookSubtitlestit">.*?</).to_s.gsub(/\["<p class=\\"TitlepageBookSubtitlestit\\">/,"").gsub(/<"\]/,"")
 
+# project and stage
+project_dir = Bkmkr::Project.input_file.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact))[0...-2].pop.to_s.split("_").shift
+stage_dir = Bkmkr::Project.input_file.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact))[0...-2].pop.to_s.split("_").pop
+
 # print and epub css files
 epub_css_dir = File.join(Bkmkr::Paths.core_dir, "epubmaker", "css")
 pdf_css_file = File.join(Bkmkr::Paths.core_dir, "pdfmaker", "css", Bkmkr::Project.project_dir, "pdf.css")
@@ -85,6 +89,8 @@ File.open(configfile, 'w+') do |f|
 	f.puts '"ebookid":"' + eisbn + '",'
 	f.puts '"imprint":"' + imprint + '",'
 	f.puts '"publisher":"' + imprint + '",'
+	f.puts '"project":"' + project_dir + '",'
+	f.puts '"stage":"' + stage_dir + '",'
 	f.puts '"printcss":"' + pdf_css_file + '",'
 	f.puts '"printjs":"' + pdf_js_file + '",'
 	f.puts '"ebookcss":"' + epub_css_file + '",'
