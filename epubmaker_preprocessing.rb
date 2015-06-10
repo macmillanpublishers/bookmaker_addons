@@ -5,10 +5,16 @@ require_relative '../bookmaker/metadata.rb'
 
 # These commands should run immediately prior to epubmaker
 
+configfile = File.join(Bkmkr::Paths.project_tmp_dir, "config.json")
+file = File.read(configfile)
+data_hash = JSON.parse(file)
+
+project_dir = data_hash['project']
+
 epub_tmp_html = File.join(Bkmkr::Paths.project_tmp_dir, "epub_tmp.html")
 
 # Adding imprint logo to title page
-# Removing images subdor from src attr
+# Removing images subdir from src attr
 filecontents = File.read(Bkmkr::Paths.outputtmp_html).gsub(/<p class="TitlepageImprintLineimp">/,"<img src=\"logo.jpg\"/><p class=\"TitlepageImprintLineimp\">").gsub(/src="images\//,"src=\"")
 # Update several copyright elements for epub
 if filecontents.include?('data-type="copyright-page"')
@@ -32,13 +38,18 @@ File.open(epub_tmp_html, 'w') do |output|
   output.write filecontents
 end
 
+# strip halftitlepage from html
 strip_halftitle_xsl = File.join(Bkmkr::Paths.bookmaker_dir, "bookmaker_epubmaker", "strip-halftitle.xsl")
 
-# strip halftitlepage from html
 `java -jar "#{saxonpath}" -s:"#{epub_tmp_html}" -xsl:"#{strip_halftitle_xsl}" -o:"#{epub_tmp_html}"`
 
 #set logo image based on project directory
-logo_img = "#{Bkmkr::Paths.bookmaker_dir}/bookmaker_epubmaker/images/#{Bkmkr::Project.project_dir}/logo.jpg"
+logo_img = File.join(Bkmkr::Paths.bookmaker_dir, "bookmaker_epubmaker", "images", project_dir, "logo.jpg")
+epub_img_dir = File.join(Bkmkr::Paths.project_tmp_dir, "epubimg")
+
+unless File.exist?(epub_img_dir)
+    Dir.mkdir(epub_img_dir)
+end
 
 #copy logo image file to epub folder
-FileUtils.cp(logo_img, "#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/images")
+FileUtils.cp(logo_img, epub_img_dir)
