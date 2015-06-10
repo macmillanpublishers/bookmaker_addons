@@ -67,3 +67,36 @@ filecontents = File.read(Bkmkr::Paths.outputtmp_html).gsub(/src="images\//,"src=
 File.open(pdf_tmp_html, 'w') do |output| 
   output.write filecontents
 end
+
+# TESTING
+
+# count, report images in file
+if image_count > 0
+
+	# test if sites are up/logins work?
+
+	# verify files were uploaded, and match image array
+    upload_report = []
+    File.read("#{Bkmkr::Paths.project_tmp_dir_img}/uploaded_image_log.txt").each_line {|line|
+          line_b = line.gsub(/\n$/, "")
+          upload_report.push line_b}
+ 	upload_count = upload_report.count
+	
+	if upload_report.sort == images.sort
+		test_image_array_compare = "pass: Images in Done dir match images uploaded to ftp"
+	else
+		test_image_array_compare = "FAIL: Images in Done dir match images uploaded to ftp"
+	end
+	
+else
+	upload_count = 0
+	test_image_array_compare = "pass: There are no missing image files"
+end
+
+# Printing the test results to the log file
+File.open(Bkmkr::Paths.log_file, 'a+') do |f|
+	f.puts "----- PDFMAKER-PREPROCESSOR PROCESSES"
+	f.puts "----- I found #{image_count} images to be uploaded"
+	f.puts "----- I found #{upload_count} files uploaded"
+	f.puts "#{test_image_array_compare}"
+end
