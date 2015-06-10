@@ -1,7 +1,7 @@
 require 'FileUtils'
 
-require_relative '../bookmaker/header.rb'
-require_relative '../bookmaker/metadata.rb'
+require_relative '../bookmaker/core/header.rb'
+require_relative '../bookmaker/core/metadata.rb'
 
 # These commands should run immediately after to epubmaker
 
