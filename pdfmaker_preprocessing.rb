@@ -3,6 +3,15 @@ require 'FileUtils'
 require_relative '../bookmaker/core/header.rb'
 require_relative '../bookmaker/core/metadata.rb'
 
+# ftp auth data
+
+ftp_uname = File.read("#{Bkmkr::Paths.scripts_dir}/bookmaker_authkeys/ftp_username.txt")
+ftp_pass = File.read("#{Bkmkr::Paths.scripts_dir}/bookmaker_authkeys/ftp_pass.txt")
+ftp_dir = "http://www.macmillan.tools.vhost.zerolag.com/bookmaker/bookmakerimg"
+
+assets_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker")
+pdf_tmp_html = File.join(Bkmkr::Paths.project_tmp_dir, "pdf_tmp.html")
+
 # images need to go in a predictable folder for bookmaker sourcing. maybe just a pdfimg folder, right at the outset? then the original images are preserved.
 
 imgtmp_dir = File.join(Bkmkr::Paths.project_tmp_dir_img, "imgtmp")
@@ -50,10 +59,12 @@ if image_count > 0
 end
 
 # copy assets to tmp upload dir and upload to ftp
-FileUtils.cp Dir["#{Bkmkr::Project.working_dir}/done/#{Metadata.pisbn}/layout/*"].select {|f| test ?f, f}, pdftmp_dir
 FileUtils.cp Dir["#{pdfmaker_dir}/images/#{Bkmkr::Project.project_dir}/*"].select {|f| test ?f, f}, pdftmp_dir
-FileUtils.cp Dir["#{pdfmaker_dir}/scripts/#{Bkmkr::Project.project_dir}/*"].select {|f| test ?f, f}, pdftmp_dir		
 `#{Bkmkr::Paths.scripts_dir}\\bookmaker_ftpupload\\imageupload.bat #{Bkmkr::Paths.tmp_dir}\\#{Bkmkr::Project.filename}\\images\\pdftmp #{Bkmkr::Paths.tmp_dir}\\#{Bkmkr::Project.filename}\\images`
 
-# inserts links to the css and js into the head of the html, fixes images
-pdf_html = File.read(Bkmkr::Paths.outputtmp_html).gsub(/src="images\//,"src=\"#{ftp_dir}/").gsub(/\. \. \./,"<span class=\"bookmakerkeeptogetherkt\">\. \. \.</span>").to_s
+# fixes images in html
+filecontents = File.read(Bkmkr::Paths.outputtmp_html).gsub(/src="images\//,"src=\"#{ftp_dir}/").gsub(/\. \. \./,"<span class=\"bookmakerkeeptogetherkt\">\. \. \.</span>").to_s
+
+File.open(pdf_tmp_html, 'w') do |output| 
+  output.write filecontents
+end
