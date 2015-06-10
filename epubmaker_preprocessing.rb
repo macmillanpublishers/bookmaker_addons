@@ -40,12 +40,12 @@ File.open(epub_tmp_html, 'w') do |output|
 end
 
 # strip halftitlepage from html
-strip_halftitle_xsl = File.join(Bkmkr::Paths.core_dir, "bookmaker_epubmaker", "strip-halftitle.xsl")
+strip_halftitle_xsl = File.join(Bkmkr::Paths.core_dir, "epubmaker", "strip-halftitle.xsl")
 
 `java -jar "#{saxonpath}" -s:"#{epub_tmp_html}" -xsl:"#{strip_halftitle_xsl}" -o:"#{epub_tmp_html}"`
 
 #set logo image based on project directory
-logo_img = File.join(Bkmkr::Paths.core_dir, "bookmaker_epubmaker", "images", project_dir, "logo.jpg")
+logo_img = File.join(Bkmkr::Paths.core_dir, "epubmaker", "images", project_dir, "logo.jpg")
 epub_img_dir = File.join(Bkmkr::Paths.project_tmp_dir, "epubimg")
 
 unless File.exist?(epub_img_dir)
