@@ -62,7 +62,7 @@ FileUtils.cp Dir["#{assets_dir}/images/#{Bkmkr::Project.project_dir}/*"].select 
 `#{Bkmkr::Paths.scripts_dir}\\bookmaker_ftpupload\\imageupload.bat #{Bkmkr::Paths.tmp_dir}\\#{Bkmkr::Project.filename}\\images\\pdftmp #{Bkmkr::Paths.tmp_dir}\\#{Bkmkr::Project.filename}\\images`
 
 # fixes images in html
-filecontents = File.read(Bkmkr::Paths.outputtmp_html).gsub(/src="images\//,"src=\"#{ftp_dir}/").gsub(/\. \. \./,"<span class=\"bookmakerkeeptogetherkt\">\. \. \.</span>").to_s
+filecontents = File.read(Bkmkr::Paths.outputtmp_html).gsub(/src="images\//,"src=\"#{ftp_dir}/").gsub(/\. \. \./,"<span class=\"bookmakerkeeptogetherkt nobreak\">\. \. \.</span>").to_s
 
 File.open(pdf_tmp_html, 'w') do |output| 
   output.write filecontents
