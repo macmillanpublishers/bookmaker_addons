@@ -76,7 +76,7 @@ else
 	toc_value = "false"
 end
 
-configfile = File.join(Bkmkr::Project.project_tmp_dir, "config.json")
+configfile = File.join(Bkmkr::Paths.project_tmp_dir, "config.json")
 
 # Printing the project json
 File.open(configfile, 'w+') do |f|
