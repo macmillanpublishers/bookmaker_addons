@@ -3,6 +3,12 @@ require 'FileUtils'
 require_relative '../bookmaker/core/header.rb'
 require_relative '../bookmaker/core/metadata.rb'
 
+configfile = File.join(Bkmkr::Paths.project_tmp_dir, "config.json")
+file = File.read(configfile)
+data_hash = JSON.parse(file)
+
+project_dir = data_hash['project']
+
 # ftp url
 ftp_dir = "http://www.macmillan.tools.vhost.zerolag.com/bookmaker/bookmakerimg"
 
@@ -58,7 +64,7 @@ if image_count > 0
 end
 
 # copy assets to tmp upload dir and upload to ftp
-FileUtils.cp Dir["#{assets_dir}/images/#{Bkmkr::Project.project_dir}/*"].select {|f| test ?f, f}, pdftmp_dir
+FileUtils.cp Dir["#{assets_dir}/images/#{project_dir}/*"].select {|f| test ?f, f}, pdftmp_dir
 `#{Bkmkr::Paths.scripts_dir}\\bookmaker_ftpupload\\imageupload.bat #{Bkmkr::Paths.tmp_dir}\\#{Bkmkr::Project.filename}\\images\\pdftmp #{Bkmkr::Paths.tmp_dir}\\#{Bkmkr::Project.filename}\\images`
 
 # fixes images in html
