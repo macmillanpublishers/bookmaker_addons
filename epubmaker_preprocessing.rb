@@ -18,6 +18,10 @@ assets_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker"
 # Adding imprint logo to title page
 # Removing images subdir from src attr
 filecontents = File.read(Bkmkr::Paths.outputtmp_html).gsub(/<p class="TitlepageImprintLineimp">/,"<img src=\"logo.jpg\"/><p class=\"TitlepageImprintLineimp\">").gsub(/src="images\//,"src=\"")
+
+# Stripping contents from Space Break paragraphs.  The second gsub is for Ornament Space Break classes
+filecontents = filecontents.gsub(/(<p class="SpaceBreak\W.*?>)(.*?)(<\/p>)/,'\1\3').gsub(/(<p class="SpaceBreak\w.*?>)(.*?)(<\/p>)/,'\1\3')
+
 # Update several copyright elements for epub
 if filecontents.include?('data-type="copyright-page"')
   copyright_txt = filecontents.match(/(<section data-type=\"copyright-page\" .*?\">)((.|\n)*?)(<\/section>)/)[2]
