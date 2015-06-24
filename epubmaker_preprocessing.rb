@@ -26,7 +26,7 @@ else
   backad = ""
 end
 
-filecontents = File.read(Bkmkr::Paths.outputtmp_html).gsub(/<p class="TitlepageImprintLineimp">/,"<img src=\"logo.jpg\"/><p class=\"TitlepageImprintLineimp\">").gsub(/src="images\//,"src=\"").gsub(/<\/body>/,"#{backad}</body>").gsub(/(<section data-type="chapter".*?><h1.*?>)(.*?)(<\/h1>)/, "\\1<a href=\"toc01.html\">\\2</a>\\3")
+filecontents = File.read(Bkmkr::Paths.outputtmp_html).gsub(/<p class="TitlepageImprintLineimp">/,"<img src=\"logo.jpg\"/><p class=\"TitlepageImprintLineimp\">").gsub(/src="images\//,"src=\"").gsub(/<\/body>/,"#{backad}</body>")
 
 # Update several copyright elements for epub
 if filecontents.include?('data-type="copyright-page"')
@@ -69,3 +69,8 @@ end
 
 #copy logo image file to epub folder
 FileUtils.cp(logo_img, epub_img_dir)
+
+# copy backad file to epub dir
+if File.file?(backad_file)
+  FileUtils.cp(backad_file, epub_img_dir)
+end

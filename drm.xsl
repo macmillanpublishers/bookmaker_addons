@@ -11,8 +11,8 @@
 <xsl:param name="drmnotice">
     <section data-type="preface" class="drm">
         <h1 class="Nonprinting">Copyright Notice</h1>
-        <p>The author and publisher have provided this e-book to you without Digital Rights Management software (DRM) applied so that you can enjoy reading it on your personal devices. This e-book is for your personal use only. You may not print or post this e-book, or make this e-book publicly available in any way. You may not copy, reproduce or upload this e-book, other than to read it on one of your personal devices.</p>
-        <p><strong>Copyright infringement is against the law. If you believe the copy of this e-book you are reading infringes on the author’s copyright, please notify the publisher at: <a href="http://us.macmillanusa.com/piracy">http://us.macmillanusa.com/piracy</a>.</strong></p>    
+        <p class="CopyrightTextsinglespacecrtx">The author and publisher have provided this e-book to you without Digital Rights Management software (DRM) applied so that you can enjoy reading it on your personal devices. This e-book is for your personal use only. You may not print or post this e-book, or make this e-book publicly available in any way. You may not copy, reproduce or upload this e-book, other than to read it on one of your personal devices.</p>
+        <p class="CopyrightTextsinglespacecrtx"><strong>Copyright infringement is against the law. If you believe the copy of this e-book you are reading infringes on the author’s copyright, please notify the publisher at: <a href="http://us.macmillanusa.com/piracy">http://us.macmillanusa.com/piracy</a>.</strong></p>    
     </section>
  </xsl:param>
 
