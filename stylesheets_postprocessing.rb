@@ -41,3 +41,8 @@ if File.file?(epub_css_file)
 		end
 	end
 end
+
+unless chapterheads.count > 1
+	chaptertitle = File.read(Bkmkr::Paths.outputtmp_html).gsub(/(<section data-type="chapter".*?><h1.*?>)(.*?)(<\/h1>)/,"\\1Begin Reading\\3")
+	File.open(Bkmkr::Paths.outputtmp_html) {|file| file.puts chaptertitle}
+end
