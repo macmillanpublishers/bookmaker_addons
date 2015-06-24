@@ -21,6 +21,26 @@ chapfiles.each do |c|
 	File.open(c, "w") {|file| file.puts replace}
 end
 
+# fix toc entry in ncx
+# fix title page text in ncx
+ncxcontents = File.read("#{OEBPS_dir}/toc.ncx")
+replace = ncxcontents.gsub(/<navLabel><text\/><\/navLabel><content src="toc/,"<navLabel><text>Contents</text><\/navLabel><content src=\"toc").gsub(/(<navLabel><text>)(.*?)(<\/text><\/navLabel><content src="titlepage)/,"\\1Title Page\\3")
+File.open("#{OEBPS_dir}/toc.ncx", "w") {|file| file.puts replace}
+
+# hide toc entry in html toc
+# fix title page text in html toc
+htmlcontents = File.read("#{OEBPS_dir}/toc01.html")
+copyright_li = htmlcontents.match(/<li data-type="copyright-page".*?<\/li>/)
+replace = htmlcontents.gsub(/(<li data-type="copyright-page">)/,"<li data-type=\"toc\" class=\"Nonprinting\"><a href=\"toc01.html\">Contents</a></li>\\1").gsub(/(titlepage01.html#.*?">)(.*?)(<\/a>)/,"\\1Title Page\\3").gsub(/#{copyright_li}/,"").gsub(/<\/ol>/,"#{copyright_li}<\/ol>")
+File.open("#{OEBPS_dir}/toc01.html", "w") {|file| file.puts replace}
+
+# add toc to text flow
+opfcontents = File.read("#{OEBPS_dir}/content.opf")
+tocid = opfcontents.match(/(id=")(toc-.*?)(")/)[2]
+copyright_tag = opfcontents.match(/<itemref idref="copyright-page-.*?"\/>/)
+replace = opfcontents.gsub(/#{copyright_tag}/,"").gsub(/<\/spine>/,"#{copyright_tag}<\/spine>")
+File.open("#{OEBPS_dir}/content.opf", "w") {|file| file.puts replace}
+
 csfilename = "#{Metadata.eisbn}_EPUB"
 
 # zip epub
