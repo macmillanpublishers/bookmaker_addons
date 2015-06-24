@@ -38,7 +38,8 @@ File.open("#{OEBPS_dir}/toc01.html", "w") {|file| file.puts replace}
 opfcontents = File.read("#{OEBPS_dir}/content.opf")
 tocid = opfcontents.match(/(id=")(toc-.*?)(")/)[2]
 copyright_tag = opfcontents.match(/<itemref idref="copyright-page-.*?"\/>/)
-replace = opfcontents.gsub(/#{copyright_tag}/,"").gsub(/<\/spine>/,"#{copyright_tag}<\/spine>")
+toc_tag = opfcontents.match(/<itemref idref="toc-.*?"\/>/)
+replace = opfcontents.gsub(/#{copyright_tag}/,"").gsub(/<\/spine>/,"#{copyright_tag}<\/spine>").gsub(/#{toc_tag}/,"").gsub(/(<itemref idref="titlepage-.*?"\/><itemref idref="preface-.*?"\/>)/,"\\1#{toc_tag}")
 File.open("#{OEBPS_dir}/content.opf", "w") {|file| file.puts replace}
 
 csfilename = "#{Metadata.eisbn}_EPUB"
