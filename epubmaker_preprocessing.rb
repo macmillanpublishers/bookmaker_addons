@@ -12,7 +12,7 @@ data_hash = JSON.parse(file)
 project_dir = data_hash['project']
 
 epub_tmp_html = File.join(Bkmkr::Paths.project_tmp_dir, "epub_tmp.html")
-saxonpath = File.join(Bkmkr::Paths.resource_dir, "saxon", "saxon9pe.jar")
+saxonpath = File.join(Bkmkr::Paths.resource_dir, "saxon", "#{Bkmkr::Tools.xslprocessor}.jar")
 assets_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker")
 
 # Adding imprint logo to title page
