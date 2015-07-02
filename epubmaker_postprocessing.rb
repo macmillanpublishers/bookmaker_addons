@@ -22,7 +22,7 @@ chapfiles.each do |c|
 end
 
 # Add links back to TOC to chapter heads
-searchdiris = File.join(OEBPS_dir, "*.html")
+searchdiris = File.join(OEBPS_dir, ".*.html")
 allfiles = Dir.glob(searchdiris)
 
 allfiles.each do |a|
