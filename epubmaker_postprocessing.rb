@@ -21,6 +21,18 @@ chapfiles.each do |c|
 	File.open(c, "w") {|file| file.puts replace}
 end
 
+# Add links back to TOC to chapter heads
+searchdiris = File.join(OEBPS_dir, "*.html")
+allfiles = Dir.glob(searchdiris)
+
+allfiles.each do |a|
+	figlink = a.scan(/<p class="IllustrationSourceis"><a class="fig-link">/)
+	if figlink.length != 0
+		replace = File.read(a).gsub(/(<p class="IllustrationSourceis">)(<a class="fig-link">)(.*?)(<\/a>)(<\/p>)/, "\\1\\3\\5")
+		File.open(a, "w") {|file| file.puts replace}
+	end
+end
+
 # fix toc entry in ncx
 # fix title page text in ncx
 ncxcontents = File.read("#{OEBPS_dir}/toc.ncx")
