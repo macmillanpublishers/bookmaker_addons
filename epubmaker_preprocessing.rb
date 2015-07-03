@@ -18,6 +18,7 @@ assets_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker"
 # Adding imprint logo to title page
 # Removing images subdir from src attr
 # inserting imprint backad, if it exists
+# remove links from illo sources
 backad_file = File.join(assets_dir, "images", project_dir, "backad.jpg")
 
 if File.file?(backad_file)
@@ -26,7 +27,7 @@ else
   backad = ""
 end
 
-filecontents = File.read(Bkmkr::Paths.outputtmp_html).gsub(/<p class="TitlepageImprintLineimp">/,"<img src=\"logo.jpg\"/><p class=\"TitlepageImprintLineimp\">").gsub(/src="images\//,"src=\"").gsub(/<\/body>/,"#{backad}</body>")
+filecontents = File.read(Bkmkr::Paths.outputtmp_html).gsub(/<p class="TitlepageImprintLineimp">/,"<img src=\"logo.jpg\"/><p class=\"TitlepageImprintLineimp\">").gsub(/src="images\//,"src=\"").gsub(/<\/body>/,"#{backad}</body>").gsub(/(<p class="IllustrationSourceis">)(<a class="fig-link">)(.*?)(<\/a>)(<\/p>)/, "\\1\\3\\5")
 
 chapterheads = File.read(Bkmkr::Paths.outputtmp_html).scan(/section data-type="chapter"/)
 
