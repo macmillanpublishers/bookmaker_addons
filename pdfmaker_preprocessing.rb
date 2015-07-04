@@ -67,8 +67,8 @@ end
 FileUtils.cp Dir["#{assets_dir}/images/#{project_dir}/*"].select {|f| test ?f, f}, pdftmp_dir
 `#{Bkmkr::Paths.scripts_dir}\\bookmaker_ftpupload\\imageupload.bat #{Bkmkr::Paths.tmp_dir}\\#{Bkmkr::Project.filename}\\images\\pdftmp #{Bkmkr::Paths.tmp_dir}\\#{Bkmkr::Project.filename}\\images`
 
-# fixes images in html
-filecontents = File.read(Bkmkr::Paths.outputtmp_html).gsub(/src="images\//,"src=\"#{ftp_dir}/").gsub(/(\s[a-zA-Z0-9]+\s\. \. \.)/,"<span class=\"bookmakerkeeptogetherkt\">\\0</span>").to_s
+# fixes images in html, keep final words and ellipses from breaking
+filecontents = File.read(Bkmkr::Paths.outputtmp_html).gsub(/src="images\//,"src=\"#{ftp_dir}/").gsub(/([a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9]\s\. \. \.)/,"<span class=\"bookmakerkeeptogetherkt\">\\0</span>").gsub(/(\s)([a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9]*\.)(<\/p>)/,"\\1<span class=\"bookmakerkeeptogetherkt\">\\2</span>\\3").to_s
 
 File.open(pdf_tmp_html, 'w') do |output| 
   output.write filecontents
