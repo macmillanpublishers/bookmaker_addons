@@ -1,4 +1,4 @@
-require 'FileUtils'
+require 'fileutils'
 
 require_relative '../bookmaker/core/header.rb'
 require_relative '../bookmaker/core/metadata.rb'
