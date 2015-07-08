@@ -38,6 +38,9 @@ unless chapterheads.count > 1
   filecontents = filecontents.gsub(/(<section data-type="chapter" .*?><h1 class=".*?">)(.*?)(<\/h1>)/,"\\1Begin Reading\\3")
 end
 
+# Make EBK hyperlinks
+filecontents = filecontents.gsub(/(<p class="EBKLinkSourceLa">)(.*?)(<\/p>)(<p class="EBKLinkDestinationLb">)(.*?)(<\/p>)/,"\\1<a href=\"\\5\">\\2</a>\\3")
+
 # Update several copyright elements for epub
 if filecontents.include?('data-type="copyright-page"')
   copyright_txt = filecontents.match(/(<section data-type=\"copyright-page\" .*?\">)((.|\n)*?)(<\/section>)/)[2]
