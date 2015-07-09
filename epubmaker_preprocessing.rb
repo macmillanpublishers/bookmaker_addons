@@ -39,15 +39,11 @@ unless chapterheads.count > 1
 end
 
 # Make EBK hyperlinks
-filecontents = filecontents.gsub(/(<p class="EBKLinkSourceLa">)(.*?)(<\/p>)(<p class="EBKLinkDestinationLb">)(.*?)(<\/p>)/,"\\1<a href=\"\\5\">\\2</a>\\3")
+strip_span_xsl = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "strip-spans.xsl")
 
-if filecontents.include?('p class="EBKLinkSourceLa"')
-  ebooklinks = filecontents.scan(/<p class="EBKLinkSourceLa"><a href=".*?<\/a>/)
-  ebooklinks.each do |e|
-    newlink = e.gsub(/\["/,"").gsub(/"\]/,"").gsub(/<span class=".*?">/,"").gsub(/<\/span>/,"")
-    filecontents = filecontents.gsub(/#{e}/,"#{newlink}")
-  end
-end
+`java -jar "#{saxonpath}" -s:"#{epub_tmp_html}" -xsl:"#{strip_span_xsl}" -o:"#{epub_tmp_html}"`
+
+filecontents = filecontents.gsub(/(<p class="EBKLinkSourceLa">)(.*?)(<\/p>)(<p class="EBKLinkDestinationLb">)(.*?)(<\/p>)/,"\\1<a href=\"\\5\">\\2</a>\\3")
 
 # Update several copyright elements for epub
 if filecontents.include?('data-type="copyright-page"')
