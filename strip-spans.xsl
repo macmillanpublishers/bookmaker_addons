@@ -17,7 +17,7 @@
 </xsl:template>
 
 <xsl:template match="h:p[@class='EBKLinkDestinationLb']/h:span">
-    <xsl:apply-templates select="@*|node()"/>
+    <xsl:apply-templates select="node()"/>
 </xsl:template>
 	
 </xsl:stylesheet> 
