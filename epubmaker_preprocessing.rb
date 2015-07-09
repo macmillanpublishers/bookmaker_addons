@@ -42,9 +42,9 @@ end
 filecontents = filecontents.gsub(/(<p class="EBKLinkSourceLa">)(.*?)(<\/p>)(<p class="EBKLinkDestinationLb">)(.*?)(<\/p>)/,"\\1<a href=\"\\5\">\\2</a>\\3")
 
 if filecontents.include?('p class="EBKLinkSourceLa"')
-  ebooklinks = filecontents.scan(/(<p class="EBKLinkSourceLa">)(<a href=".*?)(<\/a>)/)
+  ebooklinks = filecontents.scan(/<p class="EBKLinkSourceLa"><a href=".*?<\/a>/)
   ebooklinks.each do |e|
-    newlink = e.to_s.gsub(/\["/,"").gsub(/"\]/,"").gsub(/(<span class=".*?">)/,"").gsub(/<\/span>/,"")
+    newlink = e.gsub(/\["/,"").gsub(/"\]/,"").gsub(/<span class=".*?">/,"").gsub(/<\/span>/,"")
     filecontents = filecontents.gsub(/#{e}/,"#{newlink}")
   end
 end
