@@ -40,6 +40,14 @@ if eisbn.length == 0
 	eisbn = Bkmkr::Project.filename
 end
 
+if File.file?(fcfile1)
+	frontcover = "#{pisbn}_FC.jpg"
+elsif File.file?(fcfile2)
+	frontcover = "#{eisbn}_FC.jpg"
+else
+	frontcover = " "
+end
+
 # Finding imprint name
 imprint = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageImprintLineimp">.*?</).to_s.gsub(/\["<p class=\\"TitlepageImprintLineimp\\">/,"").gsub(/"\]/,"").gsub(/</,"")
 
@@ -95,6 +103,6 @@ File.open(configfile, 'w+') do |f|
 	f.puts '"printjs":"' + pdf_js_file + '",'
 	f.puts '"ebookcss":"' + epub_css_file + '",'
 	f.puts '"pod_toc":"' + toc_value + '",'
-	f.puts '"frontcover":"' + pisbn + '_FC.jpg"'
+	f.puts '"frontcover":"' + frontcover + '"'
 	f.puts '}'
 end
