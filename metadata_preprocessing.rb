@@ -40,12 +40,12 @@ if eisbn.length == 0
 	eisbn = Bkmkr::Project.filename
 end
 
-if File.file?(fcfile1)
-	frontcover = "#{pisbn}_FC.jpg"
-elsif File.file?(fcfile2)
+fcfile = File.join(Bookmaker::Paths.submitted_images, "#{eisbn}_FC.jpg")
+
+if File.file?(fcfile)
 	frontcover = "#{eisbn}_FC.jpg"
 else
-	frontcover = " "
+	frontcover = "#{pisbn}_FC.jpg"
 end
 
 # Finding imprint name
