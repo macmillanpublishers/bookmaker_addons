@@ -40,7 +40,7 @@ if eisbn.length == 0
 	eisbn = Bkmkr::Project.filename
 end
 
-fcfile = File.join(Bookmaker::Paths.submitted_images, "#{eisbn}_FC.jpg")
+fcfile = File.join(Bkmkr::Paths.submitted_images, "#{eisbn}_FC.jpg")
 
 if File.file?(fcfile)
 	frontcover = "#{eisbn}_FC.jpg"
