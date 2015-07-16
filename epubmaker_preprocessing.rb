@@ -10,6 +10,39 @@ file = File.read(configfile)
 data_hash = JSON.parse(file)
 
 project_dir = data_hash['project']
+stage_dir = data_hash['stage']
+
+def insertAddons(filename)
+  addonsfile = File.join("addons.json")
+  addonsread = File.read(addonsfile)
+  addons_hash = JSON.parse(addonsread)
+
+  sectionsfile = File.join("sections.json")
+  sectionsread = File.read(sectionsfile)
+  sections_hash = JSON.parse(sectionsread)
+
+  all_addons = addons_hash['files']
+  all_addons.each do |a|
+    if (a['project'].include? project_dir or a['project'].include? "all") and (a['stage'].include? stage_dir or a['stage'].include? "all")
+      location = File.read(a).match("LOCATION:.*").gsub(/\s/,"").gsub(/LOCATION:/,"")
+      order = File.read(a).match("ORDER:.*").gsub(/\s/,"").gsub(/ORDER:/,"")
+      addoncontent = File.read(a).gsub(/\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\n.*\n.*\n\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=\=/,"")
+      sections_hash['sections'].each do |s|
+        if s == location
+          datatype = s['datatype']
+        end
+      end
+      if order == "before"
+        addoncontents = File.read(filename).gsub(/()/,"#{addoncontent}\\1")
+      elsif order == "after"
+        addoncontents = File.read(filename).gsub(/()/,"\\1#{addoncontent}")
+      end
+      File.open(filename, 'w') do |o| 
+        o.write addoncontents
+      end
+    end
+  end
+end
 
 epub_tmp_html = File.join(Bkmkr::Paths.project_tmp_dir, "epub_tmp.html")
 saxonpath = File.join(Bkmkr::Paths.resource_dir, "saxon", "#{Bkmkr::Tools.xslprocessor}.jar")
