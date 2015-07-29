@@ -19,6 +19,7 @@ assets_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker"
 # Removing images subdir from src attr
 # inserting imprint backad, if it exists
 # remove links from illo sources
+# link author name to author website, but not on copyright page or title page
 # move copyright to back
 backad_file = File.join(assets_dir, "images", project_dir, "backad.jpg")
 
@@ -29,8 +30,19 @@ else
 end
 
 copyrightpage = File.read(Bkmkr::Paths.outputtmp_html).match(/(<section data-type=\"copyright-page\" .*?\">)((.|\n)*?)(<\/section>)/)
+titlepageauthor = File.read(Bkmkr::Paths.outputtmp_html).match(/<p class="TitlepageAuthorNameau">.*?<\/p>/)
 
-filecontents = File.read(Bkmkr::Paths.outputtmp_html).gsub(/<p class="TitlepageImprintLineimp">/,"<img src=\"logo.jpg\"/><p class=\"TitlepageImprintLineimp\">").gsub(/src="images\//,"src=\"").gsub(/<\/body>/,"#{backad}</body>").gsub(/(<p class="IllustrationSourceis">)(<a class="fig-link">)(.*?)(<\/a>)(<\/p>)/, "\\1\\3\\5").gsub(/(<section data-type=\"copyright-page\" .*?\">)((.|\n)*?)(<\/section>)/,"").gsub(/(<\/body>)/, "#{copyrightpage}\\1")
+# formattedauthor stuff is to catch any author names that have formatting on each word
+formattedauthor = Metadata.bookauthor.split(" ")
+
+formattedauthor.each do |formattedauthor|
+  formattedauthor.insert(0,"<[^<]+\\s*").insert(-1, "\\s*<.*?>")
+end
+
+formattedauthor = formattedauthor.join.insert(0,"(").insert(-1,")")
+
+# URL for author website needs to be updated in 2 places (right now just points to google)!
+filecontents = File.read(Bkmkr::Paths.outputtmp_html).gsub(/<p class="TitlepageImprintLineimp">/,"<img src=\"logo.jpg\"/><p class=\"TitlepageImprintLineimp\">").gsub(/src="images\//,"src=\"").gsub(/<\/body>/,"#{backad}</body>").gsub(/(<p class="IllustrationSourceis">)(<a class="fig-link">)(.*?)(<\/a>)(<\/p>)/, "\\1\\3\\5").gsub("#{Metadata.bookauthor}","<a href=\"http:\/\/www.google.com\">#{Metadata.bookauthor}<\/a>").gsub(/#{formattedauthor}/,"<a href=\"http:\/\/www.google.com\">\\1<\/a>").gsub(/(<p class="TitlepageAuthorNameau">.*?<\/p>)/,"#{titlepageauthor}").gsub(/(<section data-type=\"copyright-page\" .*?\">)((.|\n)*?)(<\/section>)/,"").gsub(/(<\/body>)/, "#{copyrightpage}\\1")
 
 chapterheads = File.read(Bkmkr::Paths.outputtmp_html).scan(/section data-type="chapter"/)
 
