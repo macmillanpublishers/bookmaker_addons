@@ -20,13 +20,13 @@ assets_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker"
 # inserting imprint backad, if it exists
 # remove links from illo sources
 # move copyright to back
-backad_file = File.join(assets_dir, "images", project_dir, "backad.jpg")
+# backad_file = File.join(assets_dir, "images", project_dir, "backad.jpg")
 
-if File.file?(backad_file)
-  backad = "<section data-type='colophon'><img src='backad.jpg' alt='advertising'/></section>"
-else
-  backad = ""
-end
+# if File.file?(backad_file)
+#   backad = "<section data-type='colophon'><img src='backad.jpg' alt='advertising'/></section>"
+# else
+#   backad = ""
+# end
 
 copyrightpage = File.read(Bkmkr::Paths.outputtmp_html).match(/(<section data-type=\"copyright-page\" .*?\">)((.|\n)*?)(<\/section>)/)
 
@@ -78,7 +78,7 @@ drm_xsl = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "drm.xsl")
 
 `java -jar "#{saxonpath}" -s:"#{epub_tmp_html}" -xsl:"#{strip_halftitle_xsl}" -o:"#{epub_tmp_html}"`
 
-`java -jar "#{saxonpath}" -s:"#{epub_tmp_html}" -xsl:"#{drm_xsl}" -o:"#{epub_tmp_html}"`
+#`java -jar "#{saxonpath}" -s:"#{epub_tmp_html}" -xsl:"#{drm_xsl}" -o:"#{epub_tmp_html}"`
 
 #set logo image based on project directory
 logo_img = File.join(assets_dir, "images", project_dir, "logo.jpg")
