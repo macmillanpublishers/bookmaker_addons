@@ -32,13 +32,17 @@ end
 copyrightpage = File.read(Bkmkr::Paths.outputtmp_html).match(/(<section data-type=\"copyright-page\" .*?\">)((.|\n)*?)(<\/section>)/)
 titlepageauthor = File.read(Bkmkr::Paths.outputtmp_html).match(/<p class="TitlepageAuthorNameau">.*?<\/p>/)
 
-filecontents = File.read(Bkmkr::Paths.outputtmp_html).gsub(/<p class="TitlepageImprintLineimp">/,"<img src=\"logo.jpg\"/><p class=\"TitlepageImprintLineimp\">").gsub(/src="images\//,"src=\"").gsub(/<\/body>/,"#{backad}</body>").gsub(/(<p class="IllustrationSourceis">)(<a class="fig-link">)(.*?)(<\/a>)(<\/p>)/, "\\1\\3\\5")
+# formattedauthor stuff is to catch any author names that have formatting on each word
+formattedauthor = Metadata.bookauthor.split(" ")
 
-filecontents = filecontents.gsub("#{Metadata.bookauthor}","<a href=\"http:\/\/www.google.com\">#{Metadata.bookauthor}<\/a>")
-filecontents = filecontents.gsub(/(<p class="TitlepageAuthorNameau">.*?<\/p>)/,"#{titlepageauthor}")
+formattedauthor.each do |formattedauthor|
+  formattedauthor.insert(0,"<[^<]+\\s*").insert(-1, "\\s*<.*?>")
+end
 
-filecontents = filecontents.gsub(/(<section data-type=\"copyright-page\" .*?\">)((.|\n)*?)(<\/section>)/,"").gsub(/(<\/body>)/, "#{copyrightpage}\\1")
+formattedauthor = formattedauthor.join.insert(0,"(").insert(-1,")")
 
+# URL for author website needs to be updated in 2 places (right now just points to google)!
+filecontents = File.read(Bkmkr::Paths.outputtmp_html).gsub(/<p class="TitlepageImprintLineimp">/,"<img src=\"logo.jpg\"/><p class=\"TitlepageImprintLineimp\">").gsub(/src="images\//,"src=\"").gsub(/<\/body>/,"#{backad}</body>").gsub(/(<p class="IllustrationSourceis">)(<a class="fig-link">)(.*?)(<\/a>)(<\/p>)/, "\\1\\3\\5").gsub("#{Metadata.bookauthor}","<a href=\"http:\/\/www.google.com\">#{Metadata.bookauthor}<\/a>").gsub(/#{formattedauthor}/,"<a href=\"http:\/\/www.google.com\">\\1<\/a>").gsub(/(<p class="TitlepageAuthorNameau">.*?<\/p>)/,"#{titlepageauthor}").gsub(/(<section data-type=\"copyright-page\" .*?\">)((.|\n)*?)(<\/section>)/,"").gsub(/(<\/body>)/, "#{copyrightpage}\\1")
 
 chapterheads = File.read(Bkmkr::Paths.outputtmp_html).scan(/section data-type="chapter"/)
 
