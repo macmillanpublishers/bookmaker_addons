@@ -95,3 +95,7 @@ FileUtils.cp(logo_img, epub_img_dir)
 if File.file?(backad_file)
   FileUtils.cp(backad_file, epub_img_dir)
 end
+
+sectionjson = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "sections.json")
+addonjson = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker", "addons", "addons.json")
+Bkmkr::Tools.insertaddons(epub_tmp_html, sectionjson, addonjson)
