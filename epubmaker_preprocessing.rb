@@ -103,7 +103,7 @@ addonjson = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker",
 Bkmkr::Tools.insertaddons(epub_tmp_html, sectionjson, addonjson)
 
 # suppress addon headers as needed
-filecontents = File.read(epub_tmp_html).gsub(/(data-displayheader="no")/,"class=\"ChapTitleNonprintingctnp\" \\1")
+filecontents = File.read(epub_tmp_html).gsub(/(data-displayheader="no")/,"class=\"ChapTitleNonprintingctnp\" \\1").gsub(/\{\{IMPRINTNAME\}\}/,"#{Metadata.imprint}").gsub(/\{\{AUTHORNAME\}\}/,"#{Metadata.bookauthor}").gsub(/\{\{EISBN\}\}/,"#{Metadata.eisbn}")
 
 File.open(epub_tmp_html, 'w') do |output| 
   output.write filecontents
