@@ -36,9 +36,14 @@ File.open("#{OEBPS_dir}/toc01.html", "w") {|file| file.puts replace}
 
 # add toc to text flow
 opfcontents = File.read("#{OEBPS_dir}/content.opf")
+copyright_tag = opfcontents.match(/<itemref idref="copyright-page/)
 tocid = opfcontents.match(/(id=")(toc-.*?)(")/)[2]
 toc_tag = opfcontents.match(/<itemref idref="toc-.*?"\/>/)
-replace = opfcontents.gsub(/#{toc_tag}/,"").gsub(/(<itemref idref="titlepage-.*?"\/><itemref idref="preface-.*?"\/>)/,"\\1#{toc_tag}")
+if copyright_tag.any?
+	replace = opfcontents.gsub(/#{toc_tag}/,"").gsub(/(<itemref idref="copyright-page)/,"#{toc_tag}\\1")
+else 
+	replace = opfcontents.gsub(/#{toc_tag}/,"").gsub(/(<\/spine)/,"#{toc_tag}\\1")
+end
 File.open("#{OEBPS_dir}/content.opf", "w") {|file| file.puts replace}
 
 csfilename = "#{Metadata.eisbn}_EPUB"
