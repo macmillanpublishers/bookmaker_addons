@@ -36,7 +36,7 @@ File.open("#{OEBPS_dir}/toc01.html", "w") {|file| file.puts replace}
 
 # add toc to text flow
 opfcontents = File.read("#{OEBPS_dir}/content.opf")
-copyright_tag = opfcontents.match(/<itemref idref="copyright-page/)
+copyright_tag = opfcontents.scan(/<itemref idref="copyright-page/)
 tocid = opfcontents.match(/(id=")(toc-.*?)(")/)[2]
 toc_tag = opfcontents.match(/<itemref idref="toc-.*?"\/>/)
 if copyright_tag.any?
