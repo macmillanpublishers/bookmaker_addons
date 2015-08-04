@@ -106,6 +106,11 @@ Bkmkr::Tools.insertaddons(epub_tmp_html, sectionjson, addonjson)
 linkauthorname = "#{Metadata.bookauthor}".downcase.gsub(/\s/,"")
 filecontents = File.read(epub_tmp_html).gsub(/(data-displayheader="no")/,"class=\"ChapTitleNonprintingctnp\" \\1").gsub(/\{\{IMPRINT\}\}/,"#{Metadata.imprint}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthorname}").gsub(/\{\{EISBN\}\}/,"#{Metadata.eisbn}")
 
+# move toc to back
+# this must happen after the addon content is inserted
+toccontent = filecontents.match(/<nav.*<\/nav>/)
+filecontents = filecontents.gsub(/<nav.*<\/nav>/,"").gsub(/(<section data-type="copyright-page")/,"#{toccontent}\\1")
+
 File.open(epub_tmp_html, 'w') do |output| 
   output.write filecontents
 end
