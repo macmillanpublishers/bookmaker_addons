@@ -66,7 +66,13 @@ stage_dir = Bkmkr::Project.input_file.split(Regexp.union(*[File::SEPARATOR, File
 
 # print and epub css files
 epub_css_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker", "css")
-pdf_css_file = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "css", project_dir, "pdf.css")
+pdf_css_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "css")
+
+if File.file?("#{pdf_css_dir}/#{project_dir}/pdf.css")
+	pdf_css_file = "#{pdf_css_dir}/#{project_dir}/pdf.css"
+else
+ 	pdf_css_file = "#{pdf_css_dir}/torDOTcom/pdf.css"
+end
 
 if File.file?("#{epub_css_dir}/#{project_dir}/epub.css")
 	epub_css_file = "#{epub_css_dir}/#{project_dir}/epub.css"
