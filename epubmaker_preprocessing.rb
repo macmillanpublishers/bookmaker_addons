@@ -103,17 +103,22 @@ FileUtils.cp(logo_img, epub_img_dir)
 
 sectionjson = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "sections.json")
 addonjson = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker", "addons", "addons.json")
+
+# move adcard to back
+Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, adcard, 1, endofbook, 1)
+
+# move abouttheauthor to back
+Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, abouttheauthor, 1, endofbook, 1)
+
+# move toc to back
+Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, toc, 1, endofbook, 1)
+
+# move copyright page to back
+Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, copyrightpage, 1, endofbook, 1)
+
+# insert extra epub content
 Bkmkr::Tools.insertaddons(epub_tmp_html, sectionjson, addonjson)
 
 # suppress addon headers as needed
 linkauthorname = "#{Metadata.bookauthor}".downcase.gsub(/\s/,"")
 filecontents = File.read(epub_tmp_html).gsub(/(data-displayheader="no")/,"class=\"ChapTitleNonprintingctnp\" \\1").gsub(/\{\{IMPRINT\}\}/,"#{Metadata.imprint}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthorname}").gsub(/\{\{EISBN\}\}/,"#{Metadata.eisbn}")
-
-# move toc to back
-# this must happen after the addon content is inserted
-toccontent = filecontents.match(/<nav.*<\/nav>/)
-filecontents = filecontents.gsub(/<nav.*<\/nav>/,"").gsub(/(<section data-type="copyright-page")/,"#{toccontent}\\1")
-
-File.open(epub_tmp_html, 'w') do |output| 
-  output.write filecontents
-end
