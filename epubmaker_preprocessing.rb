@@ -105,16 +105,16 @@ sectionjson = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "sections.
 addonjson = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker", "addons", "addons.json")
 
 # move adcard to back
-Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, adcard, 1, endofbook, 1)
+Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "adcard", "1", "endofbook", "1")
 
 # move abouttheauthor to back
-Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, abouttheauthor, 1, endofbook, 1)
+Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "abouttheauthor", "1", "endofbook", "1")
 
 # move toc to back
-Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, toc, 1, endofbook, 1)
+Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "toc", "1", "endofbook", "1")
 
 # move copyright page to back
-Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, copyrightpage, 1, endofbook, 1)
+Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "copyrightpage", "1", "endofbook", "1")
 
 # insert extra epub content
 Bkmkr::Tools.insertaddons(epub_tmp_html, sectionjson, addonjson)
