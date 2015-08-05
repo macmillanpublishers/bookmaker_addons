@@ -40,6 +40,9 @@ unless chapterheads.count > 1
   filecontents = filecontents.gsub(/(<section data-type="chapter" .*?><h1 class=".*?">)(.*?)(<\/h1>)/,"\\1Begin Reading\\3")
 end
 
+#set text node contents of all Space Break paras to "* * *"
+filecontents = filecontents.gsub(/(<p class=\"SpaceBreak[^\/]*?>)(.*?)(<\/p>)/,'\1* * *\3').gsub(/(<p class=\"SpaceBreak.*?)( \/>)/,'\1>* * *</p>')
+
 # Update several copyright elements for epub
 if filecontents.include?('data-type="copyright-page"')
   copyright_txt = filecontents.match(/(<section data-type=\"copyright-page\" .*?\">)((.|\n)*?)(<\/section>)/)[2]
