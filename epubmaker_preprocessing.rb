@@ -39,7 +39,7 @@ unless chapterheads.count > 1
 end
 
 #set text node contents of all Space Break paras to "* * *"
-filecontents = filecontents.gsub(/(<p class=\"SpaceBreak[^\/]*?>)(.*?)(<\/p>)/,'\1* * *\3').gsub(/(<p class=\"SpaceBreak.*?)( \/>)/,'\1>* * *</p>').gsub(/(<section data-type=\"copyright-page\" .*?\">)((.|\n)*?)(<\/section>)/,"\\1\\2<p class=\"CopyrightTextsinglespace\">Our eBooks may be purchased in bulk for promotional, educational, or business use.  Please contact the Macmillan Corporate and Premium Sales Department at 1-800-221-7945, ext. 5442, or by e-mail at MacmillanSpecialMarkets@macmillan.com.</p>\\3")
+filecontents = filecontents.gsub(/(<p class=\"SpaceBreak[^\/]*?>)(.*?)(<\/p>)/,'\1* * *\3').gsub(/(<p class=\"SpaceBreak.*?)( \/>)/,'\1>* * *</p>').gsub(/(<section data-type=\"copyright-page\" .*?\">)((.|\n)*?)(<\/section>)/,"\\1\\2<p class=\"CopyrightTextsinglespace\">Our eBooks may be purchased in bulk for promotional, educational, or business use. Please contact the Macmillan Corporate and Premium Sales Department at 1-800-221-7945, ext. 5442, or by e-mail at MacmillanSpecialMarkets@macmillan.com.</p>\\3")
 
 # Update several copyright elements for epub
 if filecontents.include?('data-type="copyright-page"')
