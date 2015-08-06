@@ -31,7 +31,7 @@ File.open("#{OEBPS_dir}/toc.ncx", "w") {|file| file.puts replace}
 # fix title page text in html toc
 htmlcontents = File.read("#{OEBPS_dir}/toc01.html")
 copyright_li = htmlcontents.match(/<li data-type="copyright-page".*?<\/li>/)
-replace = htmlcontents.gsub(/(titlepage01.html#.*?">)(.*?)(<\/a>)/,"\\1Title Page\\3").gsub(/(Copyright Notice<\/a><\/li>)/,"\\1<li data-type=\"toc\" class=\"Nonprinting\"><a href=\"toc01.html\">Contents</a></li>")
+replace = htmlcontents.gsub(/(titlepage01.html#.*?">)(.*?)(<\/a>)/,"\\1Title Page\\3").gsub(/<li data-type="copyright-page">/,"<li data-type=\"toc\" class=\"Nonprinting\"><a href=\"toc01.html\">Contents</a></li>\\1")
 File.open("#{OEBPS_dir}/toc01.html", "w") {|file| file.puts replace}
 
 # add toc to text flow
