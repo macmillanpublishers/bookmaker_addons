@@ -79,9 +79,13 @@ strip_halftitle_xsl = File.join(Bkmkr::Paths.core_dir, "epubmaker", "strip-halft
 # insert DRM copyright notice in HTML
 drm_xsl = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "drm.xsl")
 
+copyright_xsl = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "copyrightpagenotice.xsl")
+
 `java -jar "#{saxonpath}" -s:"#{epub_tmp_html}" -xsl:"#{strip_halftitle_xsl}" -o:"#{epub_tmp_html}"`
 
 `java -jar "#{saxonpath}" -s:"#{epub_tmp_html}" -xsl:"#{drm_xsl}" -o:"#{epub_tmp_html}"`
+
+`java -jar "#{saxonpath}" -s:"#{epub_tmp_html}" -xsl:"#{copyright_xsl}" -o:"#{epub_tmp_html}"`
 
 #set logo image based on project directory
 logo_img = File.join(assets_dir, "images", project_dir, "logo.jpg")
