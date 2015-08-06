@@ -9,7 +9,7 @@
 <xsl:preserve-space elements="*"/>
 
 <xsl:param name="notice">
-        <p class="CopyrightTextsinglespacecrtx">Our eBooks may be purchased in bulk for promotional, educational, or business use. Please contact the Macmillan Corporate and Premium Sales Department at 1-800-221-7945, ext. 5442, or by e-mail at MacmillanSpecialMarkets@macmillan.com.</p>    
+        <p class="CopyrightTextsinglespacecrtx">Our eBooks may be purchased in bulk for promotional, educational, or business use. Please contact the Macmillan Corporate and Premium Sales Department at 1-800-221-7945, ext. 5442, or by e-mail at <a href="mailto:MacmillanSpecialMarkets@macmillan.com">MacmillanSpecialMarkets@macmillan.com</a>.</p>    
  </xsl:param>
 
 <xsl:template match="node()|@*" name="identity">
