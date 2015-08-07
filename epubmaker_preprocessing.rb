@@ -101,8 +101,8 @@ end
 FileUtils.cp(logo_img, epub_img_dir)
 
 #copy addon images to epub folder
-addon_img_dir = File.join(assets_dir, "addons", "images")
-FileUtils.cp_r('#{addon_img_dir}/.', epub_img_dir)
+addon_imgs = File.join(assets_dir, "addons", "images", ".")
+FileUtils.cp_r(addon_imgs, epub_img_dir)
 
 # copy backad file to epub dir
 # if File.file?(backad_file)
