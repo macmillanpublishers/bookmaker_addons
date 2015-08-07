@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'fileutils'
 
 require_relative '../bookmaker/core/header.rb'
@@ -68,7 +70,14 @@ FileUtils.cp Dir["#{assets_dir}/images/#{project_dir}/*"].select {|f| test ?f, f
 `#{Bkmkr::Paths.scripts_dir}\\bookmaker_ftpupload\\imageupload.bat #{Bkmkr::Paths.tmp_dir}\\#{Bkmkr::Project.filename}\\images\\pdftmp #{Bkmkr::Paths.tmp_dir}\\#{Bkmkr::Project.filename}\\images`
 
 # fixes images in html, keep final words and ellipses from breaking
-filecontents = File.read(Bkmkr::Paths.outputtmp_html).gsub(/src="images\//,"src=\"#{ftp_dir}/").gsub(/([a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9]\s\. \. \.)/,"<span class=\"bookmakerkeeptogetherkt\">\\0</span>").gsub(/(\s)(\w\w\w*?\.)(<\/p>)/,"\\1<span class=\"bookmakerkeeptogetherkt\">\\2</span>\\3").gsub(/(.)?(—)(.)?/,"\\1&\#8203;\\2&\#8203;\\3").to_s
+filecontents = File.read(Bkmkr::Paths.outputtmp_html).gsub(/src="images\//,"src=\"#{ftp_dir}/").gsub(/([a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9]\s\. \. \.)/,"<span class=\"bookmakerkeeptogetherkt\">\\0</span>").gsub(/(\s)(\w\w\w*?\.)(<\/p>)/,"\\1<span class=\"bookmakerkeeptogetherkt\">\\2</span>\\3")
+
+File.open(pdf_tmp_html, 'w') do |output| 
+  output.write filecontents
+end
+
+# fixes em dash breaks (requires UTF 8 encoding)
+filecontents = File.read(Bkmkr::Paths.outputtmp_html, :encoding=>"UTF-8").gsub(/(.)?(—)(.)?/,"\\1\\2&\#8203;\\3")
 
 File.open(pdf_tmp_html, 'w') do |output| 
   output.write filecontents
