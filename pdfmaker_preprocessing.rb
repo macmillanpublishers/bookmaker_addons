@@ -77,7 +77,7 @@ File.open(pdf_tmp_html, 'w') do |output|
 end
 
 # fixes em dash breaks (requires UTF 8 encoding)
-filecontents = File.read(Bkmkr::Paths.outputtmp_html, :encoding=>"UTF-8").gsub(/(.)?(—)(.)?/,"\\1&\#8203;\\2\\3")
+filecontents = File.read(Bkmkr::Paths.outputtmp_html, :encoding=>"UTF-8").gsub(/(.)?(—)(.)?/,"\\1\\2&\#8203;\\3")
 
 File.open(pdf_tmp_html, 'w') do |output| 
   output.write filecontents
