@@ -78,7 +78,7 @@ File.open(pdf_tmp_html, 'w') do |output|
 end
 
 # fixes em dash breaks (requires UTF 8 encoding)
-filecontents = File.read(pdf_tmp_html, :encoding=>"UTF-8").gsub(/(.)?(—\??\.?!?”?’?)(.)?/,"\\1\\2&\#8203;\\3").gsub(/(<p class="FrontSalesQuotefsq">“)(A)/,"\\1&\#8202;\\2")
+filecontents = File.read(pdf_tmp_html, :encoding=>"UTF-8").gsub(/(.)?(—\??\.?!?”?’?)(.)?/,"\\1\\2&\#8203;\\3").gsub(/(<p class="FrontSalesQuotefsq">“)(A)/,"&\#8202;\\1\\2")
 
 File.open(pdf_tmp_html, 'w') do |output| 
   output.write filecontents
