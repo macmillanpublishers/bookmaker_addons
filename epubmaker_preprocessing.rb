@@ -128,6 +128,9 @@ Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "copyrightpage", "1", "endo
 # insert extra epub content
 Bkmkr::Tools.insertaddons(epub_tmp_html, sectionjson, addonjson)
 
+# evaluate templates
+Bkmkr::Tools.compileJS(epub_tmp_html)
+
 # suppress addon headers as needed
 linkauthorname = "#{Metadata.bookauthor}".downcase.gsub(/\s/,"")
 filecontents = File.read(epub_tmp_html).gsub(/(data-displayheader="no")/,"class=\"ChapTitleNonprintingctnp\" \\1").gsub(/\{\{IMPRINT\}\}/,"#{Metadata.imprint}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthorname}").gsub(/\{\{EISBN\}\}/,"#{Metadata.eisbn}")
