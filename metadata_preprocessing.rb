@@ -48,9 +48,6 @@ else
 	frontcover = "#{pisbn}_FC.jpg"
 end
 
-# Finding imprint name
-imprint = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageImprintLineimp">.*?</).to_s.gsub(/\["<p class=\\"TitlepageImprintLineimp\\">/,"").gsub(/"\]/,"").gsub(/</,"")
-
 # Finding author name(s)
 authorname = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageAuthorNameau">.*?</).join(",").gsub(/<p class="TitlepageAuthorNameau">/,"").gsub(/</,"")
 
@@ -63,6 +60,17 @@ booksubtitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageB
 # project and stage
 project_dir = Bkmkr::Project.input_file.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact))[0...-2].pop.to_s.split("_").shift
 stage_dir = Bkmkr::Project.input_file.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact))[0...-2].pop.to_s.split("_").pop
+
+# Finding imprint name
+# imprint = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageImprintLineimp">.*?</).to_s.gsub(/\["<p class=\\"TitlepageImprintLineimp\\">/,"").gsub(/"\]/,"").gsub(/</,"")
+# Manually populating for now, until we get the DB set up
+if project_dir == "torDOTcom"
+	imprint = "Tom Doherty Associates"
+elsif project_dir == "SMP"
+	imprint = "St. Martin's Press"
+else
+	imprint = "Macmillan"
+end
 
 # print and epub css files
 epub_css_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker", "css")
