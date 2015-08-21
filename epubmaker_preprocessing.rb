@@ -20,17 +20,19 @@ assets_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker"
 # inserting imprint backad, if it exists
 # remove links from illo sources
 # move copyright to back
-backad_file = File.join(assets_dir, "images", project_dir, "backad.jpg")
+# backad_file = File.join(assets_dir, "images", project_dir, "backad.jpg")
 
-if File.file?(backad_file)
-  backad = "<section data-type='colophon'><img src='backad.jpg' alt='advertising'/></section>"
-else
-  backad = ""
-end
+# if File.file?(backad_file)
+#   backad = "<section data-type='colophon'><img src='backad.jpg' alt='advertising'/></section>"
+# else
+#   backad = ""
+# end
+
+# .gsub(/<\/body>/,"#{backad}</body>")
 
 copyrightpage = File.read(Bkmkr::Paths.outputtmp_html).match(/(<section data-type=\"copyright-page\" .*?\">)((.|\n)*?)(<\/section>)/)
 
-filecontents = File.read(Bkmkr::Paths.outputtmp_html).gsub(/<p class="TitlepageImprintLineimp">/,"<p class=\"TitlepageLogoHolder\"><img src=\"logo.jpg\"/></p><p class=\"TitlepageImprintLineimp\">").gsub(/src="images\//,"src=\"").gsub(/<\/body>/,"#{backad}</body>").gsub(/(<p class="IllustrationSourceis">)(<a class="fig-link">)(.*?)(<\/a>)(<\/p>)/, "\\1\\3\\5").gsub(/(<section data-type=\"copyright-page\" .*?\">)((.|\n)*?)(<\/section>)/,"").gsub(/(<\/body>)/, "#{copyrightpage}\\1")
+filecontents = File.read(Bkmkr::Paths.outputtmp_html).gsub(/<p class="TitlepageImprintLineimp">/,"<p class=\"TitlepageLogoHolder\"><img src=\"logo.jpg\"/></p><p class=\"TitlepageImprintLineimp\">").gsub(/src="images\//,"src=\"").gsub(/(<p class="IllustrationSourceis">)(<a class="fig-link">)(.*?)(<\/a>)(<\/p>)/, "\\1\\3\\5")#.gsub(/<\/body>/,"#{backad}</body>").gsub(/(<section data-type=\"copyright-page\" .*?\">)((.|\n)*?)(<\/section>)/,"").gsub(/(<\/body>)/, "#{copyrightpage}\\1")
 
 chapterheads = File.read(Bkmkr::Paths.outputtmp_html).scan(/section data-type="chapter"/)
 
@@ -84,7 +86,7 @@ copyright_xsl = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "copyrig
 
 `java -jar "#{saxonpath}" -s:"#{epub_tmp_html}" -xsl:"#{strip_halftitle_xsl}" -o:"#{epub_tmp_html}"`
 
-`java -jar "#{saxonpath}" -s:"#{epub_tmp_html}" -xsl:"#{drm_xsl}" -o:"#{epub_tmp_html}"`
+#`java -jar "#{saxonpath}" -s:"#{epub_tmp_html}" -xsl:"#{drm_xsl}" -o:"#{epub_tmp_html}"`
 
 `java -jar "#{saxonpath}" -s:"#{epub_tmp_html}" -xsl:"#{copyright_xsl}" -o:"#{epub_tmp_html}"`
 
@@ -99,7 +101,40 @@ end
 #copy logo image file to epub folder
 FileUtils.cp(logo_img, epub_img_dir)
 
+#copy addon images to epub folder
+addon_imgs = File.join(assets_dir, "addons", "images", ".")
+FileUtils.cp_r(addon_imgs, epub_img_dir)
+
 # copy backad file to epub dir
-if File.file?(backad_file)
-  FileUtils.cp(backad_file, epub_img_dir)
+# if File.file?(backad_file)
+#   FileUtils.cp(backad_file, epub_img_dir)
+# end
+
+sectionjson = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "sections.json")
+addonjson = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker", "addons", "addons.json")
+
+# move adcard to back
+Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "adcard", "1", "endofbook", "1")
+
+# move abouttheauthor to back
+Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "abouttheauthor", "1", "endofbook", "1")
+
+# move toc to back
+Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "toc", "1", "endofbook", "1")
+
+# move copyright page to back
+Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "copyrightpage", "1", "endofbook", "1")
+
+# insert extra epub content
+Bkmkr::Tools.insertaddons(epub_tmp_html, sectionjson, addonjson)
+
+# evaluate templates
+Bkmkr::Tools.compileJS(epub_tmp_html)
+
+# suppress addon headers as needed
+linkauthorname = "#{Metadata.bookauthor}".downcase.gsub(/\s/,"")
+filecontents = File.read(epub_tmp_html).gsub(/(data-displayheader="no")/,"class=\"ChapTitleNonprintingctnp\" \\1").gsub(/\{\{IMPRINT\}\}/,"#{Metadata.imprint}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthorname}").gsub(/\{\{EISBN\}\}/,"#{Metadata.eisbn}")
+
+File.open(epub_tmp_html, 'w') do |output| 
+  output.write filecontents
 end

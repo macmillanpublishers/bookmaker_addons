@@ -31,14 +31,19 @@ File.open("#{OEBPS_dir}/toc.ncx", "w") {|file| file.puts replace}
 # fix title page text in html toc
 htmlcontents = File.read("#{OEBPS_dir}/toc01.html")
 copyright_li = htmlcontents.match(/<li data-type="copyright-page".*?<\/li>/)
-replace = htmlcontents.gsub(/(titlepage01.html#.*?">)(.*?)(<\/a>)/,"\\1Title Page\\3").gsub(/(Copyright Notice<\/a><\/li>)/,"\\1<li data-type=\"toc\" class=\"Nonprinting\"><a href=\"toc01.html\">Contents</a></li>")
+replace = htmlcontents.gsub(/(titlepage01.html#.*?">)(.*?)(<\/a>)/,"\\1Title Page\\3").gsub(/(<li data-type="copyright-page">)/,"<li data-type=\"toc\" class=\"Nonprinting\"><a href=\"toc01.html\">Contents</a></li>\\1").gsub(/(<li data-type="preface")(><a href=".*">Newsletter Sign-up)/,"\\1 class=\"Nonprinting\"\\2")
 File.open("#{OEBPS_dir}/toc01.html", "w") {|file| file.puts replace}
 
 # add toc to text flow
 opfcontents = File.read("#{OEBPS_dir}/content.opf")
+copyright_tag = opfcontents.scan(/<itemref idref="copyright-page/)
 tocid = opfcontents.match(/(id=")(toc-.*?)(")/)[2]
 toc_tag = opfcontents.match(/<itemref idref="toc-.*?"\/>/)
-replace = opfcontents.gsub(/#{toc_tag}/,"").gsub(/(<itemref idref="titlepage-.*?"\/><itemref idref="preface-.*?"\/>)/,"\\1#{toc_tag}")
+if copyright_tag.any?
+	replace = opfcontents.gsub(/#{toc_tag}/,"").gsub(/(<itemref idref="copyright-page)/,"#{toc_tag}\\1")
+else 
+	replace = opfcontents.gsub(/#{toc_tag}/,"").gsub(/(<\/spine)/,"#{toc_tag}\\1")
+end
 File.open("#{OEBPS_dir}/content.opf", "w") {|file| file.puts replace}
 
 csfilename = "#{Metadata.eisbn}_EPUB"
