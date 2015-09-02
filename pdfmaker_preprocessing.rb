@@ -68,13 +68,13 @@ end
 # copy assets to tmp upload dir and upload to ftp
 FileUtils.cp Dir["#{assets_dir}/images/#{project_dir}/*"].select {|f| test ?f, f}, pdftmp_dir
 
-if os == "mac" or os == "unix"
+if Bkmkr::Tools.os == "mac" or Bkmkr::Tools.os == "unix"
 	ftpfile = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_ftpupload", "imageupload.sh")
 	pdfimages = Dir.entries(pdftmp_dir).select { |f| !File.directory? f }
 	pdfimages.each do |i|
 		`#{ftpfile} #{i} #{pdftmp_dir}`
 	end
-elsif os == "windows"
+elsif Bkmkr::Tools.os == "windows"
 	ftpfile = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_ftpupload", "imageupload.bat")
 	`#{ftpfile} #{pdftmp_dir} #{Bkmkr::Paths.project_tmp_dir_img}`
 end
