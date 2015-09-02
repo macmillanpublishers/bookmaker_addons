@@ -29,7 +29,7 @@ images = Dir.entries("#{Bkmkr::Paths.project_tmp_dir_img}").select {|f| !File.di
 image_count = images.count
 if image_count > 0
 	FileUtils.cp Dir["#{Bkmkr::Paths.project_tmp_dir_img}/*"].select {|f| test ?f, f}, pdftmp_dir
-	pdfimages = Dir.entries("#{Bkmkr::Paths.project_tmp_dir_img}/pdftmp").select { |f| !File.directory? f }
+	pdfimages = Dir.entries(pdftmp_dir).select { |f| !File.directory? f }
 	pdfimages.each do |i|
 		pdfimage = File.join(pdftmp_dir, "#{i}")
 		if i.include?("fullpage")
@@ -67,7 +67,17 @@ end
 
 # copy assets to tmp upload dir and upload to ftp
 FileUtils.cp Dir["#{assets_dir}/images/#{project_dir}/*"].select {|f| test ?f, f}, pdftmp_dir
-`#{Bkmkr::Paths.scripts_dir}\\bookmaker_ftpupload\\imageupload.bat #{Bkmkr::Paths.tmp_dir}\\#{Bkmkr::Project.filename}\\images\\pdftmp #{Bkmkr::Paths.tmp_dir}\\#{Bkmkr::Project.filename}\\images`
+
+if os == "mac" or os == "unix"
+	ftpfile = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_ftpupload", "imageupload.sh")
+	pdfimages = Dir.entries(pdftmp_dir).select { |f| !File.directory? f }
+	pdfimages.each do |i|
+		`#{ftpfile} #{i} #{pdftmp_dir}`
+	end
+elsif os == "windows"
+	ftpfile = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_ftpupload", "imageupload.bat")
+	`#{ftpfile} #{pdftmp_dir} #{Bkmkr::Paths.project_tmp_dir_img}`
+end
 
 # fixes images in html, keep final words and ellipses from breaking
 # .gsub(/([a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9]\s\. \. \.)/,"<span class=\"bookmakerkeeptogetherkt\">\\0</span>")
