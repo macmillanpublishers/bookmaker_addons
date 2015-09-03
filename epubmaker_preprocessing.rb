@@ -70,9 +70,9 @@ unless etpfilename.nil?
   filecontents = filecontents.gsub(/(<section data-type="titlepage")/,"\\1 data-titlepage=\"yes\"")
   unless etpfiletype == "jpg"
     `convert "#{epubtitlepage}" "#{epubtitlepagejpg}"`
+    FileUtils.mv(epubtitlepage, epubtitlepagearc)
   end
   FileUtils.mv(epubtitlepagejpg, finalimagedir)
-  FileUtils.mv(epubtitlepage, epubtitlepagearc)
 end
 
 File.open(epub_tmp_html, 'w') do |output| 
