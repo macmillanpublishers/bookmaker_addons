@@ -60,7 +60,7 @@ finalimagedir = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "images")
 imgstring = images.join(",")
 etpfilename = imgstring.match(/epubtitlepage.[a-zA-Z]*?/)
 
-if etpfilename?
+unless etpfilename.nil?
   epubtitlepage = File.join(Bkmkr::Paths.submitted_images, etpfilename)
   puts epubtitlepage
   epubtitlepagearc = File.join(finalimagedir, etpfilename)
