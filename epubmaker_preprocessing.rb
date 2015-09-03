@@ -58,6 +58,7 @@ end
 images = Dir.entries(Bkmkr::Paths.submitted_images)
 finalimagedir = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "images")
 imgstring = images.join(",")
+puts imgstring
 etpfilename = imgstring.match(/(epubtitlepage.*?)(,)/)[1]
 etpfiletype = etpfilename.split(".").pop
 epubtitlepage = File.join(Bkmkr::Paths.submitted_images, etpfilename)
