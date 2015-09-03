@@ -67,6 +67,7 @@ unless etpfilename.nil?
   epubtitlepagearc = File.join(finalimagedir, etpfilename)
   epubtitlepagejpg = File.join(Bkmkr::Paths.submitted_images, "epubtitlepage.jpg")
   etpfiletype = etpfilename.split(".").pop
+  puts etpfiletype
   filecontents = filecontents.gsub(/(<section data-type="titlepage")/,"\\1 data-titlepage=\"yes\"")
   unless etpfiletype == "jpg"
     `convert "#{epubtitlepage}" "#{epubtitlepagejpg}"`
