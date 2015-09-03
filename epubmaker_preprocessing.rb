@@ -19,16 +19,6 @@ assets_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker"
 # Removing images subdir from src attr
 # inserting imprint backad, if it exists
 # remove links from illo sources
-# move copyright to back
-# backad_file = File.join(assets_dir, "images", project_dir, "backad.jpg")
-
-# if File.file?(backad_file)
-#   backad = "<section data-type='colophon'><img src='backad.jpg' alt='advertising'/></section>"
-# else
-#   backad = ""
-# end
-
-# .gsub(/<\/body>/,"#{backad}</body>")
 
 copyrightpage = File.read(Bkmkr::Paths.outputtmp_html).match(/(<section data-type=\"copyright-page\" .*?\">)((.|\n)*?)(<\/section>)/)
 
@@ -65,6 +55,35 @@ File.open(epub_tmp_html, 'w') do |output|
   output.write filecontents
 end
 
+# prep for titlepage image if needed
+# convert image to jpg
+# copy to image dir
+
+images = Dir.entries(Bkmkr::Paths.submitted_images)
+finalimagedir = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "images")
+imgstring = images.join(",")
+etpfilenamearr = imgstring.match(/epubtitlepage.[a-zA-Z]*/)
+etpfilename = etpfilenamearr.to_s
+
+unless etpfilenamearr.nil?
+  epubtitlepage = File.join(Bkmkr::Paths.submitted_images, etpfilename)
+  epubtitlepagearc = File.join(finalimagedir, etpfilename)
+  epubtitlepagejpg = File.join(Bkmkr::Paths.submitted_images, "epubtitlepage.jpg")
+  etpfiletype = etpfilename.split(".").pop
+  filecontents = File.read(epub_tmp_html).gsub(/(<section data-type="titlepage")/,"\\1 data-titlepage=\"yes\"")
+  File.open(epub_tmp_html, 'w') do |output| 
+    output.write filecontents
+  end
+  unless etpfiletype == "jpg"
+    `convert "#{epubtitlepage}" "#{epubtitlepagejpg}"`
+    FileUtils.mv(epubtitlepage, epubtitlepagearc)
+  end
+  FileUtils.mv(epubtitlepagejpg, finalimagedir)
+  # insert titlepage image
+  epubmakerpreprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "epubmaker_preprocessing.js")
+  Bkmkr::Tools.runnode(epubmakerpreprocessingjs, epub_tmp_html)
+end
+
 # Make EBK hyperlinks
 strip_span_xsl = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "strip-spans.xsl")
 
@@ -89,6 +108,9 @@ copyright_xsl = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "copyrig
 #`java -jar "#{saxonpath}" -s:"#{epub_tmp_html}" -xsl:"#{drm_xsl}" -o:"#{epub_tmp_html}"`
 
 `java -jar "#{saxonpath}" -s:"#{epub_tmp_html}" -xsl:"#{copyright_xsl}" -o:"#{epub_tmp_html}"`
+
+# replace titlepage info with image IF image exists in submission dir
+# js: replace titlepage innerhtml, prepend h1 w class nonprinting
 
 #set logo image based on project directory
 logo_img = File.join(assets_dir, "images", project_dir, "logo.jpg")
