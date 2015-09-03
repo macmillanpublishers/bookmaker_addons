@@ -51,6 +51,10 @@ if filecontents.include?('data-type="copyright-page"')
   filecontents = filecontents.gsub(/(^(.|\n)*?<section data-type="copyright-page" id=".*?">)((.|\n)*?)(<\/section>(.|\n)*$)/, "\\1#{new_copyright}\\5")
 end
 
+File.open(epub_tmp_html, 'w') do |output| 
+  output.write filecontents
+end
+
 # prep for titlepage image if needed
 # convert image to jpg
 # copy to image dir
@@ -68,22 +72,19 @@ unless etpfilename.nil?
   epubtitlepagearc = File.join(finalimagedir, etpfilename)
   epubtitlepagejpg = File.join(Bkmkr::Paths.submitted_images, "epubtitlepage.jpg")
   etpfiletype = etpfilename.split(".").pop
-  filecontents = filecontents.gsub(/(<section data-type="titlepage")/,"\\1 data-titlepage=\"yes\"")
+  filecontents = File.read(epub_tmp_html).gsub(/(<section data-type="titlepage")/,"\\1 data-titlepage=\"yes\"")
+  File.open(epub_tmp_html, 'w') do |output| 
+    output.write filecontents
+  end
   unless etpfiletype == "jpg"
     `convert "#{epubtitlepage}" "#{epubtitlepagejpg}"`
     FileUtils.mv(epubtitlepage, epubtitlepagearc)
   end
   FileUtils.mv(epubtitlepagejpg, finalimagedir)
+  # insert titlepage image
+  epubmakerpreprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "epubmaker_preprocessing.js")
+  Bkmkr::Tools.runnode(epubmakerpreprocessingjs, epub_tmp_html)
 end
-
-File.open(epub_tmp_html, 'w') do |output| 
-  output.write filecontents
-end
-
-# insert titlepage image
-epubmakerpreprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "epubmaker_preprocessing.js")
-
-Bkmkr::Tools.runnode(epubmakerpreprocessingjs, epub_tmp_html)
 
 # Make EBK hyperlinks
 strip_span_xsl = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "strip-spans.xsl")
