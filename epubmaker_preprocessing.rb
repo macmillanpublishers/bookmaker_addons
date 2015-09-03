@@ -66,7 +66,7 @@ epubtitlepagejpg = File.join(Bkmkr::Paths.submitted_images, "epubtitlepage.jpg")
 
 if File.file?(epubtitlepage)
   filecontents = filecontents.gsub(/(<section data-type="titlepage")/,"\\1 data-titlepage=\"yes\"")
-  unless etpfiletype = "jpg"
+  unless etpfiletype == "jpg"
     `convert "#{epubtitlepage}" "#{epubtitlepagejpg}"`
   end
   FileUtils.mv(epubtitlepagejpg, finalimagedir)
