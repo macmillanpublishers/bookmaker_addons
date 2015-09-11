@@ -68,9 +68,9 @@ puts etparr
 ptparr = Dir[allimg].select { |f| f.include?('titlepage.')}
 puts ptparr
 if etparr.any?
-  epubtitlepage = etparr.find { |e| /(\/?\\?)+epubtitlepage\./ =~ e }
+  epubtitlepage = etparr.find { |e| /[\/|\\]epubtitlepage\./ =~ e }
 elsif ptparr.any?
-  epubtitlepage = ptparr.find { |e| /(\/?\\?)+titlepage\./ =~ e }
+  epubtitlepage = ptparr.find { |e| /[\/|\\]titlepage\./ =~ e }
 end
 puts epubtitlepage
 

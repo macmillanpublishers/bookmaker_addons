@@ -31,7 +31,7 @@ puts allimg
 ptparr = Dir[allimg].select { |f| f.include?('titlepage.')}
 puts ptparr
 if ptparr.any?
-  podtitlepage = ptparr.find { |e| /(\/?\\?)+titlepage\./ =~ e }
+  podtitlepage = ptparr.find { |e| /[\/|\\]titlepage\./ =~ e }
 end
 puts podtitlepage
 
@@ -41,11 +41,11 @@ unless podtitlepage.nil?
   podtitlepagearc = File.join(finalimagedir, tpfilename)
   podtitlepagejpg = File.join(Bkmkr::Paths.submitted_images, "titlepage_fullpage.jpg")
   podfiletype = tpfilename.split(".").pop
-  filecontents = File.read(epub_tmp_html).gsub(/(<section data-type="titlepage")/,"\\1 data-titlepage=\"yes\"")
+  filecontents = File.read(pdf_tmp_html).gsub(/(<section data-type="titlepage")/,"\\1 data-titlepage=\"yes\"")
   File.open(pdf_tmp_html, 'w') do |output| 
     output.write filecontents
   end
-  unless etpfiletype == "jpg"
+  unless tpfiletype == "jpg"
     `convert "#{podtitlepage}" "#{podtitlepagejpg}"`
     FileUtils.mv(podtitlepage, podtitlepagearc)
   end
