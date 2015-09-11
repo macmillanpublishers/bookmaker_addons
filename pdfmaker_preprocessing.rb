@@ -41,7 +41,8 @@ unless podtitlepage.nil?
   puts "found a titlepage image"
   tpfilename = podtitlepage.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
   podtitlepagearc = File.join(finalimagedir, tpfilename)
-  podtitlepagejpg = File.join(Bkmkr::Paths.submitted_images, "titlepage_fullpage.jpg")
+  podtitlepagejpg = File.join(Bkmkr::Paths.submitted_images, "titlepage.jpg")
+  podtitlepagetmp = File.join(Bkmkr::Paths.project_tmp_dir_img, "titlepage_fullpage.jpg")
   podfiletype = tpfilename.split(".").pop
   filecontents = File.read(pdf_tmp_html).gsub(/(<section data-type="titlepage")/,"\\1 data-titlepage=\"yes\"")
   File.open(pdf_tmp_html, 'w') do |output| 
@@ -51,8 +52,10 @@ unless podtitlepage.nil?
     `convert "#{podtitlepage}" "#{podtitlepagejpg}"`
     FileUtils.mv(podtitlepage, podtitlepagearc)
   end
-  FileUtils.cp(podtitlepagejpg, Bkmkr::Paths.project_tmp_dir_img)
-  FileUtils.mv(podtitlepagejpg, finalimagedir)
+  FileUtils.cp(podtitlepagejpg, podtitlepagetmp)
+  if File.file?(podtitlepage)
+  	FileUtils.mv(podtitlepage, podtitlepagearc)
+  end
   # insert titlepage image
   pdfmakerpreprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "pdfmaker_preprocessing.js")
   Bkmkr::Tools.runnode(pdfmakerpreprocessingjs, pdf_tmp_html)
