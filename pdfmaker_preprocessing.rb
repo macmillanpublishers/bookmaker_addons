@@ -51,9 +51,10 @@ unless podtitlepage.nil?
   unless podfiletype == "jpg"
     `convert "#{podtitlepage}" "#{podtitlepagejpg}"`
     FileUtils.mv(podtitlepage, podtitlepagearc)
+    FileUtils.mv(podtitlepagejpg, podtitlepagetmp)
   end
-  FileUtils.cp(podtitlepagejpg, podtitlepagetmp)
   if File.file?(podtitlepage)
+  	FileUtils.cp(podtitlepage, podtitlepagetmp)
   	FileUtils.mv(podtitlepage, podtitlepagearc)
   end
   # insert titlepage image
