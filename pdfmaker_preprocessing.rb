@@ -26,7 +26,7 @@ end
 
 images = Dir.entries(Bkmkr::Paths.submitted_images)
 finalimagedir = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "images")
-allimg = File.join(images, "*")
+allimg = File.join(Bkmkr::Paths.submitted_images, "*")
 puts allimg
 ptparr = Dir[allimg].select { |f| f.include?('titlepage.')}
 puts ptparr
