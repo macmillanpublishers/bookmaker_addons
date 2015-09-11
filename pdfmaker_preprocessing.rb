@@ -36,8 +36,8 @@ end
 puts podtitlepage
 
 unless podtitlepage.nil?
-  puts "found a titlepage"
-  tpfilename = epubtitlepage.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
+  puts "found a titlepage image"
+  tpfilename = podtitlepage.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
   podtitlepagearc = File.join(finalimagedir, tpfilename)
   podtitlepagejpg = File.join(Bkmkr::Paths.submitted_images, "titlepage_fullpage.jpg")
   podfiletype = etpfilename.split(".").pop
