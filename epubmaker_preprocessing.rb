@@ -62,8 +62,11 @@ end
 images = Dir.entries(Bkmkr::Paths.submitted_images)
 finalimagedir = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "images")
 allimg = File.join(images, "*")
+puts allimg
 etparr = Dir[allimg].select { |f| f.include?('epubtitlepage.')}
+puts etparr
 ptparr = Dir[allimg].select { |f| f.include?('titlepage.')}
+puts ptparr
 if etparr.any?
   epubtitlepage = etparr.find { |e| /(\/?\\?)+epubtitlepage\./ =~ e }
 elsif ptparr.any?
