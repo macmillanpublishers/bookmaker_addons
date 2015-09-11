@@ -69,8 +69,10 @@ if etparr.any?
 elsif ptparr.any?
   epubtitlepage = ptparr.find { |e| /(\/?\\?)+titlepage\./ =~ e }
 end
+puts epubtitlepage
 
 unless epubtitlepage.nil?
+  puts "found a titlepage"
   etpfilename = epubtitlepage.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
   epubtitlepagearc = File.join(finalimagedir, etpfilename)
   epubtitlepagejpg = File.join(Bkmkr::Paths.submitted_images, "epubtitlepage.jpg")

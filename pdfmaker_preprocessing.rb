@@ -31,8 +31,10 @@ ptparr = Dir[allimg].select { |f| f.include?('titlepage.')}
 if ptparr.any?
   podtitlepage = ptparr.find { |e| /(\/?\\?)+titlepage\./ =~ e }
 end
+puts podtitlepage
 
 unless podtitlepage.nil?
+  puts "found a titlepage"
   tpfilename = epubtitlepage.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
   podtitlepagearc = File.join(finalimagedir, tpfilename)
   podtitlepagejpg = File.join(Bkmkr::Paths.submitted_images, "titlepage_fullpage.jpg")
