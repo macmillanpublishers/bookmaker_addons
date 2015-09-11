@@ -61,12 +61,17 @@ end
 
 images = Dir.entries(Bkmkr::Paths.submitted_images)
 finalimagedir = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "images")
-imgstring = images.join(",")
-etpfilenamearr = imgstring.match(/epubtitlepage.[a-zA-Z]*/)
-etpfilename = etpfilenamearr.to_s
+allimg = File.join(images, "*")
+etparr = Dir[allimg].select { |f| f.include?('epubtitlepage.')}
+ptparr = Dir[allimg].select { |f| f.include?('titlepage.')}
+if etparr.any?
+  epubtitlepage = etparr.find { |e| /(\/?\\?)+epubtitlepage\./ =~ e }
+elsif ptparr.any?
+  epubtitlepage = ptparr.find { |e| /(\/?\\?)+titlepage\./ =~ e }
+end
 
-unless etpfilenamearr.nil?
-  epubtitlepage = File.join(Bkmkr::Paths.submitted_images, etpfilename)
+unless epubtitlepage.nil?
+  etpfilename = epubtitlepage.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
   epubtitlepagearc = File.join(finalimagedir, etpfilename)
   epubtitlepagejpg = File.join(Bkmkr::Paths.submitted_images, "epubtitlepage.jpg")
   etpfiletype = etpfilename.split(".").pop

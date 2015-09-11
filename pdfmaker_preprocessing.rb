@@ -24,6 +24,34 @@ unless File.exist?(pdftmp_dir)
 	Dir.mkdir(pdftmp_dir)
 end
 
+images = Dir.entries(Bkmkr::Paths.submitted_images)
+finalimagedir = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "images")
+allimg = File.join(images, "*")
+ptparr = Dir[allimg].select { |f| f.include?('titlepage.')}
+if ptparr.any?
+  podtitlepage = ptparr.find { |e| /(\/?\\?)+titlepage\./ =~ e }
+end
+
+unless podtitlepage.nil?
+  tpfilename = epubtitlepage.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
+  podtitlepagearc = File.join(finalimagedir, tpfilename)
+  podtitlepagejpg = File.join(Bkmkr::Paths.submitted_images, "titlepage_fullpage.jpg")
+  podfiletype = etpfilename.split(".").pop
+  filecontents = File.read(epub_tmp_html).gsub(/(<section data-type="titlepage")/,"\\1 data-titlepage=\"yes\"")
+  File.open(pdf_tmp_html, 'w') do |output| 
+    output.write filecontents
+  end
+  unless etpfiletype == "jpg"
+    `convert "#{podtitlepage}" "#{podtitlepagejpg}"`
+    FileUtils.mv(podtitlepage, podtitlepagearc)
+  end
+  FileUtils.cp(podtitlepagejpg, Bkmkr::Paths.project_tmp_dir_img)
+  FileUtils.mv(podtitlepagejpg, finalimagedir)
+  # insert titlepage image
+  pdfmakerpreprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "pdfmaker_preprocessing.js")
+  Bkmkr::Tools.runnode(pdfmakerpreprocessingjs, pdf_tmp_html)
+end
+
 #if any images are in 'done' dir, grayscale and upload them to macmillan.tools site
 images = Dir.entries("#{Bkmkr::Paths.project_tmp_dir_img}").select {|f| !File.directory? f}
 image_count = images.count
