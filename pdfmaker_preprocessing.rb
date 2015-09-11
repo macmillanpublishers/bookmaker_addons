@@ -24,6 +24,8 @@ unless File.exist?(pdftmp_dir)
 	Dir.mkdir(pdftmp_dir)
 end
 
+FileUtils.cp(Bkmkr::Paths.outputtmp_html, pdf_tmp_html)
+
 images = Dir.entries(Bkmkr::Paths.submitted_images)
 finalimagedir = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "images")
 allimg = File.join(Bkmkr::Paths.submitted_images, "*")
@@ -113,7 +115,7 @@ end
 
 # fixes images in html, keep final words and ellipses from breaking
 # .gsub(/([a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9]\s\. \. \.)/,"<span class=\"bookmakerkeeptogetherkt\">\\0</span>")
-filecontents = File.read(Bkmkr::Paths.outputtmp_html).gsub(/src="images\//,"src=\"#{ftp_dir}/").gsub(/([a-zA-Z0-9]?[a-zA-Z0-9]?[a-zA-Z0-9]?\s\. \. \.)/,"<span class=\"bookmakerkeeptogetherkt\">\\0</span>").gsub(/(\s)(\w\w\w*?\.)(<\/p>)/,"\\1<span class=\"bookmakerkeeptogetherkt\">\\2</span>\\3")
+filecontents = File.read(pdf_tmp_html).gsub(/src="images\//,"src=\"#{ftp_dir}/").gsub(/([a-zA-Z0-9]?[a-zA-Z0-9]?[a-zA-Z0-9]?\s\. \. \.)/,"<span class=\"bookmakerkeeptogetherkt\">\\0</span>").gsub(/(\s)(\w\w\w*?\.)(<\/p>)/,"\\1<span class=\"bookmakerkeeptogetherkt\">\\2</span>\\3")
 
 File.open(pdf_tmp_html, 'w') do |output| 
   output.write filecontents
