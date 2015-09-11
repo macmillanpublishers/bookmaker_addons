@@ -47,7 +47,7 @@ unless podtitlepage.nil?
   File.open(pdf_tmp_html, 'w') do |output| 
     output.write filecontents
   end
-  unless tpfiletype == "jpg"
+  unless podfiletype == "jpg"
     `convert "#{podtitlepage}" "#{podtitlepagejpg}"`
     FileUtils.mv(podtitlepage, podtitlepagearc)
   end
