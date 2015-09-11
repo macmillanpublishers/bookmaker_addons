@@ -40,7 +40,7 @@ unless podtitlepage.nil?
   tpfilename = podtitlepage.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
   podtitlepagearc = File.join(finalimagedir, tpfilename)
   podtitlepagejpg = File.join(Bkmkr::Paths.submitted_images, "titlepage_fullpage.jpg")
-  podfiletype = etpfilename.split(".").pop
+  podfiletype = tpfilename.split(".").pop
   filecontents = File.read(epub_tmp_html).gsub(/(<section data-type="titlepage")/,"\\1 data-titlepage=\"yes\"")
   File.open(pdf_tmp_html, 'w') do |output| 
     output.write filecontents
