@@ -110,7 +110,9 @@ if Bkmkr::Tools.os == "mac" or Bkmkr::Tools.os == "unix"
 	ftpfile = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_ftpupload", "imageupload.sh")
 	pdfimages = Dir.entries(pdftmp_dir).select { |f| !File.directory? f }
 	pdfimages.each do |i|
-		`#{ftpfile} #{i} #{pdftmp_dir}`
+		myfile = i.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
+		puts myfile
+		`#{ftpfile} #{myfile} #{pdftmp_dir}`
 	end
 elsif Bkmkr::Tools.os == "windows"
 	ftpfile = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_ftpupload", "imageupload.bat")
