@@ -53,7 +53,7 @@ end
 # find titlepage images
 
 images = File.join(Bkmkr::Paths.submitted_images, pisbn, "images")
-allimg = File.join(finalimagedir, "*")
+allimg = File.join(images, "*")
 etparr = Dir[allimg].select { |f| f.include?('epubtitlepage.')}
 ptparr = Dir[allimg].select { |f| f.include?('titlepage.')}
 
