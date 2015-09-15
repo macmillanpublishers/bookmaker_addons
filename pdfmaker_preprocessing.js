@@ -12,7 +12,7 @@ fs.readFile(file, function editContent (err, contents) {
   	//remove content
   	$('section[data-type="titlepage"]').empty();
   	//add image holder
-  	image = '<img src="images/titlepage_fullpage.jpg"/>';
+  	image = '<figure class="fullpage"><img src="images/titlepage_fullpage.jpg"/></figure>';
   	$('section[data-type="titlepage"]').append(image);
   }
 
