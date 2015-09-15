@@ -59,26 +59,21 @@ end
 # convert image to jpg
 # copy to image dir
 
-images = Dir.entries(Bkmkr::Paths.submitted_images)
 finalimagedir = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "images")
-allimg = File.join(Bkmkr::Paths.submitted_images, "*")
-puts allimg
+allimg = File.join(finalimagedir, "*")
 etparr = Dir[allimg].select { |f| f.include?('epubtitlepage.')}
-puts etparr
 ptparr = Dir[allimg].select { |f| f.include?('titlepage.')}
-puts ptparr
 if etparr.any?
   epubtitlepage = etparr.find { |e| /[\/|\\]epubtitlepage\./ =~ e }
 elsif ptparr.any?
   epubtitlepage = ptparr.find { |e| /[\/|\\]titlepage\./ =~ e }
 end
-puts epubtitlepage
 
 unless epubtitlepage.nil?
-  puts "found a titlepage"
+  puts "found an epub titlepage image"
   etpfilename = epubtitlepage.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
   epubtitlepagearc = File.join(finalimagedir, etpfilename)
-  epubtitlepagejpg = File.join(Bkmkr::Paths.submitted_images, "epubtitlepage.jpg")
+  epubtitlepagejpg = File.join(finalimagedir, "epubtitlepage.jpg")
   etpfiletype = etpfilename.split(".").pop
   filecontents = File.read(epub_tmp_html).gsub(/(<section data-type="titlepage")/,"\\1 data-titlepage=\"yes\"")
   File.open(epub_tmp_html, 'w') do |output| 
@@ -86,9 +81,7 @@ unless epubtitlepage.nil?
   end
   unless etpfiletype == "jpg"
     `convert "#{epubtitlepage}" "#{epubtitlepagejpg}"`
-    FileUtils.mv(epubtitlepage, epubtitlepagearc)
   end
-  FileUtils.mv(epubtitlepagejpg, finalimagedir)
   # insert titlepage image
   epubmakerpreprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "epubmaker_preprocessing.js")
   Bkmkr::Tools.runnode(epubmakerpreprocessingjs, epub_tmp_html)
