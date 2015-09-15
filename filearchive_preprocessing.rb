@@ -19,13 +19,13 @@ if ptparr.any?
   podtitlepage = ptparr.find { |e| /[\/|\\]titlepage\./ =~ e }
 end
 
-if File.file?(epubtitlepage)
+unless epubtitlepage.nil?
 	etpfilename = epubtitlepage.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
 	epubtitlepagearc = File.join(finalimagedir, etpfilename)
 	FileUtils.mv(epubtitlepage, epubtitlepagearc)
 end
 
-if File.file?(podtitlepage)
+unless podtitlepage.nil?
 	ptpfilename = podtitlepage.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
 	podtitlepagearc = File.join(finalimagedir, ptpfilename)
 	FileUtils.mv(podtitlepage, podtitlepagearc)
