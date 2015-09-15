@@ -14,6 +14,12 @@ project_dir = data_hash['project']
 epub_tmp_html = File.join(Bkmkr::Paths.project_tmp_dir, "epub_tmp.html")
 saxonpath = File.join(Bkmkr::Paths.resource_dir, "saxon", "#{Bkmkr::Tools.xslprocessor}.jar")
 assets_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker")
+epub_img_dir = File.join(Bkmkr::Paths.project_tmp_dir, "epubimg")
+finalimagedir = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "images")
+
+unless File.exist?(epub_img_dir)
+    Dir.mkdir(epub_img_dir)
+end
 
 # Adding imprint logo to title page
 # Removing images subdir from src attr
@@ -59,27 +65,22 @@ end
 # convert image to jpg
 # copy to image dir
 
-images = Dir.entries(Bkmkr::Paths.submitted_images)
-finalimagedir = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "images")
-imgstring = images.join(",")
-etpfilenamearr = imgstring.match(/epubtitlepage.[a-zA-Z]*/)
-etpfilename = etpfilenamearr.to_s
-
-unless etpfilenamearr.nil?
-  epubtitlepage = File.join(Bkmkr::Paths.submitted_images, etpfilename)
-  epubtitlepagearc = File.join(finalimagedir, etpfilename)
-  epubtitlepagejpg = File.join(Bkmkr::Paths.submitted_images, "epubtitlepage.jpg")
+unless Metadata.epubtitlepage == "Unknown"
+  puts "found an epub titlepage image"
+  etpfilename = Metadata.epubtitlepage.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
   etpfiletype = etpfilename.split(".").pop
+  epubtitlepagearc = File.join(finalimagedir, etpfilename)
+  epubtitlepagetmp = File.join(epub_img_dir, "epubtitlepage.jpg")
+  if etpfiletype == "jpg"
+    FileUtils.cp(epubtitlepagearc, epubtitlepagetmp)
+  else
+    `convert "#{epubtitlepagearc}" "#{epubtitlepagetmp}"`
+  end
+  # insert titlepage image
   filecontents = File.read(epub_tmp_html).gsub(/(<section data-type="titlepage")/,"\\1 data-titlepage=\"yes\"")
   File.open(epub_tmp_html, 'w') do |output| 
     output.write filecontents
   end
-  unless etpfiletype == "jpg"
-    `convert "#{epubtitlepage}" "#{epubtitlepagejpg}"`
-    FileUtils.mv(epubtitlepage, epubtitlepagearc)
-  end
-  FileUtils.mv(epubtitlepagejpg, finalimagedir)
-  # insert titlepage image
   epubmakerpreprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "epubmaker_preprocessing.js")
   Bkmkr::Tools.runnode(epubmakerpreprocessingjs, epub_tmp_html)
 end
@@ -114,11 +115,6 @@ copyright_xsl = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "copyrig
 
 #set logo image based on project directory
 logo_img = File.join(assets_dir, "images", project_dir, "logo.jpg")
-epub_img_dir = File.join(Bkmkr::Paths.project_tmp_dir, "epubimg")
-
-unless File.exist?(epub_img_dir)
-    Dir.mkdir(epub_img_dir)
-end
 
 #copy logo image file to epub folder
 FileUtils.cp(logo_img, epub_img_dir)

@@ -18,10 +18,33 @@ pdftmp_dir = File.join(Bkmkr::Paths.project_tmp_dir_img, "pdftmp")
 pdfmaker_dir = File.join(Bkmkr::Paths.core_dir, "pdfmaker")
 pdf_tmp_html = File.join(Bkmkr::Paths.project_tmp_dir, "pdf_tmp.html")
 assets_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker")
+finalimagedir = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "images")
 
 # create pdf tmp directory
 unless File.exist?(pdftmp_dir)
 	Dir.mkdir(pdftmp_dir)
+end
+
+FileUtils.cp(Bkmkr::Paths.outputtmp_html, pdf_tmp_html)
+
+unless Metadata.podtitlepage == "Unknown"
+  puts "found a pod titlepage image"
+  tpfilename = Metadata.podtitlepage.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
+  podfiletype = tpfilename.split(".").pop
+  podtitlepagearc = File.join(finalimagedir, tpfilename)
+  podtitlepagetmp = File.join(Bkmkr::Paths.project_tmp_dir_img, "titlepage_fullpage.jpg")
+  if podfiletype == "jpg"
+  	FileUtils.cp(podtitlepagearc, podtitlepagetmp)
+  else
+    `convert "#{podtitlepagearc}" "#{podtitlepagetmp}"`
+  end
+  # insert titlepage image
+  filecontents = File.read(pdf_tmp_html).gsub(/(<section data-type="titlepage")/,"\\1 data-titlepage=\"yes\"")
+  File.open(pdf_tmp_html, 'w') do |output| 
+    output.write filecontents
+  end
+  pdfmakerpreprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "pdfmaker_preprocessing.js")
+  Bkmkr::Tools.runnode(pdfmakerpreprocessingjs, pdf_tmp_html)
 end
 
 #if any images are in 'done' dir, grayscale and upload them to macmillan.tools site
@@ -72,7 +95,8 @@ if Bkmkr::Tools.os == "mac" or Bkmkr::Tools.os == "unix"
 	ftpfile = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_ftpupload", "imageupload.sh")
 	pdfimages = Dir.entries(pdftmp_dir).select { |f| !File.directory? f }
 	pdfimages.each do |i|
-		`#{ftpfile} #{i} #{pdftmp_dir}`
+		myfile = i.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
+		`#{ftpfile} #{myfile} #{pdftmp_dir}`
 	end
 elsif Bkmkr::Tools.os == "windows"
 	ftpfile = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_ftpupload", "imageupload.bat")
@@ -81,7 +105,7 @@ end
 
 # fixes images in html, keep final words and ellipses from breaking
 # .gsub(/([a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9]\s\. \. \.)/,"<span class=\"bookmakerkeeptogetherkt\">\\0</span>")
-filecontents = File.read(Bkmkr::Paths.outputtmp_html).gsub(/src="images\//,"src=\"#{ftp_dir}/").gsub(/([a-zA-Z0-9]?[a-zA-Z0-9]?[a-zA-Z0-9]?\s\. \. \.)/,"<span class=\"bookmakerkeeptogetherkt\">\\0</span>").gsub(/(\s)(\w\w\w*?\.)(<\/p>)/,"\\1<span class=\"bookmakerkeeptogetherkt\">\\2</span>\\3")
+filecontents = File.read(pdf_tmp_html).gsub(/src="images\//,"src=\"#{ftp_dir}/").gsub(/([a-zA-Z0-9]?[a-zA-Z0-9]?[a-zA-Z0-9]?\s\. \. \.)/,"<span class=\"bookmakerkeeptogetherkt\">\\0</span>").gsub(/(\s)(\w\w\w*?\.)(<\/p>)/,"\\1<span class=\"bookmakerkeeptogetherkt\">\\2</span>\\3")
 
 File.open(pdf_tmp_html, 'w') do |output| 
   output.write filecontents
@@ -96,33 +120,7 @@ end
 
 # TESTING
 
-# count, report images in file
-if image_count > 0
-
-	# test if sites are up/logins work?
-
-	# verify files were uploaded, and match image array
-    upload_report = []
-    File.read("#{Bkmkr::Paths.project_tmp_dir_img}/uploaded_image_log.txt").each_line {|line|
-          line_b = line.gsub(/\n$/, "")
-          upload_report.push line_b}
- 	upload_count = upload_report.count
-	
-	if upload_report.sort == images.sort
-		test_image_array_compare = "pass: Images in Done dir match images uploaded to ftp"
-	else
-		test_image_array_compare = "FAIL: Images in Done dir match images uploaded to ftp"
-	end
-	
-else
-	upload_count = 0
-	test_image_array_compare = "pass: There are no missing image files"
-end
-
 # Printing the test results to the log file
 File.open(Bkmkr::Paths.log_file, 'a+') do |f|
-	f.puts "----- PDFMAKER-PREPROCESSOR PROCESSES"
-	f.puts "----- I found #{image_count} images to be uploaded"
-	f.puts "----- I found #{upload_count} files uploaded"
-	f.puts "#{test_image_array_compare}"
+	f.puts "----- PDFMAKER-PREPROCESSING PROCESSES"
 end

@@ -40,12 +40,34 @@ if eisbn.length == 0
 	eisbn = Bkmkr::Project.filename
 end
 
+# find a front cover image
+
 fcfile = File.join(Bkmkr::Paths.submitted_images, "#{eisbn}_FC.jpg")
 
 if File.file?(fcfile)
 	frontcover = "#{eisbn}_FC.jpg"
 else
 	frontcover = "#{pisbn}_FC.jpg"
+end
+
+# find titlepage images
+
+allimg = File.join(Bkmkr::Paths.submitted_images, "*")
+etparr = Dir[allimg].select { |f| f.include?('epubtitlepage.')}
+ptparr = Dir[allimg].select { |f| f.include?('titlepage.')}
+
+if etparr.any?
+  epubtitlepage = etparr.find { |e| /[\/|\\]epubtitlepage\./ =~ e }
+elsif ptparr.any?
+  epubtitlepage = ptparr.find { |e| /[\/|\\]titlepage\./ =~ e }
+else
+  epubtitlepage = ""
+end
+
+if ptparr.any?
+  podtitlepage = ptparr.find { |e| /[\/|\\]titlepage\./ =~ e }
+else
+  podtitlepage = ""
 end
 
 # Finding author name(s)
@@ -117,6 +139,8 @@ File.open(configfile, 'w+') do |f|
 	f.puts '"printjs":"' + pdf_js_file + '",'
 	f.puts '"ebookcss":"' + epub_css_file + '",'
 	f.puts '"pod_toc":"' + toc_value + '",'
-	f.puts '"frontcover":"' + frontcover + '"'
+	f.puts '"frontcover":"' + frontcover + '",'
+	f.puts '"epubtitlepage":"' + epubtitlepage + '",'
+	f.puts '"podtitlepage":"' + podtitlepage + '"'
 	f.puts '}'
 end
