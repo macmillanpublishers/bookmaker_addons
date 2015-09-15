@@ -6,27 +6,16 @@ require_relative '../bookmaker/core/metadata.rb'
 # These commands should run immediately prior to filearchive
 
 # Find supplemental titlepages
-images = Dir.entries(Bkmkr::Paths.submitted_images)
 finalimagedir = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "images")
-allimg = File.join(Bkmkr::Paths.submitted_images, "*")
-etparr = Dir[allimg].select { |f| f.include?('epubtitlepage.')}
-ptparr = Dir[allimg].select { |f| f.include?('titlepage.')}
-if etparr.any?
-  epubtitlepage = etparr.find { |e| /[\/|\\]epubtitlepage\./ =~ e }
-end
 
-if ptparr.any?
-  podtitlepage = ptparr.find { |e| /[\/|\\]titlepage\./ =~ e }
-end
-
-unless epubtitlepage.nil?
-	etpfilename = epubtitlepage.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
-	epubtitlepagearc = File.join(finalimagedir, etpfilename)
-	FileUtils.mv(epubtitlepage, epubtitlepagearc)
-end
-
-unless podtitlepage.nil?
-	ptpfilename = podtitlepage.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
+if File.file?(Metadata.podtitlepage)
+	ptpfilename = Metadata.podtitlepage.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
 	podtitlepagearc = File.join(finalimagedir, ptpfilename)
-	FileUtils.mv(podtitlepage, podtitlepagearc)
+	FileUtils.mv(Metadata.podtitlepage, podtitlepagearc)
+end
+
+if File.file?(Metadata.epubtitlepage)
+	etpfilename = Metadata.epubtitlepage.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
+	epubtitlepagearc = File.join(finalimagedir, etpfilename)
+	FileUtils.mv(Metadata.epubtitlepage, epubtitlepagearc)
 end

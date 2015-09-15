@@ -26,30 +26,22 @@ end
 
 FileUtils.cp(Bkmkr::Paths.outputtmp_html, pdf_tmp_html)
 
-finalimagedir = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "images")
-allimg = File.join(finalimagedir, "*")
-ptparr = Dir[allimg].select { |f| f.include?('titlepage.')}
-if ptparr.any?
-  podtitlepage = ptparr.find { |e| /[\/|\\]titlepage\./ =~ e }
-end
-
-unless podtitlepage.nil?
+unless Metadata.podtitlepage == "Unknown"
   puts "found a pod titlepage image"
-  tpfilename = podtitlepage.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
-  podtitlepagearc = File.join(finalimagedir, tpfilename)
-  podtitlepagejpg = File.join(finalimagedir, "titlepage.jpg")
-  podtitlepagetmp = File.join(Bkmkr::Paths.project_tmp_dir_img, "titlepage_fullpage.jpg")
+  tpfilename = Metadata.podtitlepage.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
   podfiletype = tpfilename.split(".").pop
+  podtitlepagearc = File.join(finalimagedir, tpfilename)
+  podtitlepagetmp = File.join(Bkmkr::Paths.project_tmp_dir_img, "titlepage_fullpage.jpg")
+  if podfiletype == "jpg"
+  	FileUtils.cp(podtitlepagearc, podtitlepagetmp)
+  else
+    `convert "#{podtitlepagearc}" "#{podtitlepagetmp}"`
+  end
+  # insert titlepage image
   filecontents = File.read(pdf_tmp_html).gsub(/(<section data-type="titlepage")/,"\\1 data-titlepage=\"yes\"")
   File.open(pdf_tmp_html, 'w') do |output| 
     output.write filecontents
   end
-  unless podfiletype == "jpg"
-    `convert "#{podtitlepage}" "#{podtitlepagejpg}"`
-    FileUtils.mv(podtitlepagejpg, podtitlepagetmp)
-  end
-  FileUtils.cp(podtitlepage, podtitlepagetmp)
-  # insert titlepage image
   pdfmakerpreprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "pdfmaker_preprocessing.js")
   Bkmkr::Tools.runnode(pdfmakerpreprocessingjs, pdf_tmp_html)
 end
