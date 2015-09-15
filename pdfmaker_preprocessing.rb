@@ -18,6 +18,7 @@ pdftmp_dir = File.join(Bkmkr::Paths.project_tmp_dir_img, "pdftmp")
 pdfmaker_dir = File.join(Bkmkr::Paths.core_dir, "pdfmaker")
 pdf_tmp_html = File.join(Bkmkr::Paths.project_tmp_dir, "pdf_tmp.html")
 assets_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker")
+finalimagedir = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "images")
 
 # create pdf tmp directory
 unless File.exist?(pdftmp_dir)

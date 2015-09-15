@@ -15,6 +15,7 @@ epub_tmp_html = File.join(Bkmkr::Paths.project_tmp_dir, "epub_tmp.html")
 saxonpath = File.join(Bkmkr::Paths.resource_dir, "saxon", "#{Bkmkr::Tools.xslprocessor}.jar")
 assets_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker")
 epub_img_dir = File.join(Bkmkr::Paths.project_tmp_dir, "epubimg")
+finalimagedir = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "images")
 
 unless File.exist?(epub_img_dir)
     Dir.mkdir(epub_img_dir)
