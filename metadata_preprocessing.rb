@@ -139,12 +139,12 @@ File.open(configfile, 'w+') do |f|
 	f.puts '"printjs":"' + pdf_js_file + '",'
 	f.puts '"ebookcss":"' + epub_css_file + '",'
 	f.puts '"pod_toc":"' + toc_value + '",'
-	f.puts '"frontcover":"' + frontcover + '",'
+	f.puts '"frontcover":"' + frontcover + '"'
 	unless epubtitlepage.nil?
-		f.puts '"epubtitlepage":"' + epubtitlepage + '",'
+		f.puts ',"epubtitlepage":"' + epubtitlepage + '"'
 	end
 	unless podtitlepage.nil?
-		f.puts '"podtitlepage":"' + podtitlepage + '"'
+		f.puts ',"podtitlepage":"' + podtitlepage + '"'
 	end
 	f.puts '}'
 end
