@@ -61,13 +61,13 @@ if etparr.any?
 elsif ptparr.any?
   epubtitlepage = ptparr.find { |e| /[\/|\\]titlepage\./ =~ e }
 else
-  epubtitlepage = "Unknown"
+  epubtitlepage = ""
 end
 
 if ptparr.any?
   podtitlepage = ptparr.find { |e| /[\/|\\]titlepage\./ =~ e }
 else
-  podtitlepage = "Unknown"
+  podtitlepage = ""
 end
 
 # Finding author name(s)
@@ -140,7 +140,11 @@ File.open(configfile, 'w+') do |f|
 	f.puts '"ebookcss":"' + epub_css_file + '",'
 	f.puts '"pod_toc":"' + toc_value + '",'
 	f.puts '"frontcover":"' + frontcover + '",'
-	f.puts '"epubtitlepage":"' + epubtitlepage + '",'
-	f.puts '"podtitlepage":"' + podtitlepage + '"'
+	unless epubtitlepage.nil?
+		f.puts '"epubtitlepage":"' + epubtitlepage + '",'
+	end
+	unless podtitlepage.nil?
+		f.puts '"podtitlepage":"' + podtitlepage + '"'
+	end
 	f.puts '}'
 end
