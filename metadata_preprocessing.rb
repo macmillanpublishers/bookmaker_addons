@@ -61,13 +61,13 @@ if etparr.any?
 elsif ptparr.any?
   epubtitlepage = ptparr.find { |e| /[\/|\\]titlepage\./ =~ e }
 else
-  epubtitlepage = ""
+  epubtitlepage = "Unknown"
 end
 
 if ptparr.any?
   podtitlepage = ptparr.find { |e| /[\/|\\]titlepage\./ =~ e }
 else
-  podtitlepage = ""
+  podtitlepage = "Unknown"
 end
 
 # Finding author name(s)
