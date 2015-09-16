@@ -93,11 +93,7 @@ FileUtils.cp Dir["#{assets_dir}/images/#{project_dir}/*"].select {|f| test ?f, f
 
 if Bkmkr::Tools.os == "mac" or Bkmkr::Tools.os == "unix"
 	ftpfile = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_ftpupload", "imageupload.sh")
-	pdfimages = Dir.entries(pdftmp_dir).select { |f| !File.directory? f }
-	pdfimages.each do |i|
-		myfile = i.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
-		`#{ftpfile} #{myfile} #{pdftmp_dir}`
-	end
+	`#{ftpfile} #{pdftmp_dir}>> #{Bkmkr::Paths.log_file}`
 elsif Bkmkr::Tools.os == "windows"
 	ftpfile = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_ftpupload", "imageupload.bat")
 	`#{ftpfile} #{pdftmp_dir} #{Bkmkr::Paths.project_tmp_dir_img}`
