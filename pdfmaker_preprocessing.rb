@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 require 'fileutils'
+require 'cgi'
 
 require_relative '../bookmaker/core/header.rb'
 require_relative '../bookmaker/core/metadata.rb'
@@ -43,8 +44,6 @@ unless Metadata.podtitlepage == "Unknown"
   File.open(pdf_tmp_html, 'w') do |output| 
     output.write filecontents
   end
-  pdfmakerpreprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "pdfmaker_preprocessing.js")
-  Bkmkr::Tools.runnode(pdfmakerpreprocessingjs, pdf_tmp_html)
 end
 
 #if any images are in 'done' dir, grayscale and upload them to macmillan.tools site
@@ -98,6 +97,18 @@ elsif Bkmkr::Tools.os == "windows"
 	ftpfile = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_ftpupload", "imageupload.bat")
 	`#{ftpfile} #{pdftmp_dir} #{Bkmkr::Paths.project_tmp_dir_img}`
 end
+
+# Add book metadata to head
+encbooktitle = CGI.escapeHTML(Metadata.booktitle)
+encbookauthor = CGI.escapeHTML(Metadata.bookauthor)
+encpisbn = CGI.escapeHTML(Metadata.pisbn)
+encimprint = CGI.escapeHTML(Metadata.imprint)
+encpublisher = CGI.escapeHTML(Metadata.publisher)
+
+# run content conversions
+pdfmakerpreprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "pdfmaker_preprocessing.js")
+args = "#{pdf_tmp_html} '#{encbooktitle}' '#{encbookauthor}' '#{encpisbn}' '#{encimprint}' '#{encpublisher}'"
+Bkmkr::Tools.runnode(pdfmakerpreprocessingjs, args)
 
 # fixes images in html, keep final words and ellipses from breaking
 # .gsub(/([a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9]\s\. \. \.)/,"<span class=\"bookmakerkeeptogetherkt\">\\0</span>")
