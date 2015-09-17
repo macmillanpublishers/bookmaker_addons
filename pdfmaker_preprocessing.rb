@@ -98,16 +98,9 @@ elsif Bkmkr::Tools.os == "windows"
 	`#{ftpfile} #{pdftmp_dir} #{Bkmkr::Paths.project_tmp_dir_img}`
 end
 
-# Add book metadata to head
-encbooktitle = CGI.escapeHTML(Metadata.booktitle)
-encbookauthor = CGI.escapeHTML(Metadata.bookauthor)
-encpisbn = CGI.escapeHTML(Metadata.pisbn)
-encimprint = CGI.escapeHTML(Metadata.imprint)
-encpublisher = CGI.escapeHTML(Metadata.publisher)
-
 # run content conversions
 pdfmakerpreprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "pdfmaker_preprocessing.js")
-args = "#{pdf_tmp_html} '#{encbooktitle}' '#{encbookauthor}' '#{encpisbn}' '#{encimprint}' '#{encpublisher}'"
+args = "#{pdf_tmp_html} '#{Metadata.booktitle}' '#{Metadata.bookauthor}' '#{Metadata.pisbn}' '#{Metadata.imprint}' '#{Metadata.publisher}'"
 Bkmkr::Tools.runnode(pdfmakerpreprocessingjs, args)
 
 # fixes images in html, keep final words and ellipses from breaking
