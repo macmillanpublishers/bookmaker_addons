@@ -30,7 +30,7 @@ fs.readFile(file, function editContent (err, contents) {
   $('section[data-type="halftitlepage"]').remove();
 
   // create hyperlinks
-  $('span.spanhyperlinkurl:not(:has(>a))').contents().wrap(function() {
+  $('span.spanhyperlinkurl:not(:has(a))').contents().wrap(function() {
     return "<a href='" + $( this ).text() + "'></a>";
   });
 
