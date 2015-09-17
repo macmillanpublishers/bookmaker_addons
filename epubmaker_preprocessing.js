@@ -29,6 +29,11 @@ fs.readFile(file, function editContent (err, contents) {
   // remove halftitle page sections
   $('section[data-type="halftitlepage"]').remove();
 
+  // create hyperlinks
+  $('span.spanhyperlinkurl:not(:has(>a))').contents().wrap(function() {
+    return "<a href='" + $( this ).text() + "'></a>";
+  });
+
   var output = $.html();
 	  fs.writeFile(file, output, function(err) {
 	    if(err) {
