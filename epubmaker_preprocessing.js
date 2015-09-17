@@ -31,7 +31,7 @@ fs.readFile(file, function editContent (err, contents) {
 
   // create hyperlinks
   var testy = "<a>test</a>"
-  $('span.spanhyperlinkurl').append(testy);
+  $('span.spanhyperlinkurl:not(:has(a))').append(testy);
 
   var output = $.html();
 	  fs.writeFile(file, output, function(err) {
