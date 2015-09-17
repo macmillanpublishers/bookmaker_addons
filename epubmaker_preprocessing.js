@@ -19,7 +19,7 @@ fs.readFile(file, function editContent (err, contents) {
   	$('section[data-type="titlepage"]').append(image);
   }
 
-  $('section[data-type="copyright-page"]:last-child').removeClass( "CopyrightTextsinglespacecrtx" ).addClass( "CopyrightTextdoublespacecrtxd" );
+  $('section[data-type="copyright-page"] p:last-child').removeClass( "CopyrightTextsinglespacecrtx" ).addClass( "CopyrightTextdoublespacecrtxd" );
 
   var notice = '<p class="CopyrightTextsinglespacecrtx">Our eBooks may be purchased in bulk for promotional, educational, or business use. Please contact the Macmillan Corporate and Premium Sales Department at 1-800-221-7945, ext. 5442, or by e-mail at <a href="mailto:MacmillanSpecialMarkets@macmillan.com">MacmillanSpecialMarkets@macmillan.com</a>.</p>';
 
