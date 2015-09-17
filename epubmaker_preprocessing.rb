@@ -99,15 +99,6 @@ end
 epubmakerpreprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "epubmaker_preprocessing.js")
 Bkmkr::Tools.runnode(epubmakerpreprocessingjs, epub_tmp_html)
 
-# strip halftitlepage from html
-strip_halftitle_xsl = File.join(Bkmkr::Paths.core_dir, "epubmaker", "strip-halftitle.xsl")
-
-copyright_xsl = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "copyrightpagenotice.xsl")
-
-#{}`java -jar "#{saxonpath}" -s:"#{epub_tmp_html}" -xsl:"#{strip_halftitle_xsl}" -o:"#{epub_tmp_html}"`
-
-#`java -jar "#{saxonpath}" -s:"#{epub_tmp_html}" -xsl:"#{copyright_xsl}" -o:"#{epub_tmp_html}"`
-
 # replace titlepage info with image IF image exists in submission dir
 # js: replace titlepage innerhtml, prepend h1 w class nonprinting
 
