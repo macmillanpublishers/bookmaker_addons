@@ -99,7 +99,7 @@ end
 
 # run content conversions
 pdfmakerpreprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "pdfmaker_preprocessing.js")
-args = "#{pdf_tmp_html} '#{Metadata.booktitle}' '#{Metadata.bookauthor}' '#{Metadata.pisbn}' '#{Metadata.imprint}' '#{Metadata.publisher}'"
+args = "\"#{pdf_tmp_html}\" \"#{Metadata.booktitle}\" \"#{Metadata.bookauthor}\" \"#{Metadata.pisbn}\" \"#{Metadata.imprint}\" \"#{Metadata.publisher}\""
 Bkmkr::Tools.runnode(pdfmakerpreprocessingjs, args)
 
 # fixes images in html, keep final words and ellipses from breaking
