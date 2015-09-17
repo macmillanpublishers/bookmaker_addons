@@ -30,7 +30,8 @@ fs.readFile(file, function editContent (err, contents) {
   $('section[data-type="halftitlepage"]').remove();
 
   // create hyperlinks
-  $('.spanhyperlinkurl:not(:has(a))').html().replaceWith("<a href='" + $( this ).text() + "'>" + $( this ) + "</a>");
+  var testy = "<a>test</a>"
+  $('span.spanhyperlinkurl').append(testy);
 
   var output = $.html();
 	  fs.writeFile(file, output, function(err) {
