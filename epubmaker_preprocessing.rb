@@ -65,10 +65,13 @@ end
 # convert image to jpg
 # copy to image dir
 
+puts Metadata.epubtitlepage
 unless Metadata.epubtitlepage == "Unknown"
   puts "found an epub titlepage image"
   etpfilename = Metadata.epubtitlepage.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
+  puts etpfilename
   etpfiletype = etpfilename.split(".").pop
+  puts etpfiletype
   epubtitlepagearc = File.join(finalimagedir, etpfilename)
   epubtitlepagetmp = File.join(epub_img_dir, "epubtitlepage.jpg")
   if etpfiletype == "jpg"
