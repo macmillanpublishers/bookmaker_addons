@@ -30,7 +30,7 @@ fs.readFile(file, function editContent (err, contents) {
   $('section[data-type="halftitlepage"]').remove();
 
   // add chap numbers to chap titles if specified
-  $("section[data-labeltext]").each(function () {
+  $("h1[data-labeltext]").each(function () {
       var labeltext = $(this).attr('data-labeltext');
       $(this).prepend(labeltext + ": ");    
   });
