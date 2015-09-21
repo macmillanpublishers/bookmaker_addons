@@ -14,13 +14,14 @@ fs.readFile(file, function editContent (err, contents) {
 
 // add titlepage image if applicable
   if ($('section[data-titlepage="yes"]').length) {
-  	//remove content
-  	$('section[data-type="titlepage"]').empty();
-  	//add image holder
-  	image = '<figure class="fullpage"><img src="images/titlepage_fullpage.jpg"/></figure>';
-  	$('section[data-type="titlepage"]').append(image);
+    //remove content
+    $('section[data-type="titlepage"]').empty();
+    //add image holder
+    image = '<figure class="Illustrationholderill fullpage"><img src="images/titlepage_fullpage.jpg"/></figure>';
+    $('section[data-type="titlepage"]').append(image);
   }
 
+  // add metadata for runheads
   var metabooktitle = '<meta name="title" content="' + booktitle + '"/>';
   var metabookauthor = '<meta name="author" content="' + bookauthor + '"/>';
   var metapisbn = '<meta name="isbn-13" content="' + pisbn + '"/>';
@@ -33,12 +34,15 @@ fs.readFile(file, function editContent (err, contents) {
   $('head').append(metaimprint);
   $('head').append(metapublisher);
 
-  var output = $.html();
-	  fs.writeFile(file, output, function(err) {
-	    if(err) {
-	        return console.log(err);
-	    }
+  // add figure fullpage class as needed
+  $('img[src*="fullpage"]').parent().addClass( "fullpage" );
 
-	    console.log("Content has been updated!");
-	});
+  var output = $.html();
+    fs.writeFile(file, output, function(err) {
+      if(err) {
+          return console.log(err);
+      }
+
+      console.log("Content has been updated!");
+  });
 });

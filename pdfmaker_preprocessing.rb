@@ -63,24 +63,24 @@ if image_count > 0
 			myres = myres.to_f
 			myheight = `identify -format "%h" "#{pdfimage}"`
 			myheight = myheight.to_f
-			myheightininches = ((myheight / myres) * 72.0)
-			mywidth = `identify -format "%h" "#{pdfimage}"`
+			myheightininches = (myheight / myres)
+			mywidth = `identify -format "%w" "#{pdfimage}"`
 			mywidth = mywidth.to_f
-			mywidthininches = ((mywidth / myres) * 72.0)
+			mywidthininches = (mywidth / myres)
 			if mywidthininches > 3.5 or myheightininches > 5.5 then
 				targetheight = 5.5 * myres
 				targetwidth = 3.5 * myres
-				`convert "#{pdfimage}" -resize "#{targetwidth}x#{targetheight}>" "#{pdfimage}"`
+				`convert "#{pdfimage}" -density #{myres} -resize "#{targetwidth}x#{targetheight}>" -quality 100 "#{pdfimage}"`
 			end
 			myheight = `identify -format "%h" "#{pdfimage}"`
 			myheight = myheight.to_f
-			myheightininches = ((myheight / myres) * 72.0)
+			myheightininches = (myheight / myres)
 			mymultiple = ((myheight / myres) * 72.0) / 16.0
 			if mymultiple <= 1
-				`convert "#{pdfimage}" -colorspace gray "#{pdfimage}"`
+				`convert "#{pdfimage}" -density #{myres} -colorspace gray "#{pdfimage}"`
 			else 
 				newheight = ((mymultiple.floor * 16.0) / 72.0) * myres
-				`convert "#{pdfimage}" -resize "x#{newheight}" -colorspace gray "#{pdfimage}"`
+				`convert "#{pdfimage}" -density #{myres} -resize "x#{newheight}" -quality 100 -colorspace gray "#{pdfimage}"`
 			end
 		end
 	end
