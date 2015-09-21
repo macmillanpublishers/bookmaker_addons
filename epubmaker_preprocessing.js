@@ -29,6 +29,12 @@ fs.readFile(file, function editContent (err, contents) {
   // remove halftitle page sections
   $('section[data-type="halftitlepage"]').remove();
 
+  // add chap numbers to chap titles if specified
+  $("section[data-labeltext]").each(function () {
+      var labeltext = $(this).attr('data-labeltext');
+      $(this).prepend(labeltext + ": ");    
+  });
+
   var output = $.html();
 	  fs.writeFile(file, output, function(err) {
 	    if(err) {
