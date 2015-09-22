@@ -35,6 +35,11 @@ fs.readFile(file, function editContent (err, contents) {
       $(this).prepend(labeltext + ": ");    
   });
 
+  $('span.spanhyperlinkurl:not(:has(a))').contents().wrap(function() {
+    console.log("working");
+    return "<a href='" + $( this ).text() + "'></a>";
+  });
+
   var output = $.html();
 	  fs.writeFile(file, output, function(err) {
 	    if(err) {
