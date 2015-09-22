@@ -35,9 +35,10 @@ fs.readFile(file, function editContent (err, contents) {
       $(this).prepend(labeltext + ": ");    
   });
 
-  $('span.spanhyperlinkurl:not(:has(a))').contents().wrap(function() {
-    console.log("working");
-    return "<a href='" + $( this ).text() + "'></a>";
+  $("span.spanhyperlinkurl:not(:has(a))").each(function () {
+      var newlink = "<a href='" + $( this ).text() + "'>" + $( this ).text() + "</a>";
+      $(this).empty();
+      $(this).prepend(newlink); 
   });
 
   var output = $.html();
