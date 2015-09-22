@@ -37,6 +37,11 @@ fs.readFile(file, function editContent (err, contents) {
 
   $("span.spanhyperlinkurl:not(:has(a))").each(function () {
       var newlink = "<a href='" + $( this ).text() + "'>" + $( this ).text() + "</a>";
+      var mypattern = new RegExp($( this ).text(), "g");
+      var result = mypattern.test("^http://");
+      if (result === false) {
+        newlink = newlink.replace("href='", "href='http://");
+      }
       $(this).empty();
       $(this).prepend(newlink); 
   });
