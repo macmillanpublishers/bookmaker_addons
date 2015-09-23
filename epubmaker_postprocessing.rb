@@ -31,7 +31,7 @@ File.open("#{OEBPS_dir}/toc.ncx", "w") {|file| file.puts replace}
 # fix title page text in html toc
 htmlcontents = File.read("#{OEBPS_dir}/toc01.html")
 copyright_li = htmlcontents.match(/<li data-type="copyright-page".*?<\/li>/)
-replace = htmlcontents.gsub(/(titlepage01.html#.*?">)(.*?)(<\/a>)/,"\\1Title Page\\3").gsub(/(<li data-type="copyright-page">)/,"<li data-type=\"toc\" class=\"Nonprinting\"><a href=\"toc01.html\">Contents</a></li>\\1").gsub(/(<li data-type="preface")(><a href=".*">Newsletter Sign-up)/,"\\1 class=\"Nonprinting\"\\2")
+replace = htmlcontents.gsub(/(titlepage01.html#.*?">)(.*?)(<\/a>)/,"\\1Title Page\\3").gsub(/(<li data-type="copyright-page">)/,"<li data-type=\"toc\" class=\"Nonprinting\"><a href=\"toc01.html\">Contents</a></li>\\1").gsub(/(<li data-type="preface")(><a href=".*">Newsletter Sign-up)/,"\\1 class=\"Nonprinting\"\\2").gsub(/<li data-type="cover"><a href="\#bookcover01"\/>/,"<li data-type=\"cover\" class=\"Nonprinting\"><a href=\"cover.html\">Cover</a>")
 File.open("#{OEBPS_dir}/toc01.html", "w") {|file| file.puts replace}
 
 # add toc to text flow
