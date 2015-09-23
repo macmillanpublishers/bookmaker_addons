@@ -24,7 +24,7 @@ end
 # fix toc entry in ncx
 # fix title page text in ncx
 ncxcontents = File.read("#{OEBPS_dir}/toc.ncx")
-replace = ncxcontents.gsub(/<navLabel><text\/><\/navLabel><content src="toc/,"<navLabel><text>Contents</text><\/navLabel><content src=\"toc").gsub(/(<navLabel><text>)(.*?)(<\/text><\/navLabel><content src="titlepage)/,"\\1Title Page\\3")
+replace = ncxcontents.gsub(/<navLabel><text\/><\/navLabel><content src="toc/,"<navLabel><text>Contents</text><\/navLabel><content src=\"toc").gsub(/(<navLabel><text>)([a-zA-Z\s]*?)(<\/text><\/navLabel><content src="titlepage)/,"\\1Title Page\\3")
 File.open("#{OEBPS_dir}/toc.ncx", "w") {|file| file.puts replace}
 
 # hide toc entry in html toc
