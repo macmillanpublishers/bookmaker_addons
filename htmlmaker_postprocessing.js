@@ -20,7 +20,7 @@ fs.readFile(file, function editContent (err, contents) {
         if (that && that.nodeType === 1 && that.tagName === this.tagName && typeof $(that).attr('class') !== 'undefined') {
               var thatClass = $(that).attr('class');
               if (thisClass === thatClass) {
-              var node = document.createElement(this.tagName);
+              var node = createElement(this.tagName);
               while (that.firstChild) {
                   node.appendChild(that.firstChild);
               }
