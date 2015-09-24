@@ -17,7 +17,7 @@ fs.readFile(file, function editContent (err, contents) {
       $(this).find("span[class], em[class], strong[class]").each(function () {
         var thisClass = $(this).attr('class');
         var that = this.previousSibling;
-        if (that && that.nodeType === Node.ELEMENT_NODE && that.tagName === this.tagName && typeof $(that).attr('class') !== 'undefined') {
+        if (that && that.nodeType === 1 && that.tagName === this.tagName && typeof $(that).attr('class') !== 'undefined') {
               var thatClass = $(that).attr('class');
               if (thisClass === thatClass) {
               var node = document.createElement(this.tagName);
