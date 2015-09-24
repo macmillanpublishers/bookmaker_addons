@@ -16,12 +16,7 @@ fs.readFile(file, function editContent (err, contents) {
   $("p[class^='ChapOpeningText']").each(function (i) {
    $(this).children("span.spansmallcapscharacterssc").each(function () {
         var that = this.previousSibling;
-        var thisClass = $(this).attr('class');
-        console.log(thisClass);
-        var thatClass = $(that).attr('class');
-        console.log(thatClass);
         var testing = $(that).hasClass('spansmallcapscharacterssc');
-        console.log(testing);
         if ((that && that.nodeType === 1 && that.tagName === this.tagName && typeof $(that).attr('class') !== 'undefined' && $(that).hasClass('spansmallcapscharacterssc') === true) || (!that)) {
           $(this).addClass("chapopener");
         }
