@@ -47,7 +47,7 @@ end
 File.open("#{OEBPS_dir}/content.opf", "w") {|file| file.puts replace}
 
 # remove titlepage.jpg if exists
-podtitlepagetmp = File.join(epub_img_dir, "titlepage.jpg")
+podtitlepagetmp = File.join(OEBPS_dir, "titlepage.jpg")
 if File.file?(podtitlepagetmp)
 	FileUtils.rm(podtitlepagetmp)
 end
