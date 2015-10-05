@@ -40,18 +40,7 @@ if eisbn.length == 0
 	eisbn = Bkmkr::Project.filename
 end
 
-# find a front cover image
-
-fcfile = File.join(Bkmkr::Paths.submitted_images, "#{eisbn}_FC.jpg")
-
-if File.file?(fcfile)
-	frontcover = "#{eisbn}_FC.jpg"
-else
-	frontcover = "#{pisbn}_FC.jpg"
-end
-
 # find titlepage images
-
 allimg = File.join(Bkmkr::Paths.submitted_images, "*")
 etparr = Dir[allimg].select { |f| f.include?('epubtitlepage.')}
 ptparr = Dir[allimg].select { |f| f.include?('titlepage.')}
@@ -68,6 +57,27 @@ if ptparr.any?
   podtitlepage = ptparr.find { |e| /[\/|\\]titlepage\./ =~ e }
 else
   podtitlepage = ""
+end
+
+# Find front cover
+coverdir = File.join(Bkmkr::Paths.done_dir, pisbn, "cover", cover)
+allcover = File.join(coverdir, "*")
+fcarr1 = Dir[allimg].select { |f| f.include?('_FC.')}
+
+if File.exist?(coverdir)
+	fcarr2 = Dir[allcover].select { |f| f.include?('_FC.')}
+else
+	fcarr2 = []
+end
+
+if fcarr1.any?
+  mycover = fcarr1.max_by(&File.method(:ctime))
+  frontcover = mycover.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
+elsif fcarr2.any?
+  mycover = fcarr2.max_by(&File.method(:ctime))
+  frontcover = mycover.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
+else
+  frontcover = ""
 end
 
 # Finding author name(s)
