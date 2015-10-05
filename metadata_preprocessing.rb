@@ -60,7 +60,7 @@ else
 end
 
 # Find front cover
-coverdir = File.join(Bkmkr::Paths.done_dir, pisbn, "cover", cover)
+coverdir = File.join(Bkmkr::Paths.done_dir, pisbn, "cover")
 allcover = File.join(coverdir, "*")
 fcarr1 = Dir[allimg].select { |f| f.include?('_FC.')}
 
