@@ -42,19 +42,28 @@ end
 
 # find titlepage images
 allimg = File.join(Bkmkr::Paths.submitted_images, "*")
-etparr = Dir[allimg].select { |f| f.include?('epubtitlepage.')}
-ptparr = Dir[allimg].select { |f| f.include?('titlepage.')}
+finalimg = File.join(Bkmkr::Paths.done_dir, pisbn, "images", "*")
+etparr1 = Dir[allimg].select { |f| f.include?('epubtitlepage.')}
+ptparr1 = Dir[allimg].select { |f| f.include?('titlepage.')}
+etparr2 = Dir[finalimg].select { |f| f.include?('epubtitlepage.')}
+ptparr2 = Dir[finalimg].select { |f| f.include?('titlepage.')}
 
-if etparr.any?
-  epubtitlepage = etparr.find { |e| /[\/|\\]epubtitlepage\./ =~ e }
-elsif ptparr.any?
-  epubtitlepage = ptparr.find { |e| /[\/|\\]titlepage\./ =~ e }
+if etparr1.any?
+  epubtitlepage = etparr1.find { |e| /[\/|\\]epubtitlepage\./ =~ e }
+elsif etparr2.any?
+  epubtitlepage = etparr2.find { |e| /[\/|\\]epubtitlepage\./ =~ e }
+elsif ptparr1.any?
+  epubtitlepage = ptparr1.find { |e| /[\/|\\]titlepage\./ =~ e }
+elsif ptparr2.any?
+  epubtitlepage = ptparr2.find { |e| /[\/|\\]titlepage\./ =~ e }
 else
   epubtitlepage = ""
 end
 
-if ptparr.any?
-  podtitlepage = ptparr.find { |e| /[\/|\\]titlepage\./ =~ e }
+if ptparr1.any?
+  podtitlepage = ptparr1.find { |e| /[\/|\\]titlepage\./ =~ e }
+elsif ptparr2.any?
+  podtitlepage = ptparr2.find { |e| /[\/|\\]titlepage\./ =~ e }
 else
   podtitlepage = ""
 end
