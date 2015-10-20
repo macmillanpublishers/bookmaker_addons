@@ -158,7 +158,13 @@ File.open(configfile, 'w+') do |f|
 	f.puts '"printjs":"' + pdf_js_file + '",'
 	f.puts '"ebookcss":"' + epub_css_file + '",'
 	f.puts '"pod_toc":"' + toc_value + '",'
-	f.puts '"frontcover":"' + frontcover + '"'
+	if stage_dir == "firstpass" and frontcover.empty?
+		f.puts '"frontcover":"' + pisbn + '_FC.jpg"'
+	elsif stage_dir == "egalley" and frontcover.empty?
+		f.puts '"frontcover":"' + pisbn + '_FC.jpg"'
+	else
+		f.puts '"frontcover":"' + frontcover + '"'
+	end
 	unless epubtitlepage.nil?
 		f.puts ',"epubtitlepage":"' + epubtitlepage + '"'
 	end
