@@ -4,9 +4,9 @@
 param([string]$inputFile)
 
 # don't forget to set these for your Bookmaker environment!
-$logDir="C:\Users\erica.warren\bookmaker\log\"
+$logDir="S:\resources\logs\"
 # the bookmaker_tmp dir, that is, without the root
-$tmpDir="\Users\erica.warren\bookmaker\bookmaker_tmp\" 	
+$tmpDir="\bookmaker_tmp\" 	
 
 # getting the path inputs
 $currVolPath=Get-Location
