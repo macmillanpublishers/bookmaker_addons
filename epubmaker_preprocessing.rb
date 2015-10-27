@@ -106,7 +106,9 @@ Bkmkr::Tools.runnode(epubmakerpreprocessingjs, epub_tmp_html)
 logo_img = File.join(assets_dir, "images", project_dir, "logo.jpg")
 
 #copy logo image file to epub folder
-FileUtils.cp(logo_img, epub_img_dir)
+if File.file?(logo_img)
+  FileUtils.cp(logo_img, epub_img_dir)
+end
 
 #copy addon images to epub folder
 addon_imgs = File.join(assets_dir, "addons", "images", ".")
