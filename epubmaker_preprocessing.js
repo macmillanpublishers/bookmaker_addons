@@ -40,7 +40,7 @@ fs.readFile(file, function editContent (err, contents) {
       var mypattern = new RegExp($( this ).text(), "g");
       var result1 = mypattern.test("^http://");
       var result2 = mypattern.test("^https://");
-      if (result1 === false) && (result2 === false) {
+      if (result1 === false && result2 === false) {
         newlink = newlink.replace("href='", "href='http://");
       }
       $(this).empty();
