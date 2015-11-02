@@ -35,13 +35,17 @@ fs.readFile(file, function editContent (err, contents) {
       $(this).prepend(labeltext + ": ");    
   });
 
-  $("span.spanhyperlinkurl:not(:has(a))").each(function () {
+$("span.spanhyperlinkurl:not(:has(a))").each(function () {
       var newlink = "<a href='" + $( this ).text() + "'>" + $( this ).text() + "</a>";
-      var mypattern = new RegExp($( this ).text(), "g");
-      var result1 = mypattern.test("^http://");
-      var result2 = mypattern.test("^https://");
+      var mypattern1 = new RegExp( "https?://", "g");
+      var result1 = mypattern1.test($( this ).text());
+      var mypattern2 = new RegExp( "^@", "g");
+      var result2 = mypattern2.test($( this ).text());
       if (result1 === false && result2 === false) {
         newlink = newlink.replace("href='", "href='http://");
+      }
+      if (result1 === false && result2 === true) {
+        newlink = newlink.replace("href='@", "href='https://twitter.com/");
       }
       $(this).empty();
       $(this).prepend(newlink); 
