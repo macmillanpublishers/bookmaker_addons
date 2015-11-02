@@ -43,8 +43,8 @@ If ($filenameSplit -eq $filename + $fileType)
 	# Have to add [ref]s for certain versions of powershell (2.0), we'll see which way works on server
 	# https://richardspowershellblog.wordpress.com/2012/10/15/powershell-3-and-word/
 	# so only use one or the other of these next two lines
-	$doc.saveas($folderpath, $wdFormatDocx)
-	#$doc.saveas([ref]$folderpath, [ref]$wdFormatDocx)
+	# $doc.saveas($folderpath, $wdFormatDocx)
+	$doc.saveas([ref]$folderpath, [ref]$wdFormatDocx)
 	
 	$doc.close()
 	$word.Quit()
