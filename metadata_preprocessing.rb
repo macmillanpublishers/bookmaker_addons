@@ -108,6 +108,8 @@ else
 	myhash = {}
 end
 
+puts myhash['WORK_COVERAUTHOR']
+
 # Finding author name(s)
 if myhash['WORK_COVERAUTHOR'].nil? or myhash['WORK_COVERAUTHOR'].empty? or !myhash['WORK_COVERAUTHOR']
 	authorname = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageAuthorNameau">.*?</).join(",").gsub(/<p class="TitlepageAuthorNameau">/,"").gsub(/</,"")
