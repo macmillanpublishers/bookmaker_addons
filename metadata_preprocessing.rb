@@ -99,12 +99,12 @@ test_eisbn_length = eisbn.split(%r{\s*})
 if test_pisbn_length.length == 13 and test_pisbn_chars.length != 0
 	thissql = exactSearchSingleKey(pisbn, "EDITION_EAN")
 	myarray = runQuery(thissql)
-	myhash = Hash[myarray.map {|key, value| [key, value]}]
+	myhash = Hash[myarray.map {|key, value| {key=>value}]
 	puts myhash
 elsif test_eisbn_length.length == 13 and test_eisbn_chars.length != 0
 	thissql = exactSearchSingleKey(eisbn, "EDITION_EAN")
 	myarray = runQuery(thissql)
-	myhash = Hash[myarray.map {|key, value| [key, value]}]
+	myhash = Hash[myarray.map {|key, value| {key=>value}]
 	puts myhash
 else
 	myhash = {}
