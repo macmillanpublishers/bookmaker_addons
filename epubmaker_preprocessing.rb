@@ -2,6 +2,7 @@ require 'fileutils'
 
 require_relative '../bookmaker/core/header.rb'
 require_relative '../bookmaker/core/metadata.rb'
+require_relative '../utilities/oraclequery.rb'
 
 # These commands should run immediately prior to epubmaker
 
@@ -143,9 +144,17 @@ Bkmkr::Tools.insertaddons(epub_tmp_html, sectionjson, addonjson)
 # evaluate templates
 Bkmkr::Tools.compileJS(epub_tmp_html)
 
+# find the author ID
+thissql = personSearchSingleKey(pisbn, "EDITION_EAN", "Author")
+myhash = runQuery(thissql)
+
 # suppress addon headers as needed
 linkauthorname = "#{Metadata.bookauthor}".downcase.gsub(/\s/,"")
-filecontents = File.read(epub_tmp_html).gsub(/(data-displayheader="no")/,"class=\"ChapTitleNonprintingctnp\" \\1").gsub(/\{\{IMPRINT\}\}/,"#{Metadata.imprint}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthorname}").gsub(/\{\{EISBN\}\}/,"#{Metadata.eisbn}")
+if myhash['book']['PERSON_PARTNERID'].nil? or myhash['book']['PERSON_PARTNERID'].empty? or !myhash['book']['PERSON_PARTNERID']
+  filecontents = File.read(epub_tmp_html).gsub(/(data-displayheader="no")/,"class=\"ChapTitleNonprintingctnp\" \\1").gsub(/\{\{IMPRINT\}\}/,"#{Metadata.imprint}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthorname}").gsub(/\{\{EISBN\}\}/,"#{Metadata.eisbn}")
+else
+  filecontents = File.read(epub_tmp_html).gsub(/(data-displayheader="no")/,"class=\"ChapTitleNonprintingctnp\" \\1").gsub(/\{\{IMPRINT\}\}/,"#{Metadata.imprint}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthorname}").gsub(/\{\{AUTHORID\}\}/,"#{myhash['book']['PERSON_PARTNERID']}").gsub(/\{\{EISBN\}\}/,"#{Metadata.eisbn}").gsub(/<!--AUTHORSIGNUPSTART/,"").gsub(/AUTHORSIGNUPEND-->/,"")
+end
 
 File.open(epub_tmp_html, 'w') do |output| 
   output.write filecontents
