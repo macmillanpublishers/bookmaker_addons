@@ -145,7 +145,7 @@ Bkmkr::Tools.insertaddons(epub_tmp_html, sectionjson, addonjson)
 Bkmkr::Tools.compileJS(epub_tmp_html)
 
 # find the author ID
-thissql = personSearchSingleKey(pisbn, "EDITION_EAN", "Author")
+thissql = personSearchSingleKey(Metadata.eisbn, "EDITION_EAN", "Author")
 myhash = runQuery(thissql)
 
 # suppress addon headers as needed
