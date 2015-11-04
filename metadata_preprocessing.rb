@@ -99,10 +99,12 @@ test_eisbn_length = eisbn.split(%r{\s*})
 if test_pisbn_length.length == 13 and test_pisbn_chars.length != 0
 	thissql = exactSearchSingleKey(pisbn, "EDITION_EAN")
 	myhash = runQuery(thissql)
+	myhash = try_convert(myhash)
 	puts myhash
 elsif test_eisbn_length.length == 13 and test_eisbn_chars.length != 0
 	thissql = exactSearchSingleKey(eisbn, "EDITION_EAN")
 	myhash = runQuery(thissql)
+	myhash = try_convert(myhash)
 	puts myhash
 else
 	myhash = {}
