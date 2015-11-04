@@ -109,11 +109,11 @@ else
 end
 
 # Finding author name(s)
-unless myhash['WORK_COVERAUTHOR'].nil? or myhash['WORK_COVERAUTHOR'].empty? or !myhash['WORK_COVERAUTHOR']
+if myhash['WORK_COVERAUTHOR'].nil? or myhash['WORK_COVERAUTHOR'].empty? or !myhash['WORK_COVERAUTHOR']
+	authorname = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageAuthorNameau">.*?</).join(",").gsub(/<p class="TitlepageAuthorNameau">/,"").gsub(/</,"")
+else
 	authorname = myhash['WORK_COVERAUTHOR']
 	puts authorname
-else
-	authorname = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageAuthorNameau">.*?</).join(",").gsub(/<p class="TitlepageAuthorNameau">/,"").gsub(/</,"")
 end
 
 # Finding book title
