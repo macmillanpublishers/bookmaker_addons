@@ -1,7 +1,7 @@
 require 'fileutils'
 
 require_relative '../bookmaker/core/header.rb'
-require_relative "../utilities/oraclequery.rb"
+require_relative '../utilities/oraclequery.rb'
 
 # formerly in metadata.rb
 # testing to see if ISBN style exists
@@ -109,8 +109,9 @@ else
 end
 
 # Finding author name(s)
-unless myhash["WORK_COVERAUTHOR"].nil? or myhash["WORK_COVERAUTHOR"].empty? or !myhash["WORK_COVERAUTHOR"]
-	authorname = myhash["WORK_COVERAUTHOR"]
+unless myhash['WORK_COVERAUTHOR'].nil? or myhash['WORK_COVERAUTHOR'].empty? or !myhash['WORK_COVERAUTHOR']
+	authorname = myhash['WORK_COVERAUTHOR']
+	puts authorname
 else
 	authorname = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageAuthorNameau">.*?</).join(",").gsub(/<p class="TitlepageAuthorNameau">/,"").gsub(/</,"")
 end
