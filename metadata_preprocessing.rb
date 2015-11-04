@@ -108,6 +108,7 @@ else
 	myhash = {}
 end
 
+puts myhash.inspect
 puts myhash['book']['WORK_COVERAUTHOR']
 
 # Finding author name(s)
