@@ -108,7 +108,7 @@ else
 	myhash = {}
 end
 
-puts myhash['WORK_COVERAUTHOR']
+puts myhash['book']['WORK_COVERAUTHOR']
 
 # Finding author name(s)
 if myhash['WORK_COVERAUTHOR'].nil? or myhash['WORK_COVERAUTHOR'].empty? or !myhash['WORK_COVERAUTHOR']
