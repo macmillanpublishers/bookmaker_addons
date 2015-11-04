@@ -1,6 +1,7 @@
 require 'fileutils'
 
 require_relative '../bookmaker/core/header.rb'
+require_relative "../utilities/oraclequery.rb"
 
 # formerly in metadata.rb
 # testing to see if ISBN style exists
@@ -89,14 +90,42 @@ else
   frontcover = ""
 end
 
+# connect to DB for all other metadata
+test_pisbn_chars = pisbn.scan(/\d\d\d\d\d\d\d\d\d\d\d\d\d/)
+test_pisbn_length = pisbn.split(%r{\s*})
+test_eisbn_chars = eisbn.scan(/\d\d\d\d\d\d\d\d\d\d\d\d\d/)
+test_eisbn_length = eisbn.split(%r{\s*})
+
+if test_pisbn_length.length == 13 and test_pisbn_chars.length != 0
+	thissql = exactSearchSingleKey(pisbn, "EDITION_EAN")
+	myhash = runQuery(thissql)
+elsif test_eisbn_length.length == 13 and test_eisbn_chars.length != 0
+	thissql = exactSearchSingleKey(eisbn, "EDITION_EAN")
+	myhash = runQuery(thissql)
+else
+	myhash = {}
+end
+
 # Finding author name(s)
-authorname = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageAuthorNameau">.*?</).join(",").gsub(/<p class="TitlepageAuthorNameau">/,"").gsub(/</,"")
+unless myhash["WORK_COVERAUTHOR"].nil? or myhash["WORK_COVERAUTHOR"].empty? or !myhash["WORK_COVERAUTHOR"]
+	authorname = myhash["WORK_COVERAUTHOR"]
+else
+	authorname = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageAuthorNameau">.*?</).join(",").gsub(/<p class="TitlepageAuthorNameau">/,"").gsub(/</,"")
+end
 
 # Finding book title
-booktitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<title>.*?<\/title>/).to_s.gsub(/\["<title>/,"").gsub(/<\/title>"\]/,"")
+if myhash["WORK_COVERTITLE"].nil? or myhash["WORK_COVERTITLE"].empty? or !myhash["WORK_COVERTITLE"]
+	booktitle = myhash["WORK_COVERTITLE"]
+else
+	booktitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<title>.*?<\/title>/).to_s.gsub(/\["<title>/,"").gsub(/<\/title>"\]/,"")
+end
 
 # Finding book subtitle
-booksubtitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageBookSubtitlestit">.*?</).to_s.gsub(/\["<p class=\\"TitlepageBookSubtitlestit\\">/,"").gsub(/<"\]/,"")
+if myhash["WORK_SUBTITLE"].nil? or myhash["WORK_SUBTITLE"].empty? or !myhash["WORK_SUBTITLE"]
+	booksubtitle = myhash["WORK_SUBTITLE"]
+else
+	booksubtitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageBookSubtitlestit">.*?</).to_s.gsub(/\["<p class=\\"TitlepageBookSubtitlestit\\">/,"").gsub(/<"\]/,"")
+end
 
 # project and stage
 project_dir = Bkmkr::Project.input_file.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact))[0...-2].pop.to_s.split("_").shift
@@ -105,7 +134,9 @@ stage_dir = Bkmkr::Project.input_file.split(Regexp.union(*[File::SEPARATOR, File
 # Finding imprint name
 # imprint = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageImprintLineimp">.*?</).to_s.gsub(/\["<p class=\\"TitlepageImprintLineimp\\">/,"").gsub(/"\]/,"").gsub(/</,"")
 # Manually populating for now, until we get the DB set up
-if project_dir == "torDOTcom"
+if myhash["IMPRINT_DESC"].nil? or myhash["IMPRINT_DESC"].empty? or !myhash["IMPRINT_DESC"]
+	imprint = myhash["IMPRINT_DESC"]
+elsif project_dir == "torDOTcom"
 	imprint = "Tom Doherty Associates"
 elsif project_dir == "SMP"
 	imprint = "St. Martin's Press"
