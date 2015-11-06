@@ -118,7 +118,6 @@ if myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['bo
 else
 	authorname = myhash['book']['WORK_COVERAUTHOR']
 	authorname = authorname.encode('utf-8')
-	puts authorname
 end
 
 # Finding book title
@@ -126,6 +125,7 @@ if myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["bo
 	booktitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<title>.*?<\/title>/).to_s.gsub(/\["<title>/,"").gsub(/<\/title>"\]/,"").gsub(/\[\]/,"")
 else
 	booktitle = myhash["book"]["WORK_COVERTITLE"]
+	booktitle = booktitle.encode('utf-8')
 end
 
 # Finding book subtitle
@@ -133,6 +133,7 @@ if myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["bo
 	booksubtitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageBookSubtitlestit">.*?</).to_s.gsub(/\["<p class=\\"TitlepageBookSubtitlestit\\">/,"").gsub(/<"\]/,"").gsub(/\[\]/,"")
 else
 	booksubtitle = myhash["book"]["WORK_SUBTITLE"]
+	booksubtitle = booksubtitle.encode('utf-8')
 end
 
 # project and stage
@@ -152,6 +153,7 @@ if myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["bo
 	end
 else
 	imprint = myhash["book"]["IMPRINT_DESC"]
+	imprint = imprint.encode('utf-8')
 end
 
 # print and epub css files
