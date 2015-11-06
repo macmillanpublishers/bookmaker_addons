@@ -150,6 +150,8 @@ myhash = runQuery(thissql)
 
 unless myhash['book'].nil? or myhash['book'].empty? or !myhash['book']
   puts "DB Connection SUCCESS: Found an author record"
+else
+  puts "No DB record found; removing author links for addons"
 end
 
 # suppress addon headers as needed

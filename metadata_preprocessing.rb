@@ -108,6 +108,8 @@ end
 
 unless myhash['book'].nil? or myhash['book'].empty? or !myhash['book']
   puts "DB Connection SUCCESS: Found a book record"
+else
+	puts "No DB record found; falling back to manuscript fields"
 end
 
 # Finding author name(s)
