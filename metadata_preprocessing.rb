@@ -91,8 +91,6 @@ else
 end
 
 # connect to DB for all other metadata
-ENV['NLS_LANG'] = "windows-1252"
-
 test_pisbn_chars = pisbn.scan(/\d\d\d\d\d\d\d\d\d\d\d\d\d/)
 test_pisbn_length = pisbn.split(%r{\s*})
 test_eisbn_chars = eisbn.scan(/\d\d\d\d\d\d\d\d\d\d\d\d\d/)
@@ -119,6 +117,8 @@ if myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['bo
 	authorname = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageAuthorNameau">.*?</).join(",").gsub(/<p class="TitlepageAuthorNameau">/,"").gsub(/</,"").gsub(/\[\]/,"")
 else
 	authorname = myhash['book']['WORK_COVERAUTHOR']
+	authorname = authorname..encode('utf-8')
+	puts authorname
 end
 
 # Finding book title
