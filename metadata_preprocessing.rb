@@ -173,7 +173,7 @@ pdf_js_file = File.join(Bkmkr::Paths.project_tmp_dir, "pdf.js")
 
 if File.file?(proj_js_file)
     FileUtils.cp(proj_js_file, pdf_js_file)
-    jscontents = File.read(pdf_js_file).gsub(/BKMKRINSERTBKTITLE/,"#{booktitle}").gsub(/BKMKRINSERTBKAUTHOR/,"#{authorname}")
+    jscontents = File.read(pdf_js_file).gsub(/BKMKRINSERTBKTITLE/,"\"#{booktitle}\"").gsub(/BKMKRINSERTBKAUTHOR/,"\"#{authorname}\"")
     File.open(pdf_js_file, 'w') do |output| 
 	  output.write jscontents
 	end
