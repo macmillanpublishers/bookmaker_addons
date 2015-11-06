@@ -107,24 +107,24 @@ else
 end
 
 # Finding author name(s)
-unless myhash['book']['WORK_COVERAUTHOR'].nil? or myhash['book']['WORK_COVERAUTHOR'].empty? or !myhash['book']['WORK_COVERAUTHOR']
-	authorname = myhash['book']['WORK_COVERAUTHOR']
-else
+if myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['WORK_COVERAUTHOR'].nil? or myhash['book']['WORK_COVERAUTHOR'].empty? or !myhash['book']['WORK_COVERAUTHOR']
 	authorname = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageAuthorNameau">.*?</).join(",").gsub(/<p class="TitlepageAuthorNameau">/,"").gsub(/</,"")
+else
+	authorname = myhash['book']['WORK_COVERAUTHOR']
 end
 
 # Finding book title
-unless myhash["book"]["WORK_COVERTITLE"].nil? or myhash["book"]["WORK_COVERTITLE"].empty? or !myhash["book"]["WORK_COVERTITLE"]
-	booktitle = myhash["book"]["WORK_COVERTITLE"]
-else
+if myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_COVERTITLE"].nil? or myhash["book"]["WORK_COVERTITLE"].empty? or !myhash["book"]["WORK_COVERTITLE"]
 	booktitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<title>.*?<\/title>/).to_s.gsub(/\["<title>/,"").gsub(/<\/title>"\]/,"")
+else
+	booktitle = myhash["book"]["WORK_COVERTITLE"]
 end
 
 # Finding book subtitle
-unless myhash["book"]["WORK_SUBTITLE"].nil? or myhash["book"]["WORK_SUBTITLE"].empty? or !myhash["book"]["WORK_SUBTITLE"]
-	booksubtitle = myhash["book"]["WORK_SUBTITLE"]
-else
+if myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_SUBTITLE"].nil? or myhash["book"]["WORK_SUBTITLE"].empty? or !myhash["book"]["WORK_SUBTITLE"]
 	booksubtitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageBookSubtitlestit">.*?</).to_s.gsub(/\["<p class=\\"TitlepageBookSubtitlestit\\">/,"").gsub(/<"\]/,"")
+else
+	booksubtitle = myhash["book"]["WORK_SUBTITLE"]
 end
 
 # project and stage
@@ -134,9 +134,7 @@ stage_dir = Bkmkr::Project.input_file.split(Regexp.union(*[File::SEPARATOR, File
 # Finding imprint name
 # imprint = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageImprintLineimp">.*?</).to_s.gsub(/\["<p class=\\"TitlepageImprintLineimp\\">/,"").gsub(/"\]/,"").gsub(/</,"")
 # Manually populating for now, until we get the DB set up
-unless myhash["book"]["IMPRINT_DESC"].nil? or myhash["book"]["IMPRINT_DESC"].empty? or !myhash["book"]["IMPRINT_DESC"]
-	imprint = myhash["book"]["IMPRINT_DESC"]
-else
+if myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["IMPRINT_DESC"].nil? or myhash["book"]["IMPRINT_DESC"].empty? or !myhash["book"]["IMPRINT_DESC"]
 	if project_dir == "torDOTcom"
 		imprint = "Tom Doherty Associates"
 	elsif project_dir == "SMP"
@@ -144,6 +142,8 @@ else
 	else
 		imprint = "Macmillan"
 	end
+else
+	imprint = myhash["book"]["IMPRINT_DESC"]
 end
 
 # print and epub css files
