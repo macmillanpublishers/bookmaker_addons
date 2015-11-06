@@ -106,6 +106,10 @@ else
 	myhash = {}
 end
 
+unless myhash['book'].nil? or myhash['book'].empty? or !myhash['book']
+  puts "DB Connection SUCCESS: Found a book record"
+end
+
 # Finding author name(s)
 if myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['WORK_COVERAUTHOR'].nil? or myhash['book']['WORK_COVERAUTHOR'].empty? or !myhash['book']['WORK_COVERAUTHOR']
 	authorname = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageAuthorNameau">.*?</).join(",").gsub(/<p class="TitlepageAuthorNameau">/,"").gsub(/</,"")
