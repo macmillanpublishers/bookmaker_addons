@@ -1,4 +1,5 @@
 require 'fileutils'
+require "i18n"
 
 require_relative '../bookmaker/core/header.rb'
 require_relative '../bookmaker/core/metadata.rb'
