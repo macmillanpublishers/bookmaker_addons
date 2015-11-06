@@ -117,7 +117,7 @@ if myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['bo
 	authorname = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageAuthorNameau">.*?</).join(",").gsub(/<p class="TitlepageAuthorNameau">/,"").gsub(/</,"").gsub(/\[\]/,"")
 else
 	authorname = myhash['book']['WORK_COVERAUTHOR']
-	authorname = authorname..encode('utf-8')
+	authorname = authorname.encode('utf-8')
 	puts authorname
 end
 
