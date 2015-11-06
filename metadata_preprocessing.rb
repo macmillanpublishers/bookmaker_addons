@@ -91,6 +91,8 @@ else
 end
 
 # connect to DB for all other metadata
+ENV['NLS_LANG'] = "windows-1252"
+
 test_pisbn_chars = pisbn.scan(/\d\d\d\d\d\d\d\d\d\d\d\d\d/)
 test_pisbn_length = pisbn.split(%r{\s*})
 test_eisbn_chars = eisbn.scan(/\d\d\d\d\d\d\d\d\d\d\d\d\d/)
