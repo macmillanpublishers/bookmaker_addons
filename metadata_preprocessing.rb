@@ -168,7 +168,16 @@ else
  	epub_css_file = "#{epub_css_dir}/generic/epub.css"
 end
 
-pdf_js_file = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "scripts", project_dir, "pdf.js")
+proj_js_file = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "scripts", project_dir, "pdf.js")
+pdf_js_file = File.join(Bkmkr::Paths.project_tmp_dir, "pdf.js")
+
+if File.file?(proj_js_file)
+    fileutils.cp(proj_js_file, pdf_js_file)
+    jscontents = File.read(pdf_js_file).gsub(/BKMKRINSERTBKTITLE/,"#{booktitle}").gsub(/BKMKRINSERTBKAUTHOR/,"#{authorname}")
+    File.open(pdf_js_file, 'w') do |output| 
+	  output.write jscontents
+	end
+end
 
 xml_file = File.join(Bkmkr::Paths.project_tmp_dir, "#{Bkmkr::Project.filename}.xml")
 check_toc = File.read(xml_file).scan(/w:pStyle w:val\="TOC/)
