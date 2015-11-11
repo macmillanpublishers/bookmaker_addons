@@ -13,7 +13,7 @@ project_dir = data_hash['project']
 stage_dir = data_hash['stage']
 
 # ftp url
-ftp_dir = "http://www.macmillan.tools.vhost.zerolag.com/bookmaker/bookmakerimg/#{project_dir}_#{stage_dir}"
+ftp_dir = "http://www.macmillan.tools.vhost.zerolag.com/bookmaker/bookmakerimg/#{project_dir}_#{stage_dir}/#{Metadata.pisbn}"
 
 pdftmp_dir = File.join(Bkmkr::Paths.project_tmp_dir_img, "pdftmp")
 pdfmaker_dir = File.join(Bkmkr::Paths.core_dir, "pdfmaker")
@@ -92,10 +92,10 @@ FileUtils.cp Dir["#{assets_dir}/images/#{project_dir}/*"].select {|f| test ?f, f
 
 if Bkmkr::Tools.os == "mac" or Bkmkr::Tools.os == "unix"
 	ftpfile = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_ftpupload", "imageupload.sh")
-	`#{ftpfile} #{pdftmp_dir} #{project_dir}_#{stage_dir}>> #{Bkmkr::Paths.log_file}`
+	`#{ftpfile} #{pdftmp_dir} #{project_dir}_#{stage_dir} #{Metadata.pisbn}>> #{Bkmkr::Paths.log_file}`
 elsif Bkmkr::Tools.os == "windows"
 	ftpfile = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_ftpupload", "imageupload.bat")
-	`#{ftpfile} #{pdftmp_dir} #{Bkmkr::Paths.project_tmp_dir_img} #{project_dir}_#{stage_dir}`
+	`#{ftpfile} #{pdftmp_dir} #{Bkmkr::Paths.project_tmp_dir_img} #{project_dir}_#{stage_dir} #{Metadata.pisbn}`
 end
 
 # run content conversions
