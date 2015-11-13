@@ -99,6 +99,10 @@ test_eisbn_length = eisbn.split(%r{\s*})
 if test_pisbn_length.length == 13 and test_pisbn_chars.length != 0
 	thissql = exactSearchSingleKey(pisbn, "EDITION_EAN")
 	myhash = runQuery(thissql)
+	if myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] and test_eisbn_length.length == 13 and test_eisbn_chars.length != 0
+		thissql = exactSearchSingleKey(eisbn, "EDITION_EAN")
+		myhash = runQuery(thissql)
+	end
 elsif test_eisbn_length.length == 13 and test_eisbn_chars.length != 0
 	thissql = exactSearchSingleKey(eisbn, "EDITION_EAN")
 	myhash = runQuery(thissql)
@@ -114,7 +118,7 @@ end
 
 # Finding author name(s)
 if myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['WORK_COVERAUTHOR'].nil? or myhash['book']['WORK_COVERAUTHOR'].empty? or !myhash['book']['WORK_COVERAUTHOR']
-	authorname = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageAuthorNameau">.*?</).join(",").gsub(/<p class="TitlepageAuthorNameau">/,"").gsub(/</,"").gsub(/\[\]/,"")
+	authorname = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageAuthorNameau">.*?</).join(", ").gsub(/<p class="TitlepageAuthorNameau">/,"").gsub(/</,"").gsub(/\[\]/,"")
 else
 	authorname = myhash['book']['WORK_COVERAUTHOR']
 	authorname = authorname.encode('utf-8')
