@@ -164,12 +164,16 @@ end
 epub_css_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker", "css")
 pdf_css_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "css")
 
-if File.file?("#{pdf_css_dir}/#{project_dir}/pdf.css")
+if File.file?("#{pdf_css_dir}/#{project_dir}/#{stage_dir}.css")
+	pdf_css_file = "#{pdf_css_dir}/#{project_dir}/#{stage_dir}.css"
+elsif File.file?("#{pdf_css_dir}/#{project_dir}/pdf.css")
 	pdf_css_file = "#{pdf_css_dir}/#{project_dir}/pdf.css"
 else
  	pdf_css_file = "#{pdf_css_dir}/torDOTcom/pdf.css"
 end
 
+if File.file?("#{epub_css_dir}/#{project_dir}/#{stage_dir}.css")
+	epub_css_file = "#{epub_css_dir}/#{project_dir}/#{stage_dir}.css"
 if File.file?("#{epub_css_dir}/#{project_dir}/epub.css")
 	epub_css_file = "#{epub_css_dir}/#{project_dir}/epub.css"
 else
@@ -177,10 +181,19 @@ else
 end
 
 proj_js_file = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "scripts", project_dir, "pdf.js")
+fallback_js_file = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "scripts", "torDOTcom", "pdf.js")
 pdf_js_file = File.join(Bkmkr::Paths.project_tmp_dir, "pdf.js")
 
 if File.file?(proj_js_file)
-    FileUtils.cp(proj_js_file, pdf_js_file)
+	js_file = proj_js_file
+elsif File.file?(fallback_js_file)
+ 	js_file = fallback_js_file
+ else
+ 	js_file = " "
+end
+
+if File.file?(js_file)
+    FileUtils.cp(js_file, pdf_js_file)
     jscontents = File.read(pdf_js_file).gsub(/BKMKRINSERTBKTITLE/,"\"#{booktitle}\"").gsub(/BKMKRINSERTBKAUTHOR/,"\"#{authorname}\"")
     File.open(pdf_js_file, 'w') do |output| 
 	  output.write jscontents
