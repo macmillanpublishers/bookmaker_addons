@@ -174,7 +174,7 @@ end
 
 if File.file?("#{epub_css_dir}/#{project_dir}/#{stage_dir}.css")
 	epub_css_file = "#{epub_css_dir}/#{project_dir}/#{stage_dir}.css"
-if File.file?("#{epub_css_dir}/#{project_dir}/epub.css")
+elsif File.file?("#{epub_css_dir}/#{project_dir}/epub.css")
 	epub_css_file = "#{epub_css_dir}/#{project_dir}/epub.css"
 else
  	epub_css_file = "#{epub_css_dir}/generic/epub.css"
@@ -188,7 +188,7 @@ if File.file?(proj_js_file)
 	js_file = proj_js_file
 elsif File.file?(fallback_js_file)
  	js_file = fallback_js_file
- else
+else
  	js_file = " "
 end
 
