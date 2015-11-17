@@ -13,9 +13,9 @@ oneoff_6x925 = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker
 oneoff_p_css = File.join(tmp_layout_dir, "oneoff_pdf.css")
 
 if Bkmkr::Project.filename.include? "TRIM45x7"
-	Fileutils.cp(oneoff_45x7, oneoff_p_css)
+	FileUtils.cp(oneoff_45x7, oneoff_p_css)
 elsif Bkmkr::Project.filename.include? "TRIM55x825"
-	Fileutils.cp(oneoff_55x825, oneoff_p_css)
+	FileUtils.cp(oneoff_55x825, oneoff_p_css)
 elsif Bkmkr::Project.filename.include? "TRIM6x925"
-	Fileutils.cp(oneoff_6x925, oneoff_p_css)
+	FileUtils.cp(oneoff_6x925, oneoff_p_css)
 end
