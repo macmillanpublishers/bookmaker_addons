@@ -152,6 +152,8 @@ if myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["bo
 		imprint = "Tom Doherty Associates"
 	elsif project_dir == "SMP"
 		imprint = "St. Martin's Press"
+	elsif project_dir == "picador"
+		imprint = "Picador"
 	else
 		imprint = "Macmillan"
 	end
@@ -230,6 +232,8 @@ File.open(configfile, 'w+') do |f|
 	if stage_dir == "firstpass" and frontcover.empty?
 		f.puts '"frontcover":"' + pisbn + '_FC.jpg"'
 	elsif stage_dir == "egalley" and frontcover.empty?
+		f.puts '"frontcover":"' + pisbn + '_FC.jpg"'
+	elsif stage_dir == "arc-sans" or stage_dir == "arc-serif" and frontcover.empty?
 		f.puts '"frontcover":"' + pisbn + '_FC.jpg"'
 	else
 		f.puts '"frontcover":"' + frontcover + '"'
