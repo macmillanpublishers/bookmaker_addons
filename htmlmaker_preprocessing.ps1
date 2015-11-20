@@ -1,19 +1,27 @@
 ﻿# Converts a .doc file in bookmaker_tmp to .docx
-# you can pass the original file location in convert, but then you have to run tmparchive.rb first
-# and of course set the correct location of bookmaker_tmp below
+# you can pass the original file location in convert, 
+# but you have to run tmparchive.rb first
+# and of course set the correct location of log dir and bookmaker_tmp below
+
 param([string]$inputFile)
 
 # don't forget to set these for your Bookmaker environment!
-$logDir="S:\resources\logs\"
-# the bookmaker_tmp dir, that is, without the root
-$tmpDir="\bookmaker_tmp\" 	
+$logDir="S:/resources/logs/"
+# the bookmaker_tmp dir without the root or trailing slash
+$tmpDir="/bookmaker_tmp"
 
 # getting the path inputs
 $currVolPath=Get-Location
-$currVol=split-path $currVolPath -Qualifier			#C: or S:	
+$currVol=split-path $currVolPath -Qualifier	#C: or S:	
 $filenameSplit=split-path $inputFile -Leaf			#file name without path
-write-host "Original file is " $filenameSplit
+Write-Host "Input file is $filenameSplit"
 $filename=$filenameSplit.SubString(0, $filenameSplit.LastIndexOf('.')).replace(' ','')	#filename w/out extension or spaces
+$subfolder=$inputFile -match "(?:bookmaker\w+)(?<imprint>/\w+/)"    # regex to match level that follow 'bookmaker' or 'bookmaker_tmp', incl leading and training backslash
+$imprintPath=$matches["imprint"]                             # returns match from previous line
+
+# put it all together for tmp path
+$folderpath=echo $($currVol + $tmpDir + $imprintPath + $filename + "/")
+$docpath=echo $($folderpath + $filename)  #with doc name, w/o extension
 
 # define log file
 $Logfile =echo $($logDir + $filename + ".txt")
@@ -30,21 +38,21 @@ If ($filenameSplit -eq $filename + $fileType)
 {
 	# Converts a word .doc in bookmaker_tmp to a .docx
 	# so you have to have already run tmparchive.rb
-	$folderpath=echo $($currVol + $tmpDir + $filename + "\" + $filename)
-	write-host "Converting $filenameSplit to .docx from $fileType..."
+	write-host "Converting $filenameSplit to .docx from $fileType"
 
 	$SaveFormat = "microsoft.office.interop.word.WdSaveFormat" -as [type]
 	$word = New-Object -ComObject word.application
 	$word.visible = $false
 
-	$doc = $word.documents.open($folderpath + $fileType)
+	$doc = $word.documents.open($docpath + $fileType)
 	$wdFormatDocx = 16  # wdFormatDocumentDefault is docx, reference number is 16
 	
-	# Have to add [ref]s for certain versions of powershell (2.0), we'll see which way works on server
+	# Have to add [ref]s for certain versions of powershell (2.0), 
+    # we'll see which way works on server
 	# https://richardspowershellblog.wordpress.com/2012/10/15/powershell-3-and-word/
 	# so only use one or the other of these next two lines
-	# $doc.saveas($folderpath, $wdFormatDocx)
-	$doc.saveas([ref]$folderpath, [ref]$wdFormatDocx)
+	# $doc.saveas($docpath, $wdFormatDocx)
+	$doc.saveas([ref]$docpath, [ref]$wdFormatDocx)
 	
 	$doc.close()
 	$word.Quit()
@@ -56,18 +64,20 @@ If ($filenameSplit -eq $filename + $fileType)
 
 # TESTING
 
-LogWrite "----- DOC-TO-DOCX PROCESSES"
+LogWrite "----- HTMLMAKER-PREPROCESSING PROCESSES"
 
-#verify filename is not null
+# verify filename is not null
 if ($filenameSplit) {LogWrite "pass: original filename is not null"}
 Else {LogWrite "FAIL: original filename is not null"}
 
-#filename.docx should exist in tmp conversion dir
-$ChkFile = $($currVol + $tmpDir + $filename + "\" + $filename + ".docx")
+# filename.docx should exist in tmp conversion dir
+$ChkFile = $($docpath + ".docx")
 $FileExists = Test-Path $ChkFile 
-If ($FileExists -eq $True) {LogWrite "pass: inputFile.docx exists in $currVol$tmpDir."}
-Else {LogWrite "FAIL: inputFile.docx exists in $currVol$tmpDir."}
+If ($FileExists -eq $True) {LogWrite "pass: $filename.docx exists in $folderpath"}
+Else {LogWrite "FAIL: $filename.docx exists in $folderpath"}
 
+# all done
+LogWrite "finished htmlmaker-preprocessing"
 
 [gc]::collect()
 [gc]::WaitForPendingFinalizers()
