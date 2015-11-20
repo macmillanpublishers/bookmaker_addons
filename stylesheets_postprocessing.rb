@@ -17,6 +17,23 @@ tmp_layout_dir = File.join(Bkmkr::Project.working_dir, "done", Metadata.pisbn, "
 pdf_css_file = File.join(tmp_layout_dir, "pdf.css")
 epub_css_file = File.join(tmp_layout_dir, "epub.css")
 
+oneoff_45x7 = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "css", "picador", "oneoff_45x7.css")
+oneoff_45x7_sans = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "css", "picador", "oneoff_45x7_sans.css")
+oneoff_55x825 = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "css", "picador", "oneoff_55x825.css")
+oneoff_6x925 = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "css", "picador", "oneoff_6x925.css")
+
+if Bkmkr::Project.filename.include? "TRIM45x7" and stage_dir == "arc-sans"
+	trimcss = File.read(oneoff_45x7_sans)
+elsif Bkmkr::Project.filename.include? "TRIM45x7" and stage_dir != "arc-sans"
+	trimcss = File.read(oneoff_45x7)
+elsif Bkmkr::Project.filename.include? "TRIM55x825"
+	trimcss = File.read(oneoff_55x825)
+elsif Bkmkr::Project.filename.include? "TRIM6x925"
+	trimcss = File.read(oneoff_6x925)
+else
+	trimcss = ""
+end
+
 if File.file?(pdf_css_file)
 	if chapterheads.count > 1
 		suppress_titles = " "
@@ -29,8 +46,9 @@ if File.file?(pdf_css_file)
 		suppress_toc = 'nav[data-type="toc"]{display:none;}'
 	end
 	File.open(pdf_css_file, 'a+') do |p|
-		p.puts "#{suppress_titles}"
-		p.puts "#{suppress_toc}"
+		p.puts suppress_titles
+		p.puts suppress_toc
+		p.puts trimcss
 	end
 end
 
