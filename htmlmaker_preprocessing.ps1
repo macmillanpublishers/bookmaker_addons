@@ -20,7 +20,7 @@ $subfolder=$inputFile -match "(?:bookmaker\w+)(?<imprint>/\w+/)"    # regex to m
 $imprintPath=$matches["imprint"]                             # returns match from previous line
 
 # put it all together for tmp path
-$folderpath=echo $($currVol + $tmpDir + $imprintPath + $filename + "\")
+$folderpath=echo $($currVol + $tmpDir + $imprintPath + $filename + "/")
 $docpath=echo $($folderpath + $filename)  #with doc name, w/o extension
 
 # define log file
