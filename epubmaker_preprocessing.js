@@ -51,6 +51,9 @@ $("span.spanhyperlinkurl:not(:has(a))").each(function () {
       $(this).prepend(newlink); 
   });
 
+  // remove textual toc for epub
+  $('section.texttoc').remove();
+
   var output = $.html();
 	  fs.writeFile(file, output, function(err) {
 	    if(err) {
