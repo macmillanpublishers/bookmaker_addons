@@ -156,8 +156,14 @@ else
 end
 
 # suppress addon headers as needed
-linkauthorname = "#{Metadata.bookauthor}".downcase.gsub(/\s/,"")
+if myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['PERSON_REALNAME'].nil? or myhash['book']['PERSON_REALNAME'].empty? or !myhash['book']['PERSON_REALNAME']
+  linkauthorname = Metadata.bookauthor.downcase.gsub(/\s/,"")
+else
+  linkauthorname = myhash['book']['PERSON_REALNAME'].downcase.gsub(/\s/,"")
+end
+
 linkauthorname = linkauthorname.to_ascii
+
 if myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['PERSON_PARTNERID'].nil? or myhash['book']['PERSON_PARTNERID'].empty? or !myhash['book']['PERSON_PARTNERID']
   filecontents = File.read(epub_tmp_html).gsub(/(data-displayheader="no")/,"class=\"ChapTitleNonprintingctnp\" \\1").gsub(/\{\{IMPRINT\}\}/,"#{Metadata.imprint}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthorname}").gsub(/\{\{EISBN\}\}/,"#{Metadata.eisbn}")
 else
