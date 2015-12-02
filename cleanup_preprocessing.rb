@@ -20,17 +20,18 @@ class Ftpfunctions
   def self.loginFTP(url, uname, pwd)
     ftp = Net::FTP.new("#{url}")
     ftp.login(user = "#{uname}", passwd = "#{pwd}")
+    return ftp
   end
 
   def self.checkFTP(parentfolder, childfolder)
-    Ftpfunctions.loginFTP(@@ftp_url, @@ftp_username, @@ftp_password)
+    ftp = Ftpfunctions.loginFTP(@@ftp_url, @@ftp_username, @@ftp_password)
     files = ftp.chdir("/files/html/bookmaker/bookmakerimg/#{parentfolder}/#{childfolder}")
     filenames = ftp.nlst()
     filenames
   end
 
   def self.deleteFTP(parentfolder, childfolder)
-    Ftpfunctions.loginFTP(@@ftp_url, @@ftp_username, @@ftp_password)
+    ftp = Ftpfunctions.loginFTP(@@ftp_url, @@ftp_username, @@ftp_password)
     files = ftp.chdir("/files/html/bookmaker/bookmakerimg/#{parentfolder}/#{childfolder}")
     filenames = ftp.nlst()
     puts filenames #for testing
