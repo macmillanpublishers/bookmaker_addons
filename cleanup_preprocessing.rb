@@ -34,14 +34,12 @@ class Ftpfunctions
     ftp = Ftpfunctions.loginFTP(@@ftp_url, @@ftp_username, @@ftp_password)
     files = ftp.chdir("/files/html/bookmaker/bookmakerimg/#{parentfolder}/#{childfolder}")
     filenames = ftp.nlst()
-    puts filenames #for testing
     filenames.each do |d|
       file = ftp.delete(d)
     end
     files = ftp.nlst()
     ftp.close
     files
-    puts "final check after deletion: #{files}" #for testing
   end
 end
 
