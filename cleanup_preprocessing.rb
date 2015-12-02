@@ -12,34 +12,40 @@ uploaded_image_log = "#{Bkmkr::Paths.project_tmp_dir_img}/uploaded_image_log.txt
 fileexist = Bkmkr::Tools.checkFileExist(uploaded_image_log)
 fileempty = Bkmkr::Tools.checkFileEmpty(uploaded_image_log)
 
-ftp_username = Bkmkr::Tools.readFile("#{$scripts_dir}/bookmaker_authkeys/ftp_username.txt")
-ftp_password = Bkmkr::Tools.readFile("#{$scripts_dir}/bookmaker_authkeys/ftp_pass.txt")
+class Ftpfunctions
+  @@ftp_username = Bkmkr::Tools.readFile("#{$scripts_dir}/bookmaker_authkeys/ftp_username.txt")
+  @@ftp_password = Bkmkr::Tools.readFile("#{$scripts_dir}/bookmaker_authkeys/ftp_pass.txt")
+  @@ftp_url = "142.54.232.104"
 
-def checkFTP(parentfolder, childfolder)
-  ftp = Net::FTP.new('142.54.232.104')
-  ftp.login(user = "#{ftp_username}", passwd = "#{ftp_password}")
-  files = ftp.chdir("/files/html/bookmaker/bookmakerimg/#{parentfolder}/#{childfolder}")
-  filenames = ftp.nlst()
-  filenames
-end
-
-def deleteFTP(parentfolder, childfolder)
-  ftp = Net::FTP.new('142.54.232.104')
-  ftp.login(user = "#{ftp_username}", passwd = "#{ftp_password}")
-  files = ftp.chdir("/files/html/bookmaker/bookmakerimg/#{parentfolder}/#{childfolder}")
-  filenames = ftp.nlst()
-  puts filenames #for testing
-  filenames.each do |d|
-    file = ftp.delete(d)
+  def self.loginFTP(url, uname, pwd)
+    ftp = Net::FTP.new('#{url}')
+    ftp.login(user = "#{uname}", passwd = "#{pwd}")
   end
-  files = ftp.nlst()
-  ftp.close
-  files
-  puts files #for testing
+
+  def self.checkFTP(parentfolder, childfolder)
+    Ftpfunctions.loginFTP(@@ftp_url, @@ftp_username, @@ftp_password)
+    files = ftp.chdir("/files/html/bookmaker/bookmakerimg/#{parentfolder}/#{childfolder}")
+    filenames = ftp.nlst()
+    filenames
+  end
+
+  def self.deleteFTP(parentfolder, childfolder)
+    Ftpfunctions.loginFTP(@@ftp_url, @@ftp_username, @@ftp_password)
+    files = ftp.chdir("/files/html/bookmaker/bookmakerimg/#{parentfolder}/#{childfolder}")
+    filenames = ftp.nlst()
+    puts filenames #for testing
+    filenames.each do |d|
+      file = ftp.delete(d)
+    end
+    files = ftp.nlst()
+    ftp.close
+    files
+    puts files #for testing
+  end
 end
 
-ftpstatus = checkFTP("#{project_dir}_#{stage_dir}", Metadata.pisbn)
+ftpstatus = Ftpfunctions.checkFTP("#{project_dir}_#{stage_dir}", Metadata.pisbn)
 
 unless ftpstatus.empty?
-  deleteFTP("#{project_dir}_#{stage_dir}", Metadata.pisbn)
+  Ftpfunctions.deleteFTP("#{project_dir}_#{stage_dir}", Metadata.pisbn)
 end
