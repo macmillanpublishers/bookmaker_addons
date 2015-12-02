@@ -20,12 +20,14 @@ def deleteFTP(parentfolder, childfolder)
   ftp.login(user = "#{ftp_username}", passwd = "#{ftp_password}")
   files = ftp.chdir("/files/html/bookmaker/bookmakerimg/#{parentfolder}/#{childfolder}")
   filenames = ftp.nlst()
+  puts filenames #for testing
   filenames.each do |d|
     file = ftp.delete(d)
   end
   files = ftp.nlst()
   ftp.close
   files
+  puts files #for testing
 end
 
 if filexist == true && fileempty == false
