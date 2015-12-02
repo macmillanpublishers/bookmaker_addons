@@ -18,7 +18,7 @@ class Ftpfunctions
   @@ftp_url = "142.54.232.104"
 
   def self.loginFTP(url, uname, pwd)
-    ftp = Net::FTP.new('#{url}')
+    ftp = Net::FTP.new("#{url}")
     ftp.login(user = "#{uname}", passwd = "#{pwd}")
   end
 
