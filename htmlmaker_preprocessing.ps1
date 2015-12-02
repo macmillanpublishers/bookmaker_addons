@@ -16,7 +16,7 @@ $currVol=split-path $currVolPath -Qualifier	#C: or S:
 $filenameSplit=split-path $inputFile -Leaf			#file name without path
 Write-Host "Input file is $filenameSplit"
 $filename=$filenameSplit.SubString(0, $filenameSplit.LastIndexOf('.')).replace(' ','')	#filename w/out extension or spaces
-$subfolder=$inputFile -match "(?:bookmaker\w+)(?<imprint>/\w+/)"    # regex to match level that follow 'bookmaker' or 'bookmaker_tmp', incl leading and training backslash
+$subfolder=$inputFile -match "(?:bookmaker\w+)(?<imprint>/.+?/)"    # regex to match level that follow 'bookmaker' or 'bookmaker_tmp', incl leading and training backslash
 $imprintPath=$matches["imprint"]                             # returns match from previous line
 
 # put it all together for tmp path
