@@ -41,7 +41,7 @@ class Ftpfunctions
     files = ftp.nlst()
     ftp.close
     files
-    puts files #for testing
+    puts "final check after deletion: #{files}" #for testing
   end
 end
 
