@@ -37,6 +37,9 @@ fs.readFile(file, function editContent (err, contents) {
   // add figure fullpage class as needed
   $('img[src*="fullpage"]').parent().addClass( "fullpage" );
 
+  // remove ebook-only sections
+  $('*[data-format="ebook"]').remove();
+
   var output = $.html();
     fs.writeFile(file, output, function(err) {
       if(err) {
