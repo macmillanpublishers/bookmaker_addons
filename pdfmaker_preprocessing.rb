@@ -105,7 +105,7 @@ ftp_url = "142.54.232.104"
 
 ftp = Net::FTP.new("#{ftp_url}")
 ftp.login(user = "#{ftp_username}", passwd = "#{ftp_password}")
-files = ftp.binary(true)
+files = ftp.binary=true
 files = ftp.chdir("/files/html/bookmaker/bookmakerimg")
 files = ftp.mkdir("#{project_dir}_#{stage_dir}")
 files = ftp.chdir("#{project_dir}_#{stage_dir}")
