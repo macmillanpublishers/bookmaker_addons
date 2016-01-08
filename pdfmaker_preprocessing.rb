@@ -137,16 +137,6 @@ ftp.close
 
 puts "Uploaded these files to ftp: #{files}"
 
-# if Bkmkr::Tools.os == "mac" or Bkmkr::Tools.os == "unix"
-# 	ftpfile = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_ftpupload", "imageupload.sh")
-# 	ftpcmd = "#{ftpfile} #{pdftmp_dir} #{project_dir}_#{stage_dir} #{Metadata.pisbn}>> #{Bkmkr::Paths.log_file}"
-# 	puts ftpcmd
-# 	`#{ftpfile} #{pdftmp_dir} #{project_dir}_#{stage_dir} "#{Metadata.pisbn}">> #{Bkmkr::Paths.log_file}`
-# elsif Bkmkr::Tools.os == "windows"
-# 	ftpfile = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_ftpupload", "imageupload.bat")
-# 	`#{ftpfile} #{pdftmp_dir} #{Bkmkr::Paths.project_tmp_dir_img} #{project_dir}_#{stage_dir} #{Metadata.pisbn}`
-# end
-
 # run content conversions
 pdfmakerpreprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "pdfmaker_preprocessing.js")
 args = "\"#{pdf_tmp_html}\" \"#{Metadata.booktitle}\" \"#{Metadata.bookauthor}\" \"#{Metadata.pisbn}\" \"#{Metadata.imprint}\" \"#{Metadata.publisher}\""
