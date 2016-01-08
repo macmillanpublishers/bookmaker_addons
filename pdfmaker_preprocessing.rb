@@ -105,6 +105,10 @@ ftp_url = "142.54.232.104"
 
 ftp = Net::FTP.new("#{ftp_url}")
 ftp.login(user = "#{ftp_username}", passwd = "#{ftp_password}")
+
+ftp.binary = true
+ftp.passive = true
+
 files = ftp.chdir("/files/html/bookmaker/bookmakerimg")
 files = ftp.nlst()
 
@@ -119,7 +123,6 @@ ftpiles = ftp.mkdir("#{Metadata.pisbn}")
 end 
 
 files = ftp.chdir("#{Metadata.pisbn}")
-files = ftp.binary=true
 
 uploadfiles.each do |p|
   this = ftp.put(p)
