@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 require 'fileutils'
+require 'net/ftp'
 
 require_relative '../bookmaker/core/header.rb'
 require_relative '../bookmaker/core/metadata.rb'
