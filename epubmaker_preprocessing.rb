@@ -1,6 +1,6 @@
 require 'fileutils'
 require 'unidecoder'
-require 'net/ftp'
+require 'net/http'
 
 require_relative '../bookmaker/core/header.rb'
 require_relative '../bookmaker/core/metadata.rb'
