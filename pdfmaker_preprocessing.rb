@@ -97,6 +97,8 @@ end
 # copy assets to tmp upload dir and upload to ftp
 FileUtils.cp Dir["#{assets_dir}/images/#{project_dir}/*"].select {|f| test ?f, f}, pdftmp_dir
 
+FileUtils.cd(pdftmp_dir)
+
 uploadfiles = Mcmlln::Tools.dirListFiles(pdftmp_dir)
 
 ftp_username = Mcmlln::Tools.readFile("#{$scripts_dir}/bookmaker_authkeys/ftp_username.txt")
