@@ -146,8 +146,23 @@ Bkmkr::Tools.insertaddons(epub_tmp_html, sectionjson, addonjson)
 Bkmkr::Tools.compileJS(epub_tmp_html)
 
 # find the author ID
-thissql = personSearchSingleKey(Metadata.eisbn, "EDITION_EAN", "Author")
-myhash = runQuery(thissql)
+# a test to see if DB connection works
+begin
+  url = URI.parse("nydatawh.newyork.hbpub.net")
+  req = Net::HTTP.new(url.host, url.port)
+  res = req.request_head(url.path)
+  connect = true
+rescue SystemCallError
+  puts "!!!!Database connection failed!!!!"
+  connect = false
+end
+
+if connect == false
+  myhash = {}
+else
+  thissql = personSearchSingleKey(Metadata.eisbn, "EDITION_EAN", "Author")
+  myhash = runQuery(thissql)
+end
 
 unless myhash['book'].nil? or myhash['book'].empty? or !myhash['book']
   puts "DB Connection SUCCESS: Found an author record"
