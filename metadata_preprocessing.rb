@@ -104,9 +104,8 @@ begin
 	res = req.request_head(url.path)
 	connect = true
 rescue SystemCallError
-  puts "connection failed!"
+  puts "!!!!Database connection failed!!!!"
   connect = false
-  puts connect
 end
 
 if connect == false

@@ -9,43 +9,6 @@ require_relative '../bookmaker/core/metadata.rb'
 
 # ---------------------- METHODS
 
-class Ftpfunctions
-  @@ftp_username = Bkmkr::Tools.readFile("#{$scripts_dir}/bookmaker_authkeys/ftp_username.txt")
-  @@ftp_password = Bkmkr::Tools.readFile("#{$scripts_dir}/bookmaker_authkeys/ftp_pass.txt")
-  @@ftp_url = "142.54.232.104"
-
-  def self.login(url, uname, pwd)
-    ftp = Net::FTP.new("#{url}")
-    ftp.login(user = "#{uname}", passwd = "#{pwd}")
-    return ftp
-  end
-
-  def self.check(parentfolder, childfolder)
-    ftp = Ftpfunctions.login(@@ftp_url, @@ftp_username, @@ftp_password)
-    files = ftp.chdir("/files/html/bookmaker/bookmakerimg/#{parentfolder}/#{childfolder}")
-    filenames = ftp.nlst()
-    filenames
-  end
-
-  def self.mkdir(newfolder)
-    ftp = Ftpfunctions.login(@@ftp_url, @@ftp_username, @@ftp_password)
-    dir = ftp.mkdir(newfolder)
-    dir
-  end
-
-  def self.delete(parentfolder, childfolder)
-    ftp = Ftpfunctions.login(@@ftp_url, @@ftp_username, @@ftp_password)
-    files = ftp.chdir("/files/html/bookmaker/bookmakerimg/#{parentfolder}/#{childfolder}")
-    filenames = ftp.nlst()
-    filenames.each do |d|
-      file = ftp.delete(d)
-    end
-    files = ftp.nlst()
-    ftp.close
-    files
-  end
-end
-
 # ---------------------- PROCESSES
 
 configfile = File.join(Bkmkr::Paths.project_tmp_dir, "config.json")
