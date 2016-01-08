@@ -103,7 +103,7 @@ ftp_username = Mcmlln::Tools.readFile("#{$scripts_dir}/bookmaker_authkeys/ftp_us
 ftp_password = Mcmlln::Tools.readFile("#{$scripts_dir}/bookmaker_authkeys/ftp_pass.txt")
 ftp_url = "142.54.232.104"
 
-ftp = Net::FTP.new("#{url}")
+ftp = Net::FTP.new("#{ftp_url}")
 ftp.login(user = "#{ftp_username}", passwd = "#{ftp_password}")
 files = ftp.binary(true)
 files = ftp.chdir("/files/html/bookmaker/bookmakerimg")
