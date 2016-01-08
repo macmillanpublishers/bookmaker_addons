@@ -109,7 +109,7 @@ rescue SystemCallError
   puts connect
 end
 
-if connect = false
+if connect == false
 	myhash = {}
 elsif test_pisbn_length.length == 13 and test_pisbn_chars.length != 0
 	thissql = exactSearchSingleKey(pisbn, "EDITION_EAN")
