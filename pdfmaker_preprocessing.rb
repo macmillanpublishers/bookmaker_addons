@@ -107,9 +107,18 @@ ftp = Net::FTP.new("#{ftp_url}")
 ftp.login(user = "#{ftp_username}", passwd = "#{ftp_password}")
 files = ftp.binary=true
 files = ftp.chdir("/files/html/bookmaker/bookmakerimg")
-files = ftp.mkdir("#{project_dir}_#{stage_dir}")
+files = ftp.nlst()
+
+unless files.include?("#{project_dir}_#{stage_dir}")
+  files = ftp.mkdir("#{project_dir}_#{stage_dir}")
+end 
+
 files = ftp.chdir("#{project_dir}_#{stage_dir}")
-files = ftp.mkdir("#{Metadata.pisbn}")
+
+unless files.include?("#{Metadata.pisbn}")
+ftpiles = ftp.mkdir("#{Metadata.pisbn}")
+end 
+
 files = ftp.chdir("#{Metadata.pisbn}")
 
 uploadfiles.each do |p|
