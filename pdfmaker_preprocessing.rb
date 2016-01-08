@@ -110,19 +110,21 @@ ftp.binary = true
 ftp.passive = true
 
 files = ftp.chdir("/files/html/bookmaker/bookmakerimg")
-files = ftp.nlst()
+filelist = ftp.nlst()
 
-unless files.include?("#{project_dir}_#{stage_dir}")
+unless filelist.include?("#{project_dir}_#{stage_dir}")
   files = ftp.mkdir("#{project_dir}_#{stage_dir}")
 end 
 
 files = ftp.chdir("#{project_dir}_#{stage_dir}")
+filelist = ftp.nlst()
 
-unless files.include?("#{Metadata.pisbn}")
+unless filelist.include?("#{Metadata.pisbn}")
 ftpiles = ftp.mkdir("#{Metadata.pisbn}")
 end 
 
 files = ftp.chdir("#{Metadata.pisbn}")
+filelist = ftp.nlst()
 
 uploadfiles.each do |p|
   this = ftp.put(p)
