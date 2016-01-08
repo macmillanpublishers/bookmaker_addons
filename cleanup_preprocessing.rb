@@ -17,21 +17,21 @@ class Ftpfunctions
   @@ftp_password = Bkmkr::Tools.readFile("#{$scripts_dir}/bookmaker_authkeys/ftp_pass.txt")
   @@ftp_url = "142.54.232.104"
 
-  def self.loginFTP(url, uname, pwd)
+  def self.login(url, uname, pwd)
     ftp = Net::FTP.new("#{url}")
     ftp.login(user = "#{uname}", passwd = "#{pwd}")
     return ftp
   end
 
-  def self.checkFTP(parentfolder, childfolder)
-    ftp = Ftpfunctions.loginFTP(@@ftp_url, @@ftp_username, @@ftp_password)
+  def self.check(parentfolder, childfolder)
+    ftp = Ftpfunctions.login(@@ftp_url, @@ftp_username, @@ftp_password)
     files = ftp.chdir("/files/html/bookmaker/bookmakerimg/#{parentfolder}/#{childfolder}")
     filenames = ftp.nlst()
     filenames
   end
 
-  def self.deleteFTP(parentfolder, childfolder)
-    ftp = Ftpfunctions.loginFTP(@@ftp_url, @@ftp_username, @@ftp_password)
+  def self.delete(parentfolder, childfolder)
+    ftp = Ftpfunctions.login(@@ftp_url, @@ftp_username, @@ftp_password)
     files = ftp.chdir("/files/html/bookmaker/bookmakerimg/#{parentfolder}/#{childfolder}")
     filenames = ftp.nlst()
     filenames.each do |d|
@@ -43,8 +43,8 @@ class Ftpfunctions
   end
 end
 
-ftpstatus = Ftpfunctions.checkFTP("#{project_dir}_#{stage_dir}", Metadata.pisbn)
+ftpstatus = Ftpfunctions.check("#{project_dir}_#{stage_dir}", Metadata.pisbn)
 
 unless ftpstatus.empty?
-  Ftpfunctions.deleteFTP("#{project_dir}_#{stage_dir}", Metadata.pisbn)
+  Ftpfunctions.delete("#{project_dir}_#{stage_dir}", Metadata.pisbn)
 end

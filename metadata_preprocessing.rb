@@ -1,4 +1,5 @@
 require 'fileutils'
+require 'net/http'
 
 require_relative '../bookmaker/core/header.rb'
 require_relative '../utilities/oraclequery.rb'
@@ -96,7 +97,21 @@ test_pisbn_length = pisbn.split(%r{\s*})
 test_eisbn_chars = eisbn.scan(/\d\d\d\d\d\d\d\d\d\d\d\d\d/)
 test_eisbn_length = eisbn.split(%r{\s*})
 
-if test_pisbn_length.length == 13 and test_pisbn_chars.length != 0
+# a test to see if DB connection works
+begin
+	url = URI.parse("nydatawh.newyork.hbpub.net")
+	req = Net::HTTP.new(url.host, url.port)
+	res = req.request_head(url.path)
+	connect = true
+rescue SystemCallError
+  puts "connection failed!"
+  connect = false
+  puts connect
+end
+
+if connect = false
+	myhash = {}
+elsif test_pisbn_length.length == 13 and test_pisbn_chars.length != 0
 	thissql = exactSearchSingleKey(pisbn, "EDITION_EAN")
 	myhash = runQuery(thissql)
 	if myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] and test_eisbn_length.length == 13 and test_eisbn_chars.length != 0

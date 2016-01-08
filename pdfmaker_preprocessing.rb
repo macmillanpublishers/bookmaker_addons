@@ -5,6 +5,49 @@ require 'fileutils'
 require_relative '../bookmaker/core/header.rb'
 require_relative '../bookmaker/core/metadata.rb'
 
+# ---------------------- VARIABLES
+
+# ---------------------- METHODS
+
+class Ftpfunctions
+  @@ftp_username = Bkmkr::Tools.readFile("#{$scripts_dir}/bookmaker_authkeys/ftp_username.txt")
+  @@ftp_password = Bkmkr::Tools.readFile("#{$scripts_dir}/bookmaker_authkeys/ftp_pass.txt")
+  @@ftp_url = "142.54.232.104"
+
+  def self.login(url, uname, pwd)
+    ftp = Net::FTP.new("#{url}")
+    ftp.login(user = "#{uname}", passwd = "#{pwd}")
+    return ftp
+  end
+
+  def self.check(parentfolder, childfolder)
+    ftp = Ftpfunctions.login(@@ftp_url, @@ftp_username, @@ftp_password)
+    files = ftp.chdir("/files/html/bookmaker/bookmakerimg/#{parentfolder}/#{childfolder}")
+    filenames = ftp.nlst()
+    filenames
+  end
+
+  def self.mkdir(newfolder)
+    ftp = Ftpfunctions.login(@@ftp_url, @@ftp_username, @@ftp_password)
+    dir = ftp.mkdir(newfolder)
+    dir
+  end
+
+  def self.delete(parentfolder, childfolder)
+    ftp = Ftpfunctions.login(@@ftp_url, @@ftp_username, @@ftp_password)
+    files = ftp.chdir("/files/html/bookmaker/bookmakerimg/#{parentfolder}/#{childfolder}")
+    filenames = ftp.nlst()
+    filenames.each do |d|
+      file = ftp.delete(d)
+    end
+    files = ftp.nlst()
+    ftp.close
+    files
+  end
+end
+
+# ---------------------- PROCESSES
+
 configfile = File.join(Bkmkr::Paths.project_tmp_dir, "config.json")
 file = File.read(configfile)
 data_hash = JSON.parse(file)
@@ -90,15 +133,39 @@ end
 # copy assets to tmp upload dir and upload to ftp
 FileUtils.cp Dir["#{assets_dir}/images/#{project_dir}/*"].select {|f| test ?f, f}, pdftmp_dir
 
-if Bkmkr::Tools.os == "mac" or Bkmkr::Tools.os == "unix"
-	ftpfile = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_ftpupload", "imageupload.sh")
-	ftpcmd = "#{ftpfile} #{pdftmp_dir} #{project_dir}_#{stage_dir} #{Metadata.pisbn}>> #{Bkmkr::Paths.log_file}"
-	puts ftpcmd
-	`#{ftpfile} #{pdftmp_dir} #{project_dir}_#{stage_dir} "#{Metadata.pisbn}">> #{Bkmkr::Paths.log_file}`
-elsif Bkmkr::Tools.os == "windows"
-	ftpfile = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_ftpupload", "imageupload.bat")
-	`#{ftpfile} #{pdftmp_dir} #{Bkmkr::Paths.project_tmp_dir_img} #{project_dir}_#{stage_dir} #{Metadata.pisbn}`
+uploadfiles = Mcmlln::Tools.dirListFiles(pdftmp_dir)
+
+ftp_username = Bkmkr::Tools.readFile("#{$scripts_dir}/bookmaker_authkeys/ftp_username.txt")
+ftp_password = Bkmkr::Tools.readFile("#{$scripts_dir}/bookmaker_authkeys/ftp_pass.txt")
+ftp_url = "142.54.232.104"
+
+ftp = Net::FTP.new("#{url}")
+ftp.login(user = "#{ftp_username}", passwd = "#{ftp_password}")
+files = ftp.binary(true)
+files = ftp.chdir("/files/html/bookmaker/bookmakerimg")
+files = ftp.mkdir("#{project_dir}_#{stage_dir}")
+files = ftp.chdir("#{project_dir}_#{stage_dir}")
+files = ftp.mkdir("#{Metadata.pisbn}")
+files = ftp.chdir("#{Metadata.pisbn}")
+
+uploadfiles.each do |p|
+  this = ftp.put(p)
 end
+
+files = ftp.nlst()
+ftp.close
+
+puts "Uploaded these files to ftp: #{files}"
+
+# if Bkmkr::Tools.os == "mac" or Bkmkr::Tools.os == "unix"
+# 	ftpfile = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_ftpupload", "imageupload.sh")
+# 	ftpcmd = "#{ftpfile} #{pdftmp_dir} #{project_dir}_#{stage_dir} #{Metadata.pisbn}>> #{Bkmkr::Paths.log_file}"
+# 	puts ftpcmd
+# 	`#{ftpfile} #{pdftmp_dir} #{project_dir}_#{stage_dir} "#{Metadata.pisbn}">> #{Bkmkr::Paths.log_file}`
+# elsif Bkmkr::Tools.os == "windows"
+# 	ftpfile = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_ftpupload", "imageupload.bat")
+# 	`#{ftpfile} #{pdftmp_dir} #{Bkmkr::Paths.project_tmp_dir_img} #{project_dir}_#{stage_dir} #{Metadata.pisbn}`
+# end
 
 # run content conversions
 pdfmakerpreprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "pdfmaker_preprocessing.js")
@@ -120,7 +187,7 @@ File.open(pdf_tmp_html, 'w') do |output|
   output.write filecontents
 end
 
-# TESTING
+# ---------------------- LOGGING
 
 # Printing the test results to the log file
 File.open(Bkmkr::Paths.log_file, 'a+') do |f|
