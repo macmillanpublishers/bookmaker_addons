@@ -98,8 +98,8 @@ FileUtils.cp Dir["#{assets_dir}/images/#{project_dir}/*"].select {|f| test ?f, f
 
 uploadfiles = Mcmlln::Tools.dirListFiles(pdftmp_dir)
 
-ftp_username = Bkmkr::Tools.readFile("#{$scripts_dir}/bookmaker_authkeys/ftp_username.txt")
-ftp_password = Bkmkr::Tools.readFile("#{$scripts_dir}/bookmaker_authkeys/ftp_pass.txt")
+ftp_username = Mcmlln::Tools.readFile("#{$scripts_dir}/bookmaker_authkeys/ftp_username.txt")
+ftp_password = Mcmlln::Tools.readFile("#{$scripts_dir}/bookmaker_authkeys/ftp_pass.txt")
 ftp_url = "142.54.232.104"
 
 ftp = Net::FTP.new("#{url}")
