@@ -26,10 +26,13 @@ puts size
 
 if size.include? "4.5in 7.125in" and stage_dir == "arc-sans"
 	trimcss = File.read(oneoff_45x7_sans)
+	puts "TRIM ONEOFF"
 elsif size.include? "4.5in 7.125in" and stage_dir != "arc-sans"
 	trimcss = File.read(oneoff_45x7)
+	puts "TRIM ONEOFF"
 else
 	trimcss = ""
+	puts "no trim oneoff found"
 end
 
 if File.file?(pdf_css_file)
