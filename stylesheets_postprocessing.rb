@@ -22,8 +22,10 @@ epub_css_file = File.join(tmp_layout_dir, "epub.css")
 oneoff_45x7 = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "css", "picador", "oneoff_45x7.css")
 oneoff_45x7_sans = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "css", "picador", "oneoff_45x7_sans.css")
 
-size = " "
-size = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="size" content=")(\d*\.*\d*in \d*\.*\d*in)("\/>)/)[2].gsub(/\s/,"")
+size = File.read(Bkmkr::Paths.outputtmp_html).scan(/<meta name="size"/)
+unless size.nil? or size.empty? or !size
+	size = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="size" content=")(\d*\.*\d*in \d*\.*\d*in)("\/>)/)[2].gsub(/\s/,"")
+end
 
 if size == "4.5in7.125in" and stage_dir == "arc-sans"
 	trimcss = File.read(oneoff_45x7_sans)
@@ -43,9 +45,6 @@ if tocpicheck.nil? or tocpicheck.empty? or !tocpicheck
 else
 	toc_override = true
 end
-
-puts tocpicheck
-puts toc_override
 
 if File.file?(pdf_css_file)
 	if chapterheads.count > 1
