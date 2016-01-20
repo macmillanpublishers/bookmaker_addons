@@ -25,18 +25,27 @@ oneoff_45x7_sans = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfm
 size = " "
 size = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="size" content=")(\d*\.*\d*in \d*\.*\d*in)("\/>)/)[2].gsub(/\s/,"")
 
-puts size
-
 if size == "4.5in7.125in" and stage_dir == "arc-sans"
 	trimcss = File.read(oneoff_45x7_sans)
-	puts "TRIM ONEOFF"
+	trimmessage = "Adding further css customizations: #{oneoff_45x7_sans}"
 elsif size == "4.5in7.125in" and stage_dir != "arc-sans"
 	trimcss = File.read(oneoff_45x7)
-	puts "TRIM ONEOFF"
+	trimmessage = "Adding further css customizations: #{oneoff_45x7}"
 else
 	trimcss = ""
-	puts "no trim oneoff found"
+	trimmessage = "No further css customizations"
 end
+
+tocpicheck = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="toc" content=")(auto|manual)("\/>)/)
+
+if tocpicheck.nil? or tocpicheck.empty? or !tocpicheck
+	toc_override = false
+else
+	toc_override = true
+end
+
+puts tocpicheck
+puts toc_override
 
 if File.file?(pdf_css_file)
 	if chapterheads.count > 1
@@ -44,7 +53,7 @@ if File.file?(pdf_css_file)
 	else
 		suppress_titles = "section[data-type='chapter']>h1{display:none;}"
 	end
-	if data_hash['pod_toc'] == "true"
+	if data_hash['pod_toc'] == "true" or toc_override == true
 		suppress_toc = ''
 	else
 		suppress_toc = 'nav[data-type="toc"]{display:none;}'
@@ -62,4 +71,12 @@ if File.file?(epub_css_file)
 			e.puts "h1.ChapTitlect{display:none;}"
 		end
 	end
+end
+
+# ---------------------- LOGGING
+
+# Printing the test results to the log file
+File.open(Bkmkr::Paths.log_file, 'a+') do |f|
+	f.puts "----- STYLESHEETS_POSTPROCESSING PROCESSES"
+	f.puts trimmessage
 end
