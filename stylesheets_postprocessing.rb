@@ -36,8 +36,7 @@ else
 	trimmessage = "No further css customizations"
 end
 
-tocpicheck = ""
-tocpicheck = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="toc" content=")(auto|manual)("\/>)/)
+tocpicheck = File.read(Bkmkr::Paths.outputtmp_html).scan(/<meta name="toc" content="(auto|manual)"\/>/)
 
 if tocpicheck.nil? or tocpicheck.empty? or !tocpicheck
 	toc_override = false
