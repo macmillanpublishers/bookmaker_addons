@@ -20,14 +20,15 @@ epub_css_file = File.join(tmp_layout_dir, "epub.css")
 oneoff_45x7 = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "css", "picador", "oneoff_45x7.css")
 oneoff_45x7_sans = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "css", "picador", "oneoff_45x7_sans.css")
 
-size = File.read(Bkmkr::Paths.outputtmp_html).scan(/<meta name="size" content="\d*\.*\d*in \d*\.*\d*in"\/>/)
+size = " "
+size = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="size" content=")(\d*\.*\d*in \d*\.*\d*in")(\/>)/)[2].gsub(/\s/,"")
 
 puts size
 
-if size.include?("4.5in 7.125in") and stage_dir == "arc-sans"
+if size == "4.5in7.125in" and stage_dir == "arc-sans"
 	trimcss = File.read(oneoff_45x7_sans)
 	puts "TRIM ONEOFF"
-elsif size.include?("4.5in 7.125in") and stage_dir != "arc-sans"
+elsif size == "4.5in7.125in" and stage_dir != "arc-sans"
 	trimcss = File.read(oneoff_45x7)
 	puts "TRIM ONEOFF"
 else
