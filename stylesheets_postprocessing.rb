@@ -22,6 +22,8 @@ oneoff_45x7_sans = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfm
 
 size = File.read(Bkmkr::Paths.outputtmp_html).scan(/<meta name="size" content="\d*\.*\d*in \d*\.*\d*in"\/>/)
 
+puts size
+
 if size.include? "4.5in 7.125in" and stage_dir == "arc-sans"
 	trimcss = File.read(oneoff_45x7_sans)
 elsif size.include? "4.5in 7.125in" and stage_dir != "arc-sans"
