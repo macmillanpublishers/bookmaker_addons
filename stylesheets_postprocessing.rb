@@ -8,6 +8,8 @@ configfile = File.join(Bkmkr::Paths.project_tmp_dir, "config.json")
 file = File.read(configfile)
 data_hash = JSON.parse(file)
 
+stage_dir = data_hash['stage']
+
 # an array of all occurances of chapters in the manuscript
 chapterheads = File.read(Bkmkr::Paths.outputtmp_html).scan(/section data-type="chapter"/)
 
