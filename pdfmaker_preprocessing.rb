@@ -5,6 +5,28 @@ require 'fileutils'
 require_relative '../bookmaker/core/header.rb'
 require_relative '../bookmaker/core/metadata.rb'
 
+# ---------------------- VARIABLES
+
+# full path to the image error file
+image_error = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "IMAGE_ERROR.txt")
+
+# ---------------------- METHODS
+
+def writeImageErrors(arr, file)
+  # Writes an error text file in the done\pisbn\ folder that lists all missing image files as stored in the missing array
+  if arr.any?
+    File.open(file, 'a+') do |output|
+      output.puts "IMAGE PROCESSING ERRORS:"
+      output.puts "The following images encountered processing errors and may be corrupt:"
+      arr.each do |m|
+        output.puts m
+      end
+    end
+  end
+end
+
+# ---------------------- PROCESSES
+
 configfile = File.join(Bkmkr::Paths.project_tmp_dir, "config.json")
 file = File.read(configfile)
 data_hash = JSON.parse(file)
@@ -49,6 +71,7 @@ end
 #if any images are in 'done' dir, grayscale and upload them to macmillan.tools site
 images = Dir.entries("#{Bkmkr::Paths.project_tmp_dir_img}").select {|f| !File.directory? f}
 image_count = images.count
+corrupt = []
 if image_count > 0
 	FileUtils.cp Dir["#{Bkmkr::Paths.project_tmp_dir_img}/*"].select {|f| test ?f, f}, pdftmp_dir
 	pdfimages = Dir.entries(pdftmp_dir).select { |f| !File.directory? f }
@@ -61,31 +84,38 @@ if image_count > 0
 			FileUtils.rm("#{pdfimage}")
 		else
 			myres = `identify -format "%y" "#{pdfimage}"`
-			myres = myres.to_f
-			myheight = `identify -format "%h" "#{pdfimage}"`
-			myheight = myheight.to_f
-			myheightininches = (myheight / myres)
-			mywidth = `identify -format "%w" "#{pdfimage}"`
-			mywidth = mywidth.to_f
-			mywidthininches = (mywidth / myres)
-			if mywidthininches > 3.5 or myheightininches > 5.5 then
-				targetheight = 5.5 * myres
-				targetwidth = 3.5 * myres
-				`convert "#{pdfimage}" -density #{myres} -resize "#{targetwidth}x#{targetheight}>" -quality 100 "#{pdfimage}"`
-			end
-			myheight = `identify -format "%h" "#{pdfimage}"`
-			myheight = myheight.to_f
-			myheightininches = (myheight / myres)
-			mymultiple = ((myheight / myres) * 72.0) / 16.0
-			if mymultiple <= 1
-				`convert "#{pdfimage}" -density #{myres} -colorspace gray "#{pdfimage}"`
-			else 
-				newheight = ((mymultiple.floor * 16.0) / 72.0) * myres
-				`convert "#{pdfimage}" -density #{myres} -resize "x#{newheight}" -quality 100 -colorspace gray "#{pdfimage}"`
-			end
+      if myres.nil? or myres.empty? or !myres
+        corrupt << pdfimage
+      else
+  			myres = myres.to_f
+  			myheight = `identify -format "%h" "#{pdfimage}"`
+  			myheight = myheight.to_f
+  			myheightininches = (myheight / myres)
+  			mywidth = `identify -format "%w" "#{pdfimage}"`
+  			mywidth = mywidth.to_f
+  			mywidthininches = (mywidth / myres)
+  			if mywidthininches > 3.5 or myheightininches > 5.5 then
+  				targetheight = 5.5 * myres
+  				targetwidth = 3.5 * myres
+  				`convert "#{pdfimage}" -density #{myres} -resize "#{targetwidth}x#{targetheight}>" -quality 100 "#{pdfimage}"`
+  			end
+  			myheight = `identify -format "%h" "#{pdfimage}"`
+  			myheight = myheight.to_f
+  			myheightininches = (myheight / myres)
+  			mymultiple = ((myheight / myres) * 72.0) / 16.0
+  			if mymultiple <= 1
+  				`convert "#{pdfimage}" -density #{myres} -colorspace gray "#{pdfimage}"`
+  			else 
+  				newheight = ((mymultiple.floor * 16.0) / 72.0) * myres
+  				`convert "#{pdfimage}" -density #{myres} -resize "x#{newheight}" -quality 100 -colorspace gray "#{pdfimage}"`
+  			end
+      end
 		end
 	end
 end
+
+# run method: writeMissingErrors
+writeImageErrors(missing, image_error)
 
 # copy assets to tmp upload dir and upload to ftp
 FileUtils.cp Dir["#{assets_dir}/images/#{project_dir}/*"].select {|f| test ?f, f}, pdftmp_dir
@@ -125,4 +155,11 @@ end
 # Printing the test results to the log file
 File.open(Bkmkr::Paths.log_file, 'a+') do |f|
 	f.puts "----- PDFMAKER-PREPROCESSING PROCESSES"
+  f.puts "Processed the following images:"
+  f.puts images
+  if corrupt.any?
+      f.puts "IMAGE PROCESSING ERRORS:"
+      f.puts "The following images encountered processing errors and may be corrupt:"
+      f.puts corrupt
+  end
 end
