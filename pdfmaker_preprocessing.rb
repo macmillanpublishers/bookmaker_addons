@@ -115,7 +115,7 @@ if image_count > 0
 end
 
 # run method: writeMissingErrors
-writeImageErrors(missing, image_error)
+writeImageErrors(corrupt, image_error)
 
 # copy assets to tmp upload dir and upload to ftp
 FileUtils.cp Dir["#{assets_dir}/images/#{project_dir}/*"].select {|f| test ?f, f}, pdftmp_dir
