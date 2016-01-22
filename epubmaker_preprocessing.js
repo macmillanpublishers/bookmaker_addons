@@ -52,9 +52,9 @@ $("span.spanhyperlinkurl:not(:has(a))").each(function () {
   });
 
   // convert small caps text to uppercase
-  $('spansmcapboldscbold').text().toUpperCase();
-  $('spansmallcapscharacterssc').text().toUpperCase();
-  $('spansmcapitalscital').text().toUpperCase();
+  $('span.spansmcapboldscbold').text().toUpperCase();
+  $('span.spansmallcapscharacterssc').text().toUpperCase();
+  $('span.spansmcapitalscital').text().toUpperCase();
 
   // remove textual toc for epub
   $('section.texttoc').remove();
