@@ -72,6 +72,8 @@ end
 images = Dir.entries("#{Bkmkr::Paths.project_tmp_dir_img}").select {|f| !File.directory? f}
 image_count = images.count
 corrupt = []
+processed = []
+
 if image_count > 0
 	FileUtils.cp Dir["#{Bkmkr::Paths.project_tmp_dir_img}/*"].select {|f| test ?f, f}, pdftmp_dir
 	pdfimages = Dir.entries(pdftmp_dir).select { |f| !File.directory? f }
@@ -80,6 +82,7 @@ if image_count > 0
 		if i.include?("fullpage")
 			#convert command for ImageMagick should work the same on any platform
 			`convert "#{pdfimage}" -colorspace gray "#{pdfimage}"`
+      processed << pdfimage
 		elsif i.include?("_FC") or i.include?(".txt") or i.include?(".css") or i.include?(".js")
 			FileUtils.rm("#{pdfimage}")
 		else
@@ -109,6 +112,7 @@ if image_count > 0
   				newheight = ((mymultiple.floor * 16.0) / 72.0) * myres
   				`convert "#{pdfimage}" -density #{myres} -resize "x#{newheight}" -quality 100 -colorspace gray "#{pdfimage}"`
   			end
+        processed << pdfimage
       end
 		end
 	end
@@ -156,7 +160,7 @@ end
 File.open(Bkmkr::Paths.log_file, 'a+') do |f|
 	f.puts "----- PDFMAKER-PREPROCESSING PROCESSES"
   f.puts "Processed the following images:"
-  f.puts images
+  f.puts processed
   if corrupt.any?
       f.puts "IMAGE PROCESSING ERRORS:"
       f.puts "The following images encountered processing errors and may be corrupt:"
