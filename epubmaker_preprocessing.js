@@ -52,9 +52,13 @@ $("span.spanhyperlinkurl:not(:has(a))").each(function () {
   });
 
   // convert small caps text to uppercase
-  $('span.spansmcapboldscbold').val($('span.spansmcapboldscbold').val().toUpperCase());
-  $('span.spansmallcapscharacterssc').val($('span.spansmallcapscharacterssc').val().toUpperCase());
-  $('span.spansmcapitalscital').val($('span.spansmcapitalscital').val().toUpperCase());
+  $("span.spansmallcapscharacterssc, span.spansmcapboldscbold, span.spansmcapitalscital").each(function () {
+    var text = $( this ).text();
+    text = text.toUpperCase();
+    console.log(text);
+    $(this).empty();
+    $(this).prepend(text); 
+  });
 
   // remove textual toc for epub
   $('section.texttoc').remove();
