@@ -85,6 +85,14 @@ unless Metadata.epubtitlepage == "Unknown"
   end
 end
 
+#set logo image based on project directory
+logo_img = File.join(assets_dir, "images", project_dir, "logo.jpg")
+
+#copy logo image file to epub folder if no epubtitlepage found
+if Metadata.epubtitlepage == "Unknown" and File.file?(logo_img)
+  FileUtils.cp(logo_img, epub_img_dir)
+end
+
 # Make EBK hyperlinks
 strip_span_xsl = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "strip-spans.xsl")
 
@@ -103,18 +111,6 @@ Bkmkr::Tools.runnode(epubmakerpreprocessingjs, epub_tmp_html)
 
 # replace titlepage info with image IF image exists in submission dir
 # js: replace titlepage innerhtml, prepend h1 w class nonprinting
-
-#set logo image based on project directory
-logo_img = File.join(assets_dir, "images", project_dir, "logo.jpg")
-
-#copy logo image file to epub folder
-if File.file?(logo_img)
-  FileUtils.cp(logo_img, epub_img_dir)
-end
-
-#copy addon images to epub folder
-# addon_imgs = File.join(assets_dir, "addons", "images", ".")
-# FileUtils.cp_r(addon_imgs, epub_img_dir)
 
 # copy backad file to epub dir
 # if File.file?(backad_file)
