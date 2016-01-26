@@ -113,8 +113,8 @@ if File.file?(logo_img)
 end
 
 #copy addon images to epub folder
-addon_imgs = File.join(assets_dir, "addons", "images", ".")
-FileUtils.cp_r(addon_imgs, epub_img_dir)
+# addon_imgs = File.join(assets_dir, "addons", "images", ".")
+# FileUtils.cp_r(addon_imgs, epub_img_dir)
 
 # copy backad file to epub dir
 # if File.file?(backad_file)
