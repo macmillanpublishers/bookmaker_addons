@@ -19,6 +19,10 @@ fs.readFile(file, function editContent (err, contents) {
   	$('section[data-type="titlepage"]').append(image);
   }
 
+  // replace logo with image
+  var logo = '<img src="logo.jpg"/>'
+  $('p.TitlepageLogologo').empty().prepend(logo);
+
   // add extra paragraph to copyright page
   $('section[data-type="copyright-page"] p:last-child').removeClass( "CopyrightTextsinglespacecrtx" ).addClass( "CopyrightTextdoublespacecrtxd" );
 
