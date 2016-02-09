@@ -116,11 +116,11 @@ else
 	puts "No DB record found; falling back to manuscript fields"
 end
 
-metabookauthor = File.read(Bkmkr::Paths.outputtmp_html).scan(/(<meta name="bookauthor" content=")(.*?)("\/>)/)[2]
-metabooktitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/(<meta name="booktitle" content=")(.*?)("\/>)/)[2]
-metabooksubtitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/(<meta name="booksubtitle" content=")(.*?)("\/>)/)[2]
-metapublisher = File.read(Bkmkr::Paths.outputtmp_html).scan(/(<meta name="publisher" content=")(.*?)("\/>)/)[2]
-metaimprint = File.read(Bkmkr::Paths.outputtmp_html).scan(/(<meta name="imprint" content=")(.*?)("\/>)/)[2]
+metabookauthor = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="bookauthor" content=")(.*?)("\/>)/i)[2]
+metabooktitle = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="booktitle" content=")(.*?)("\/>)/i)[2]
+metabooksubtitle = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="booksubtitle" content=")(.*?)("\/>)/i)[2]
+metapublisher = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="publisher" content=")(.*?)("\/>)/i)[2]
+metaimprint = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="imprint" content=")(.*?)("\/>)/i)[2]
 
 # Finding author name(s)
 if !metabookauthor.nil?
