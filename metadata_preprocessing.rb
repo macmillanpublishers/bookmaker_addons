@@ -1,4 +1,5 @@
 require 'fileutils'
+require 'htmlentities'
 
 require_relative '../bookmaker/core/header.rb'
 require_relative '../utilities/oraclequery.rb'
@@ -124,7 +125,7 @@ metaimprint = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="imprint
 
 # Finding author name(s)
 if !metabookauthor.nil?
-	authorname = HTMLEntities.new.decode metabookauthor[2]
+	authorname = HTMLEntities.new.decode(metabookauthor[2])
 elsif myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['WORK_COVERAUTHOR'].nil? or myhash['book']['WORK_COVERAUTHOR'].empty? or !myhash['book']['WORK_COVERAUTHOR']
 	authorname = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageAuthorNameau">.*?</).join(", ").gsub(/<p class="TitlepageAuthorNameau">/,"").gsub(/</,"").gsub(/\[\]/,"")
 else
@@ -134,7 +135,7 @@ end
 
 # Finding book title
 if !metabooktitle.nil?
-	booktitle = HTMLEntities.new.decode metabooktitle[2]
+	booktitle = HTMLEntities.new.decode(metabooktitle[2])
 elsif myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_COVERTITLE"].nil? or myhash["book"]["WORK_COVERTITLE"].empty? or !myhash["book"]["WORK_COVERTITLE"]
 	booktitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<title>.*?<\/title>/).to_s.gsub(/\["<title>/,"").gsub(/<\/title>"\]/,"").gsub(/\[\]/,"")
 else
@@ -144,7 +145,7 @@ end
 
 # Finding book subtitle
 if !metabooksubtitle.nil?
-	booksubtitle = HTMLEntities.new.decode metabooksubtitle[2]
+	booksubtitle = HTMLEntities.new.decode(metabooksubtitle[2])
 elsif myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_SUBTITLE"].nil? or myhash["book"]["WORK_SUBTITLE"].empty? or !myhash["book"]["WORK_SUBTITLE"]
   booksubtitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageBookSubtitlestit">.*?</).join(", ").gsub(/<p class="TitlepageBookSubtitlestit">/,"").gsub(/</,"")
 else
@@ -160,7 +161,7 @@ stage_dir = Bkmkr::Project.input_file.split(Regexp.union(*[File::SEPARATOR, File
 # imprint = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageImprintLineimp">.*?</).to_s.gsub(/\["<p class=\\"TitlepageImprintLineimp\\">/,"").gsub(/"\]/,"").gsub(/</,"")
 # Manually populating for now, until we get the DB set up
 if !metaimprint.nil?
-	imprint = HTMLEntities.new.decode metaimprint[2]
+	imprint = HTMLEntities.new.decode(metaimprint[2])
 elsif myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["IMPRINT_DESC"].nil? or myhash["book"]["IMPRINT_DESC"].empty? or !myhash["book"]["IMPRINT_DESC"]
 	if project_dir == "torDOTcom"
 		imprint = "Tom Doherty Associates"
@@ -177,7 +178,7 @@ else
 end
 
 if !metapublisher.nil?
-	publisher = HTMLEntities.new.decode metapublisher[2]
+	publisher = HTMLEntities.new.decode(metapublisher[2])
 else 
 	publisher = imprint
 end
