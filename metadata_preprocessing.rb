@@ -279,6 +279,6 @@ myarray.merge!(author: authorname)
 finaljson = JSON.generate(myarray)
 testfile = File.join(Bkmkr::Project.working_dir, "test.json")
 
-File.open(testfile, 'w+') do |k|
+File.open(testfile, 'w+b:UTF-8') do |k|
 	k.puts finaljson
 end
