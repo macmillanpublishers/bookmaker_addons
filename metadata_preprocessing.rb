@@ -125,7 +125,7 @@ metaimprint = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="imprint
 
 # Finding author name(s)
 if !metabookauthor.nil?
-	authorname = HTMLEntities.new.decode(metabookauthor[2])
+	authorname = HTMLEntities.new.decode(metabookauthor[2]).encode('utf-8')
 elsif myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['WORK_COVERAUTHOR'].nil? or myhash['book']['WORK_COVERAUTHOR'].empty? or !myhash['book']['WORK_COVERAUTHOR']
 	authorname = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageAuthorNameau">.*?</).join(", ").gsub(/<p class="TitlepageAuthorNameau">/,"").gsub(/</,"").gsub(/\[\]/,"")
 else
@@ -135,7 +135,7 @@ end
 
 # Finding book title
 if !metabooktitle.nil?
-	booktitle = HTMLEntities.new.decode(metabooktitle[2])
+	booktitle = HTMLEntities.new.decode(metabooktitle[2]).encode('utf-8')
 elsif myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_COVERTITLE"].nil? or myhash["book"]["WORK_COVERTITLE"].empty? or !myhash["book"]["WORK_COVERTITLE"]
 	booktitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<title>.*?<\/title>/).to_s.gsub(/\["<title>/,"").gsub(/<\/title>"\]/,"").gsub(/\[\]/,"")
 else
@@ -145,7 +145,7 @@ end
 
 # Finding book subtitle
 if !metabooksubtitle.nil?
-	booksubtitle = HTMLEntities.new.decode(metabooksubtitle[2])
+	booksubtitle = HTMLEntities.new.decode(metabooksubtitle[2]).encode('utf-8')
 elsif myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_SUBTITLE"].nil? or myhash["book"]["WORK_SUBTITLE"].empty? or !myhash["book"]["WORK_SUBTITLE"]
   booksubtitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageBookSubtitlestit">.*?</).join(", ").gsub(/<p class="TitlepageBookSubtitlestit">/,"").gsub(/</,"")
 else
