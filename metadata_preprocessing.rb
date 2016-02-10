@@ -276,7 +276,7 @@ myarray.merge!(title: booktitle)
 myarray.merge!(subtitle: booksubtitle)
 myarray.merge!(author: authorname)
 finaljson = JSON.generate(myarray)
-testfile = File.join(Bkmkr::Paths.project_tmp_dir, "test.json")
+testfile = File.join(Bkmkr::Project.working_dir, "test.json")
 
 File.open(testfile, 'w+') do |k|
 	k.puts finaljson
