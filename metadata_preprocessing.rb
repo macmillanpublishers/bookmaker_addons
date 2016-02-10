@@ -235,7 +235,7 @@ end
 configfile = File.join(Bkmkr::Paths.project_tmp_dir, "config.json")
 
 # Printing the project json
-File.open(configfile, 'w+') do |f|
+File.open(configfile, 'w+:UTF-8') do |f|
 	f.puts '{'
 	f.puts '"title":"' + booktitle + '",'
 	f.puts '"subtitle":"' + booksubtitle + '",'
