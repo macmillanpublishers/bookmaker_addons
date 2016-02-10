@@ -1,5 +1,6 @@
 require 'fileutils'
 require 'htmlentities'
+require 'json'
 
 require_relative '../bookmaker/core/header.rb'
 require_relative '../utilities/oraclequery.rb'
