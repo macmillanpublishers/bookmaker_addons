@@ -117,9 +117,9 @@ else
 	puts "No DB record found; falling back to manuscript fields"
 end
 
-metabookauthor = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="bookauthor" content=")(.*?)("\/>)/i)
-metabooktitle = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="booktitle" content=")(.*?)("\/>)/i)
-metabooksubtitle = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="booksubtitle" content=")(.*?)("\/>)/i)
+metabookauthor = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="author" content=")(.*?)("\/>)/i)
+metabooktitle = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="title" content=")(.*?)("\/>)/i)
+metabooksubtitle = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="subtitle" content=")(.*?)("\/>)/i)
 metapublisher = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="publisher" content=")(.*?)("\/>)/i)
 metaimprint = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="imprint" content=")(.*?)("\/>)/i)
 
