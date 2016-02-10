@@ -255,7 +255,7 @@ File.open(configfile, 'w+') do |f|
 		f.puts '"frontcover":"' + pisbn + '_FC.jpg"'
 	elsif stage_dir == "egalley" and frontcover.empty?
 		f.puts '"frontcover":"' + pisbn + '_FC.jpg"'
-	elsif stage_dir == "arc-sans" or stage_dir == "arc-serif" and frontcover.empty?
+	elsif stage_dir == "arc-sans" or stage_dir == "arc-serif" or stage_dir == "RBM" and frontcover.empty?
 		f.puts '"frontcover":"' + pisbn + '_FC.jpg"'
 	else
 		f.puts '"frontcover":"' + frontcover + '"'
