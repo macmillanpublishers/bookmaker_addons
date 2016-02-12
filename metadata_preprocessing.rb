@@ -269,6 +269,6 @@ end
 finaljson = JSON.generate(datahash)
 
 # Printing the final JSON object
-File.open(configfile, 'w+b:UTF-8') do |f|
+File.open(configfile, 'w+:UTF-8') do |f|
 	f.puts finaljson
 end
