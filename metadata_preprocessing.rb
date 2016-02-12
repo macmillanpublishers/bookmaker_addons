@@ -233,52 +233,42 @@ else
 	toc_value = "false"
 end
 
+# Generating the json metadata
+
 configfile = File.join(Bkmkr::Paths.project_tmp_dir, "config.json")
 
-# Printing the project json
-File.open(configfile, 'w+:UTF-8') do |f|
-	f.puts '{'
-	f.puts '"title":"' + booktitle + '",'
-	f.puts '"subtitle":"' + booksubtitle + '",'
-	f.puts '"author":"' + authorname + '",'
-	f.puts '"productid":"' + pisbn + '",'
-	f.puts '"printid":"' + pisbn + '",'
-	f.puts '"ebookid":"' + eisbn + '",'
-	f.puts '"imprint":"' + imprint + '",'
-	f.puts '"publisher":"' + publisher + '",'
-	f.puts '"project":"' + project_dir + '",'
-	f.puts '"stage":"' + stage_dir + '",'
-	f.puts '"printcss":"' + pdf_css_file + '",'
-	f.puts '"printjs":"' + pdf_js_file + '",'
-	f.puts '"ebookcss":"' + epub_css_file + '",'
-	f.puts '"pod_toc":"' + toc_value + '",'
-	if stage_dir == "firstpass" and frontcover.empty?
-		f.puts '"frontcover":"' + pisbn + '_FC.jpg"'
-	elsif stage_dir == "egalley" and frontcover.empty?
-		f.puts '"frontcover":"' + pisbn + '_FC.jpg"'
-	elsif stage_dir == "arc-sans" or stage_dir == "arc-serif" or stage_dir == "RBM" and frontcover.empty?
-		f.puts '"frontcover":"' + pisbn + '_FC.jpg"'
-	else
-		f.puts '"frontcover":"' + frontcover + '"'
-	end
-	unless epubtitlepage.nil?
-		f.puts ',"epubtitlepage":"' + epubtitlepage + '"'
-	end
-	unless podtitlepage.nil?
-		f.puts ',"podtitlepage":"' + podtitlepage + '"'
-	end
-	f.puts '}'
+if stage_dir == "firstpass" or stage_dir == "egalley" or stage_dir == "arc-sans" or stage_dir == "arc-serif" or stage_dir == "RBM" and frontcover.empty?
+	frontcoverval = "#{pisbn}_FC.jpg"
+else
+	frontcoverval = frontcover
 end
 
-## TROUBLESHOOTING
+datahash = {}
+datahash.merge!(title: booktitle)
+datahash.merge!(subtitle: booksubtitle)
+datahash.merge!(author: authorname)
+datahash.merge!(productid: pisbn)
+datahash.merge!(printid: pisbn)
+datahash.merge!(ebookid: eisbn)
+datahash.merge!(imprint: imprint)
+datahash.merge!(publisher: publisher)
+datahash.merge!(project: project_dir)
+datahash.merge!(stage: stage_dir)
+datahash.merge!(printcss: pdf_css_file)
+datahash.merge!(printjs: pdf_js_file)
+datahash.merge!(ebookcss: epub_css_file)
+datahash.merge!(pod_toc: toc_value)
+datahash.merge!(frontcover: frontcoverval)
+unless epubtitlepage.nil?
+	datahash.merge!(epubtitlepage: epubtitlepage)
+end
+unless podtitlepage.nil?
+	datahash.merge!(podtitlepage: podtitlepage)
+end
 
-myarray = {}
-myarray.merge!(title: booktitle)
-myarray.merge!(subtitle: booksubtitle)
-myarray.merge!(author: authorname)
-finaljson = JSON.generate(myarray)
-testfile = File.join(Bkmkr::Project.working_dir, "test.json")
+finaljson = JSON.generate(datahash)
 
-File.open(testfile, 'w+b:UTF-8') do |k|
-	k.puts finaljson
+# Printing the final JSON object
+File.open(configfile, 'w+b:UTF-8') do |f|
+	f.puts finaljson
 end
