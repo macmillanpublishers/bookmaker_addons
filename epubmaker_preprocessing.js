@@ -70,6 +70,9 @@ $("span.spanhyperlinkurl:not(:has(a))").each(function () {
   // remove print-only sections
   $('*[data-format="print"]').remove();
 
+  // suppress toc entries for certain sections
+  $('div[data-type="part"] + section[data-type="chapter"]:has(h1.ChapTitleNonprintingctnp) + *:not(section[data-type="chapter"])').prev().addClass("notoc");
+
   var output = $.html();
 	  fs.writeFile(file, output, function(err) {
 	    if(err) {
