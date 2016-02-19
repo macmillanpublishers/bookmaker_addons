@@ -1,4 +1,5 @@
 require 'fileutils'
+require 'json'
 
 require_relative '../bookmaker/core/header.rb'
 
