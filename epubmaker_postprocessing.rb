@@ -3,19 +3,23 @@ require 'fileutils'
 require_relative '../bookmaker/core/header.rb'
 require_relative '../bookmaker/core/metadata.rb'
 
-# These commands should run immediately after to epubmaker
+# ---------------------- VARIABLES
 
-configfile = File.join(Bkmkr::Paths.project_tmp_dir, "config.json")
-file = File.read(configfile)
-data_hash = JSON.parse(file)
+data_hash = Mcmlln::Tools.readjson(Metadata.configfile)
 
 OEBPS_dir = File.join(Bkmkr::Paths.project_tmp_dir, "OEBPS")
+
 zipepub_py = File.join(Bkmkr::Paths.core_dir, "epubmaker", "zipepub.py")
 
+# path to epubcheck
+epubcheck = File.join(Bkmkr::Paths.core_dir, "epubmaker", "epubcheck", "epubcheck.jar")
+
+# ---------------------- METHODS
+
+# ---------------------- PROCESSES
 # Add links back to TOC to chapter heads
 searchdir = File.join(OEBPS_dir, "ch[0-9][0-9]*.html")
 chapfiles = Dir.glob(searchdir)
-
 chapfiles.each do |c|
 	replace = File.read(c).gsub(/(<section data-type="chapter".*?><h1.*?>)(.*?)(<\/h1>)/, "\\1<a href=\"toc01.html\">\\2</a>\\3")
 	File.open(c, "w") {|file| file.puts replace}
@@ -62,4 +66,8 @@ FileUtils.cp("#{Bkmkr::Paths.project_tmp_dir}/#{csfilename}.epub", "#{Bkmkr::Pat
 # Renames final epub for firstpass
 if data_hash['stage'].include? "egalley" or data_hash['stage'].include? "firstpass"
   FileUtils.mv("#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{Metadata.eisbn}_EPUB.epub", "#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{Metadata.eisbn}_EPUBfirstpass.epub")
+  csfilename = "#{Metadata.eisbn}_EPUBfirstpass"
 end
+
+# validate epub file
+Bkmkr::Tools.runjar(epubcheck, "#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{csfilename}.epub")
