@@ -70,4 +70,4 @@ FileUtils.cp("#{Bkmkr::Paths.project_tmp_dir}/#{csfilename}.epub", "#{Bkmkr::Pat
 
 # validate epub file
 puts "---RUNNING EPUBCHECK FOR EPUBMAKER_POSTPROCESSING.RB---"
-Bkmkr::Tools.runjar(epubcheck, "#{final_dir}/#{csfilename}.epub")
+Bkmkr::Tools.runjar(epubcheck, "#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{csfilename}.epub")
