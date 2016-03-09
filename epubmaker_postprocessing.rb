@@ -56,17 +56,18 @@ if File.file?(podtitlepagetmp)
 	FileUtils.rm(podtitlepagetmp)
 end
 
-# Renames final epub for coresource based on stage
-if data_hash['stage'].include? "egalley" or data_hash['stage'].include? "firstpass"
-  csfilename = "#{Metadata.eisbn}_EPUBfirstpass"
-else
-  csfilename = "#{Metadata.eisbn}_EPUB"
-end
+csfilename = "#{Metadata.eisbn}_EPUB"
 
 # zip epub
 Bkmkr::Tools.runpython(zipepub_py, "#{csfilename}.epub #{Bkmkr::Paths.project_tmp_dir}")
 
 FileUtils.cp("#{Bkmkr::Paths.project_tmp_dir}/#{csfilename}.epub", "#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}")
+
+# Renames final epub for firstpass
+if data_hash['stage'].include? "egalley" or data_hash['stage'].include? "firstpass"
+  FileUtils.mv("#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{Metadata.eisbn}_EPUB.epub", "#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{Metadata.eisbn}_EPUBfirstpass.epub")
+  csfilename = "#{Metadata.eisbn}_EPUBfirstpass"
+end
 
 # validate epub file
 Bkmkr::Tools.runjar(epubcheck, "#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{csfilename}.epub")
