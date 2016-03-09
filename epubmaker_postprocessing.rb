@@ -69,5 +69,4 @@ Bkmkr::Tools.runpython(zipepub_py, "#{csfilename}.epub #{Bkmkr::Paths.project_tm
 FileUtils.cp("#{Bkmkr::Paths.project_tmp_dir}/#{csfilename}.epub", "#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}")
 
 # validate epub file
-puts "---RUNNING EPUBCHECK FOR EPUBMAKER_POSTPROCESSING.RB---"
 Bkmkr::Tools.runjar(epubcheck, "#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{csfilename}.epub")
