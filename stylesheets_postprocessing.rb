@@ -4,6 +4,25 @@ require 'json'
 require_relative '../bookmaker/core/header.rb'
 require_relative '../bookmaker/core/metadata.rb'
 
+def evalOneoffs(file, path)
+	tmp_layout_dir = File.join(Bkmkr::Project.working_dir, "done", Metadata.pisbn, "layout")
+	oneoffcss_new = File.join(Bkmkr::Paths.submitted_images, file)
+	oneoffcss_pickup = File.join(tmp_layout_dir, file)
+
+	if File.file?(oneoffcss_new)
+		FileUtils.mv(oneoffcss_new, oneoffcss_pickup)
+		oneoffcss = File.read(oneoffcss_pickup)
+		File.open(path, 'a+') do |o|
+			o.write oneoffcss
+		end
+	elsif File.file?(oneoffcss_pickup)
+		oneoffcss = File.read(oneoffcss_pickup)
+		File.open(path, 'a+') do |o|
+			o.write oneoffcss
+		end
+	end
+end
+
 configfile = File.join(Bkmkr::Paths.project_tmp_dir, "config.json")
 file = File.read(configfile)
 data_hash = JSON.parse(file)
@@ -62,6 +81,7 @@ if File.file?(pdf_css_file)
 		p.puts suppress_toc
 		p.puts trimcss
 	end
+	evalOneoffs("oneoff_pdf.css", pdf_css_file)
 end
 
 if File.file?(epub_css_file)
@@ -70,6 +90,7 @@ if File.file?(epub_css_file)
 			e.puts "h1.ChapTitlect{display:none;}"
 		end
 	end
+	evalOneoffs("oneoff_epub.css", epub_css_file)
 end
 
 # ---------------------- LOGGING
