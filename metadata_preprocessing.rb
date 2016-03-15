@@ -35,12 +35,19 @@ else
 end
 
 # just in case no isbn is found
-if pisbn.length == 0
-	pisbn = Bkmkr::Project.filename
+if pisbn.length == 0 and eisbn.length != 0
+	pisbn = eisbn
+elsif pisbn.length == 0 and eisbn.length == 0
+  pisbn = Bkmkr::Project.filename
 end
 
-if eisbn.length == 0
-	eisbn = Bkmkr::Project.filename
+if pisbn.length == 0 and eisbn.length != 0
+  pisbn = eisbn
+elsif pisbn.length != 0 and eisbn.length == 0
+  eisbn = pisbn
+elsif pisbn.length == 0 and eisbn.length == 0
+  pisbn = Bkmkr::Project.filename
+  eisbn = Bkmkr::Project.filename
 end
 
 # find titlepage images
