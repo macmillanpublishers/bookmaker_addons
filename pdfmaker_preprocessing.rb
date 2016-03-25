@@ -163,7 +163,7 @@ if image_count > 0
     if i.include?("_FC") or i.include?(".txt") or i.include?(".css") or i.include?(".js")
       FileUtils.rm("#{pdfimage}")
     end
-    unless imgformat == "jpg" or imgformat == "jpeg" or imgformat == "png" or imgformat == "pdf" or imgformat == "ai"
+    if imgformat == "jpg" or imgformat == "jpeg" or imgformat == "png" or imgformat == "pdf" or imgformat == "ai"
       if i.include?("fullpage")
         #convert command for ImageMagick should work the same on any platform
         `convert "#{pdfimage}" -colorspace gray "#{jpgimage}"`
