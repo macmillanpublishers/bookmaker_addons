@@ -154,6 +154,7 @@ if image_count > 0
   FileUtils.cp Dir["#{Bkmkr::Paths.project_tmp_dir_img}/*"].select {|f| test ?f, f}, pdftmp_dir
   pdfimages = Dir.entries(pdftmp_dir).select { |f| !File.directory? f }
   pdfimages.each do |i|
+    puts i
     pdfimage = File.join(pdftmp_dir, "#{i}")
     imgfilename = i.split(".").shift
     jpgimage = File.join(pdftmp_dir, "#{imgfilename}.jpg")
