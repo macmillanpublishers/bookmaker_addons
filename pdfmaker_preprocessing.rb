@@ -97,7 +97,6 @@ class Ftpfunctions
       ftp.mkdir(childfolder)
     end
     ftp.chdir(childfolder)
-    end
     files = ftp.nlst()
     ftp.close
     puts files
