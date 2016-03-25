@@ -93,6 +93,7 @@ class Ftpfunctions
       ftp.mkdir(parentfolder)
     end
     ftp.chdir(parentfolder)
+    ls = ftp.nlst()
     unless ls.include?(childfolder)
       ftp.mkdir(childfolder)
     end
