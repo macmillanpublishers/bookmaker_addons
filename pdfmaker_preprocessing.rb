@@ -81,18 +81,26 @@ class Ftpfunctions
     ftp = Net::FTP.new("#{url}")
     ftp.login(user = "#{uname}", passwd = "#{pwd}")
     return ftp
+    puts "logged into FTP: #{url}"
   end
 
   def self.createDirs(parentfolder, childfolder)
     ftp = Ftpfunctions.loginFTP(@@ftp_url, @@ftp_username, @@ftp_password)
     files = ftp.chdir("/files/html/bookmaker/bookmakerimg/")
-    files = ftp.mkdir(parentfolder)
+    ls = ftp.list()
+    puts ls
+    unless ls.include?(parentfolder)
+      ftp.mkdir(parentfolder)
+    end
     files = ftp.chdir(parentfolder)
-    files = ftp.mkdir(childfolder)
+    unless ls.include?(childfolder)
+      ftp.mkdir(childfolder)
+    end
     files = ftp.chdir(childfolder)
     files = ftp.nlst()
     ftp.close
-    files
+    puts files
+    return files
   end
 
   def self.uploadImg(dir, filenames)
@@ -103,7 +111,7 @@ class Ftpfunctions
     end
     files = ftp.nlst()
     ftp.close
-    files
+    return files
   end
 end
 
