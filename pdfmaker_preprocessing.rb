@@ -165,7 +165,6 @@ if image_count > 0
       Mcmlln::Tools.deleteFile(pdfimage)
       filecontents = filecontents.gsub(/#{pdfimage}/,jpgimage)
       processed << pdfimage
-      end
     end
   end
 end
