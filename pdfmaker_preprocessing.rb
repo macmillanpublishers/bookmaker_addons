@@ -112,7 +112,7 @@ class Ftpfunctions
     filenames.each do |p|
       filepath = File.expand_path(p)
       puts filepath
-      putbinaryfile(filepath)
+      ftp.putbinaryfile(filepath)
     end
     files = ftp.nlst()
     ftp.close
