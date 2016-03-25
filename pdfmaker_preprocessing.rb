@@ -110,8 +110,9 @@ class Ftpfunctions
     ftp = Ftpfunctions.loginFTP(@@ftp_url, @@ftp_username, @@ftp_password)
     files = ftp.chdir(dir)
     filenames.each do |p|
-      puts p
-      putbinaryfile(p)
+      filepath = File.expand_path(p)
+      puts filepath
+      putbinaryfile(filepath)
     end
     files = ftp.nlst()
     ftp.close
