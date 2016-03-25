@@ -88,7 +88,6 @@ class Ftpfunctions
     ftp = Ftpfunctions.loginFTP(@@ftp_url, @@ftp_username, @@ftp_password)
     files = ftp.chdir("/files/html/bookmaker/bookmakerimg/")
     ls = ftp.list()
-    puts ls
     begin
       ftp.chdir(parentfolder)
     rescue
@@ -111,6 +110,7 @@ class Ftpfunctions
     ftp = Ftpfunctions.loginFTP(@@ftp_url, @@ftp_username, @@ftp_password)
     files = ftp.chdir(dir)
     filenames.each do |p|
+      puts p
       putbinaryfile(p)
     end
     files = ftp.nlst()
