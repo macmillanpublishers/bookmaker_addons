@@ -173,7 +173,7 @@ if image_count > 0
         corrupt << pdfimage
       else
         resize = calcImgSizes(myres, pdfimage, maxheight, maxwidth, grid)
-        `convert "#{pdfimage}" -density #{myres} #{resize}-quality 100 -colorspace gray "#{pdfimage}"`
+        `convert "#{pdfimage}" -density #{myres} #{resize}-quality 100 -colorspace gray "#{jpgimage}"`
       end
       Mcmlln::Tools.deleteFile(pdfimage)
       filecontents = filecontents.gsub(/#{pdfimage}/,jpgimage)
