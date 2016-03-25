@@ -106,11 +106,11 @@ class Ftpfunctions
     return files
   end
 
-  def self.uploadImg(dir, filenames)
+  def self.uploadImg(dir, srcdir, filenames)
     ftp = Ftpfunctions.loginFTP(@@ftp_url, @@ftp_username, @@ftp_password)
     files = ftp.chdir(dir)
     filenames.each do |p|
-      filepath = File.expand_path(p)
+      filepath = File.join(srcdir, p)
       puts filepath
       ftp.putbinaryfile(filepath)
     end
@@ -195,7 +195,7 @@ FileUtils.cp Dir["#{assets_dir}/images/#{project_dir}/*"].select {|f| test ?f, f
 ftplist = Dir.entries(pdftmp_dir).select { |f| !File.directory? f }
 
 ftpsetup = Ftpfunctions.createDirs("#{project_dir}_#{stage_dir}", Metadata.pisbn)
-ftpstatus = Ftpfunctions.uploadImg(ftp_dir, ftplist)
+ftpstatus = Ftpfunctions.uploadImg(ftp_dir, pdftmp_dir, ftplist)
 
 # run node.js content conversions
 pdfmakerpreprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "pdfmaker_preprocessing.js")
