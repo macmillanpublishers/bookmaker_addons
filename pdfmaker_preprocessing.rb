@@ -162,7 +162,9 @@ if image_count > 0
     if i.include?("fullpage")
       #convert command for ImageMagick should work the same on any platform
       `convert "#{pdfimage}" -colorspace gray "#{jpgimage}"`
-      Mcmlln::Tools.deleteFile(pdfimage)
+      unless pdfimage.include?("jpg")
+        Mcmlln::Tools.deleteFile(pdfimage)
+      end
       filecontents = filecontents.gsub(/#{pdfimage}/,jpgimage)
       processed << pdfimage
     elsif i.include?("_FC") or i.include?(".txt") or i.include?(".css") or i.include?(".js")
@@ -175,7 +177,9 @@ if image_count > 0
         resize = calcImgSizes(myres, pdfimage, maxheight, maxwidth, grid)
         `convert "#{pdfimage}" -density #{myres} #{resize}-quality 100 -colorspace gray "#{jpgimage}"`
       end
-      Mcmlln::Tools.deleteFile(pdfimage)
+      unless pdfimage.include?("jpg")
+        Mcmlln::Tools.deleteFile(pdfimage)
+      end
       filecontents = filecontents.gsub(/#{pdfimage}/,jpgimage)
       processed << pdfimage
     end
