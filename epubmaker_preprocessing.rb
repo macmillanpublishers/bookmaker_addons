@@ -7,9 +7,7 @@ require_relative '../utilities/oraclequery.rb'
 
 # These commands should run immediately prior to epubmaker
 
-configfile = File.join(Bkmkr::Paths.project_tmp_dir, "config.json")
-file = File.read(configfile)
-data_hash = JSON.parse(file)
+data_hash = Mcmlln::Tools.readjson(Metadata.configfile)
 
 project_dir = data_hash['project']
 
