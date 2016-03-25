@@ -21,7 +21,8 @@ maxwidth = 3.5
 grid = 16.0
 
 # ftp url
-ftp_dir = "/files/html/bookmaker/bookmakerimg/#{project_dir}_#{stage_dir}/#{Metadata.pisbn}"
+ftpdirext = "http://www.macmillan.tools.vhost.zerolag.com/bookmaker/bookmakerimg/#{project_dir}_#{stage_dir}/#{Metadata.pisbn}"
+ftpdirint = "/files/html/bookmaker/bookmakerimg/#{project_dir}_#{stage_dir}/#{Metadata.pisbn}"
 
 pdftmp_dir = File.join(Bkmkr::Paths.project_tmp_dir_img, "pdftmp")
 pdfmaker_dir = File.join(Bkmkr::Paths.core_dir, "pdfmaker")
@@ -87,18 +88,15 @@ class Ftpfunctions
   def self.createDirs(parentfolder, childfolder)
     ftp = Ftpfunctions.loginFTP(@@ftp_url, @@ftp_username, @@ftp_password)
     files = ftp.chdir("/files/html/bookmaker/bookmakerimg/")
-    ls = ftp.list()
-    begin
-      ftp.chdir(parentfolder)
-    rescue
+    ls = ftp.nlst()
+    unless ls.include?(parentfolder)
       ftp.mkdir(parentfolder)
-      ftp.chdir(parentfolder)
     end
-    begin
-      ftp.chdir(childfolder)
-    rescue
+    ftp.chdir(parentfolder)
+    unless ls.include?(childfolder)
       ftp.mkdir(childfolder)
-      ftp.chdir(childfolder)
+    end
+    ftp.chdir(childfolder)
     end
     files = ftp.nlst()
     ftp.close
@@ -111,12 +109,12 @@ class Ftpfunctions
     files = ftp.chdir(dir)
     filenames.each do |p|
       filepath = File.join(srcdir, p)
-      puts filepath
       ftp.putbinaryfile(filepath)
     end
     files = ftp.nlst()
     ftp.close
     return files
+    puts files
   end
 end
 
@@ -199,7 +197,7 @@ FileUtils.cp Dir["#{assets_dir}/images/#{project_dir}/*"].select {|f| test ?f, f
 ftplist = Dir.entries(pdftmp_dir).select { |f| !File.directory? f }
 
 ftpsetup = Ftpfunctions.createDirs("#{project_dir}_#{stage_dir}", Metadata.pisbn)
-ftpstatus = Ftpfunctions.uploadImg(ftp_dir, pdftmp_dir, ftplist)
+ftpstatus = Ftpfunctions.uploadImg(ftpdirint, pdftmp_dir, ftplist)
 
 # run node.js content conversions
 pdfmakerpreprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "pdfmaker_preprocessing.js")
@@ -208,7 +206,7 @@ Bkmkr::Tools.runnode(pdfmakerpreprocessingjs, args)
 
 # fixes images in html, keep final words and ellipses from breaking
 # .gsub(/([a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9]\s\. \. \.)/,"<span class=\"bookmakerkeeptogetherkt\">\\0</span>")
-filecontents = File.read(pdf_tmp_html).gsub(/src="images\//,"src=\"#{ftp_dir}/")
+filecontents = File.read(pdf_tmp_html).gsub(/src="images\//,"src=\"#{ftpdirext}/")
                                       .gsub(/([a-zA-Z0-9]?[a-zA-Z0-9]?[a-zA-Z0-9]?\s\. \. \.)/,"<span class=\"bookmakerkeeptogetherkt\">\\0</span>")
                                       .gsub(/(\s)(\w\w\w*?\.)(<\/p>)/,"\\1<span class=\"bookmakerkeeptogetherkt\">\\2</span>\\3")
 
