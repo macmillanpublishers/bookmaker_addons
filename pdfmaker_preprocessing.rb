@@ -89,14 +89,18 @@ class Ftpfunctions
     files = ftp.chdir("/files/html/bookmaker/bookmakerimg/")
     ls = ftp.list()
     puts ls
-    unless ls.include?(parentfolder)
+    begin
+      ftp.chdir(parentfolder)
+    rescue
       ftp.mkdir(parentfolder)
+      ftp.chdir(parentfolder)
     end
-    files = ftp.chdir(parentfolder)
-    unless ls.include?(childfolder)
+    begin
+      ftp.chdir(childfolder)
+    rescue
       ftp.mkdir(childfolder)
+      ftp.chdir(childfolder)
     end
-    files = ftp.chdir(childfolder)
     files = ftp.nlst()
     ftp.close
     puts files
