@@ -1,7 +1,7 @@
 require 'fileutils'
 
-require_relative '../header.rb'
-require_relative '../metadata.rb'
+require_relative '../bookmaker/core/header.rb'
+require_relative '../bookmaker/core/metadata.rb'
 
 # ---------------------- VARIABLES
 # The locations to check for images
