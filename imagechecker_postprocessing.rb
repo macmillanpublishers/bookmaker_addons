@@ -100,7 +100,9 @@ def replaceFormats(arr, html)
   filecontents = File.read(html)
   if arr.any?
     arr.each do |r|
+      puts r
       imgfilename = r.split(".").shift
+      puts imgfilename
       filecontents = filecontents.gsub(/#{r}/,"#{imgfilename}.jpg")
     end
   end
