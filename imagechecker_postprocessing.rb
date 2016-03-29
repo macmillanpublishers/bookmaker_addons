@@ -25,9 +25,9 @@ def checkErrorFile(file)
   end
 end
 
-def listImages(file)
+def listImages(html)
   # An array of all the image files referenced in the source html file
-  imgarr = File.read(file).scan(/img src=".*?"/)
+  imgarr = html.scan(/img src=".*?"/)
   # remove duplicate image names from source array
   imgarr = imgarr.uniq
   imgarr
@@ -85,10 +85,9 @@ end
 
 # replace bad images with placeholder
 def insertPlaceholders(arr, html, placeholder, dest)
-  filecontents = File.read(html)
   if arr.any?
     arr.each do |r|
-      filecontents = filecontents.gsub(/#{r}/,"missing.jpg")
+      filecontents = html.gsub(/#{r}/,"missing.jpg")
     end
     Mcmlln::Tools.copyFile(placeholder, dest)
   end
@@ -97,11 +96,10 @@ end
 
 # replace image references with jpg file format
 def replaceFormats(arr, html)
-  filecontents = File.read(html)
   if arr.any?
     arr.each do |r|
       imgfilename = r.split(".").shift
-      filecontents = filecontents.gsub(/#{r}/,"#{imgfilename}.jpg\"")
+      filecontents = html.gsub(/#{r}/,"#{imgfilename}.jpg\"")
     end
   end
   return filecontents
@@ -123,6 +121,8 @@ end
 
 # ---------------------- PROCESSES
 
+filecontents = File.read(Bkmkr::Paths.outputtmp_html)
+
 images = Mcmlln::Tools.dirListFiles(Bkmkr::Paths.project_tmp_dir_img)
 
 finalimages = Mcmlln::Tools.dirList(final_dir_images)
@@ -130,7 +130,7 @@ finalimages = Mcmlln::Tools.dirList(final_dir_images)
 checkErrorFile(image_error)
 
 # run method: listImages
-imgarr = listImages(Bkmkr::Paths.outputtmp_html)
+imgarr = listImages(filecontents)
 
 # run method: checkImages
 format, supported = checkImages(images, Bkmkr::Paths.project_tmp_dir_img)
@@ -139,13 +139,13 @@ format, supported = checkImages(images, Bkmkr::Paths.project_tmp_dir_img)
 corrupt, converted = convertImages(supported, Bkmkr::Paths.project_tmp_dir_img)
 
 # run method: insertPlaceholders
-insertPlaceholders(format, Bkmkr::Paths.outputtmp_html, missing, Bkmkr::Paths.project_tmp_dir_img)
+filecontents = insertPlaceholders(format, filecontents, missing, Bkmkr::Paths.project_tmp_dir_img)
 
 # run method: writeTypeErrors
 writeTypeErrors(format, image_error)
 
 # run method: replaceFormats
-filecontents = replaceFormats(imgarr, Bkmkr::Paths.outputtmp_html)
+filecontents = replaceFormats(imgarr, filecontents)
 
 File.open(Bkmkr::Paths.outputtmp_html, 'w') do |output| 
   output.write filecontents
