@@ -133,7 +133,7 @@ checkErrorFile(image_error)
 imgarr = listImages(Bkmkr::Paths.outputtmp_html)
 
 # run method: checkImages
-format, supported = checkImages(imgarr, images, finalimages, imagedir, Bkmkr::Paths.project_tmp_dir_img)
+format, supported = checkImages(images, Bkmkr::Paths.project_tmp_dir_img)
 
 # run method: convertImages
 corrupt, converted = convertImages(supported, Bkmkr::Paths.project_tmp_dir_img)
