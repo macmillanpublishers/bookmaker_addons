@@ -85,6 +85,7 @@ end
 
 # replace bad images with placeholder
 def insertPlaceholders(arr, html, placeholder, dest)
+  filecontents = html
   if arr.any?
     arr.each do |r|
       filecontents = html.gsub(/#{r}/,"missing.jpg")
@@ -96,6 +97,7 @@ end
 
 # replace image references with jpg file format
 def replaceFormats(arr, html)
+  filecontents = html
   if arr.any?
     arr.each do |r|
       imgfilename = r.split(".").shift
