@@ -100,7 +100,6 @@ class Ftpfunctions
     ftp.chdir(childfolder)
     files = ftp.nlst()
     ftp.close
-    puts files
     return files
   end
 
@@ -114,7 +113,6 @@ class Ftpfunctions
     files = ftp.nlst()
     ftp.close
     return files
-    puts files
   end
 end
 
