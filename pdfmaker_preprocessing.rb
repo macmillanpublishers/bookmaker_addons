@@ -159,7 +159,6 @@ if image_count > 0
     if i.include?("fullpage")
       #convert command for ImageMagick should work the same on any platform
       `convert "#{pdfimage}" -colorspace gray "#{pdfimage}"`
-      filecontents = filecontents.gsub(/#{pdfimage}/,jpgimage)
       processed << pdfimage
     else
       myres = `identify -format "%y" "#{pdfimage}"`
