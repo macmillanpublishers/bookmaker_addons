@@ -155,21 +155,12 @@ if image_count > 0
   FileUtils.cp Dir["#{Bkmkr::Paths.project_tmp_dir_img}/*"].select {|f| test ?f, f}, pdftmp_dir
   pdfimages = Dir.entries(pdftmp_dir).select { |f| !File.directory? f }
   pdfimages.each do |i|
-    puts i
+    puts "converting #{i}"
     pdfimage = File.join(pdftmp_dir, "#{i}")
-    imgfilename = i.split(".").shift
-    imgformat = i.split(".").pop
-    jpgimage = File.join(pdftmp_dir, "#{imgfilename}.jpg")
-    if i.include?("_FC") or i.include?(".txt") or i.include?(".css") or i.include?(".js")
-      FileUtils.rm("#{pdfimage}")
-    end
-    if imgformat == "jpg" or imgformat == "jpeg" or imgformat == "png" or imgformat == "pdf" or imgformat == "ai"
+    if imgformat == "jpg"
       if i.include?("fullpage")
         #convert command for ImageMagick should work the same on any platform
-        `convert "#{pdfimage}" -colorspace gray "#{jpgimage}"`
-        unless pdfimage.include?("jpg")
-          Mcmlln::Tools.deleteFile(pdfimage)
-        end
+        `convert "#{pdfimage}" -colorspace gray "#{pdfimage}"`
         filecontents = filecontents.gsub(/#{pdfimage}/,jpgimage)
         processed << pdfimage
       else
@@ -178,16 +169,13 @@ if image_count > 0
           corrupt << pdfimage
         else
           resize = calcImgSizes(myres, pdfimage, maxheight, maxwidth, grid)
-          `convert "#{pdfimage}" -density #{myres} #{resize}-quality 100 -colorspace gray "#{jpgimage}"`
+          `convert "#{pdfimage}" -density #{myres} #{resize}-quality 100 -colorspace gray "#{pdfimage}"`
         end
-        unless pdfimage.include?("jpg")
-          Mcmlln::Tools.deleteFile(pdfimage)
-        end
-        filecontents = filecontents.gsub(/#{pdfimage}/,jpgimage)
         processed << pdfimage
       end
     else
       skipped << pdfimage
+      FileUtils.rm("#{pdfimage}")
     end
   end
 end
