@@ -54,22 +54,27 @@ def checkImages(imglist, inputdirlist, finaldirlist, inputdir, finaldir)
 end
 
 def convertImages(arr, dir)
+  corrupt = []
+  converted = []
   if arr.any?
     arr.each do |c|
       filename = c.split(".").shift
       imgformat = c.split(".").pop.downcase
       imgpath = File.join(dir, c)
-      jpg = "#{filename}.jpg"
+      finaljpg = File.join(dir, "#{filename}.jpg")
       unless imgformat == "jpg"
-        myres = `identify -format "%y" "#{pdfimage}"`
+        puts "converting #{c} to jpg"
+        myres = `identify -format "%y" "#{imgpath}"`
         if myres.nil? or myres.empty? or !myres
           corrupt << c
         else
-          `convert "#{c}" -density #{myres} -quality 100 "#{jpg}"`
+          `convert "#{imgpath}" -density #{myres} -quality 100 "#{finaljpg}"`
+          converted << c
         end
       end
     end
   end
+  return corrupt, converted
 end
 
 # replace bad images with placeholder
@@ -126,6 +131,11 @@ imgarr = listImages(Bkmkr::Paths.outputtmp_html)
 format, supported = checkImages(imgarr, images, finalimages, imagedir, final_dir_images)
 puts format
 puts supported
+
+# run method: convertImages
+corrupt, converted = convertImages(supported, Bkmkr::Paths.project_tmp_dir_img)
+puts corrupt
+puts converted
 
 # run method: insertPlaceholders
 insertPlaceholders(format, Bkmkr::Paths.outputtmp_html, missing, Bkmkr::Paths.project_tmp_dir_img)
