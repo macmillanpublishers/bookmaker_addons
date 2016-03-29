@@ -33,7 +33,7 @@ def listImages(file)
   imgarr
 end
 
-def checkImages(imglist, inputdirlist, finaldirlist, inputdir, finaldir)
+def checkImages(imglist, inputdir)
   # An empty array to store filenames with bad types
   format = []
   supported = []
@@ -42,10 +42,10 @@ def checkImages(imglist, inputdirlist, finaldirlist, inputdir, finaldir)
   imglist.each do |m|
     match = m.split("/").pop.gsub(/"/,'')
     matched_file = File.join(inputdir, match)
-    matched_file_pickup = File.join(finaldir, match)
     imgformat = match.split(".").pop.downcase
     unless imgformat == "jpg" or imgformat == "jpeg" or imgformat == "png" or imgformat == "pdf" or imgformat == "ai"
       format << match
+      Mcmlln::Tools.deleteFile(matched_file)
     else
       supported << match
     end
@@ -62,15 +62,20 @@ def convertImages(arr, dir)
       imgformat = c.split(".").pop.downcase
       imgpath = File.join(dir, c)
       finaljpg = File.join(dir, "#{filename}.jpg")
-      unless imgformat == "jpg"
+      if imgformat == "jpeg" or imgformat == "png"
         puts "converting #{c} to jpg"
         myres = `identify -format "%y" "#{imgpath}"`
         if myres.nil? or myres.empty? or !myres
           corrupt << c
         else
           `convert "#{imgpath}" -density #{myres} -quality 100 "#{finaljpg}"`
+          Mcmlln::Tools.deleteFile(imgpath)
           converted << c
         end
+      elsif imgformat == "ai" or imgformat == "pdf"
+        `convert "#{imgpath}" -density 300 -quality 100 "#{finaljpg}"`
+        Mcmlln::Tools.deleteFile(imgpath)
+        converted << c
       end
     end
   end
@@ -118,7 +123,7 @@ end
 
 # ---------------------- PROCESSES
 
-images = Mcmlln::Tools.dirList(imagedir)
+images = Mcmlln::Tools.dirList(Bkmkr::Paths.project_tmp_dir_img)
 
 finalimages = Mcmlln::Tools.dirList(final_dir_images)
 
@@ -128,14 +133,10 @@ checkErrorFile(image_error)
 imgarr = listImages(Bkmkr::Paths.outputtmp_html)
 
 # run method: checkImages
-format, supported = checkImages(imgarr, images, finalimages, imagedir, final_dir_images)
-puts format
-puts supported
+format, supported = checkImages(imgarr, images, finalimages, imagedir, Bkmkr::Paths.project_tmp_dir_img)
 
 # run method: convertImages
 corrupt, converted = convertImages(supported, Bkmkr::Paths.project_tmp_dir_img)
-puts corrupt
-puts converted
 
 # run method: insertPlaceholders
 insertPlaceholders(format, Bkmkr::Paths.outputtmp_html, missing, Bkmkr::Paths.project_tmp_dir_img)
