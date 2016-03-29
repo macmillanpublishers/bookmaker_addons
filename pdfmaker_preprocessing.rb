@@ -154,7 +154,7 @@ if image_count > 0
   FileUtils.cp Dir["#{Bkmkr::Paths.project_tmp_dir_img}/*"].select {|f| test ?f, f}, pdftmp_dir
   pdfimages = Dir.entries(pdftmp_dir).select { |f| !File.directory? f }
   pdfimages.each do |i|
-    puts "converting #{i}"
+    puts "resizing and grayscaling #{i}"
     pdfimage = File.join(pdftmp_dir, "#{i}")
     if i.include?("fullpage")
       #convert command for ImageMagick should work the same on any platform
