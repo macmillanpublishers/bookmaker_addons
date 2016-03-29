@@ -136,6 +136,8 @@ imgarr = listImages(filecontents)
 
 # run method: checkImages
 format, supported = checkImages(images, Bkmkr::Paths.project_tmp_dir_img)
+puts "UNSUPPORTED:"
+puts format
 
 # run method: convertImages
 corrupt, converted = convertImages(supported, Bkmkr::Paths.project_tmp_dir_img)
