@@ -123,7 +123,7 @@ end
 
 # ---------------------- PROCESSES
 
-images = Mcmlln::Tools.dirList(Bkmkr::Paths.project_tmp_dir_img)
+images = Mcmlln::Tools.dirListFiles(Bkmkr::Paths.project_tmp_dir_img)
 
 finalimages = Mcmlln::Tools.dirList(final_dir_images)
 
