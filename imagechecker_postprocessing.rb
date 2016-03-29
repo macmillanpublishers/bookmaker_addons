@@ -73,7 +73,8 @@ def convertImages(arr, dir)
           converted << c
         end
       elsif imgformat == "ai" or imgformat == "pdf"
-        `convert "#{imgpath}" -density 300 -quality 100 "#{finaljpg}"`
+        puts "converting #{c} to jpg"
+        `convert "#{imgpath}" -density 300x300 -quality 100 "#{finaljpg}"`
         Mcmlln::Tools.deleteFile(imgpath)
         converted << c
       end

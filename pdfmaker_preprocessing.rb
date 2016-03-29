@@ -149,7 +149,6 @@ images = Dir.entries("#{Bkmkr::Paths.project_tmp_dir_img}").select {|f| !File.di
 image_count = images.count
 corrupt = []
 processed = []
-skipped = []
 
 if image_count > 0
   FileUtils.cp Dir["#{Bkmkr::Paths.project_tmp_dir_img}/*"].select {|f| test ?f, f}, pdftmp_dir
@@ -157,25 +156,20 @@ if image_count > 0
   pdfimages.each do |i|
     puts "converting #{i}"
     pdfimage = File.join(pdftmp_dir, "#{i}")
-    if imgformat == "jpg"
-      if i.include?("fullpage")
-        #convert command for ImageMagick should work the same on any platform
-        `convert "#{pdfimage}" -colorspace gray "#{pdfimage}"`
-        filecontents = filecontents.gsub(/#{pdfimage}/,jpgimage)
-        processed << pdfimage
-      else
-        myres = `identify -format "%y" "#{pdfimage}"`
-        if myres.nil? or myres.empty? or !myres
-          corrupt << pdfimage
-        else
-          resize = calcImgSizes(myres, pdfimage, maxheight, maxwidth, grid)
-          `convert "#{pdfimage}" -density #{myres} #{resize}-quality 100 -colorspace gray "#{pdfimage}"`
-        end
-        processed << pdfimage
-      end
+    if i.include?("fullpage")
+      #convert command for ImageMagick should work the same on any platform
+      `convert "#{pdfimage}" -colorspace gray "#{pdfimage}"`
+      filecontents = filecontents.gsub(/#{pdfimage}/,jpgimage)
+      processed << pdfimage
     else
-      skipped << pdfimage
-      FileUtils.rm("#{pdfimage}")
+      myres = `identify -format "%y" "#{pdfimage}"`
+      if myres.nil? or myres.empty? or !myres
+        corrupt << pdfimage
+      else
+        resize = calcImgSizes(myres, pdfimage, maxheight, maxwidth, grid)
+        `convert "#{pdfimage}" -density #{myres} #{resize}-quality 100 -colorspace gray "#{pdfimage}"`
+      end
+      processed << pdfimage
     end
   end
 end
@@ -229,10 +223,6 @@ File.open(Bkmkr::Paths.log_file, 'a+') do |f|
       f.puts "IMAGE PROCESSING ERRORS:"
       f.puts "The following images encountered processing errors and may be corrupt:"
       f.puts corrupt
-  end
-  if skipped.any?
-    f.puts "Skipped processing the following images:"
-    f.puts skipped
   end
   f.puts "Uploaded the following images to the ftp:"
   f.puts ftpstatus
