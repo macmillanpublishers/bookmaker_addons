@@ -108,7 +108,7 @@ test_eisbn_length = eisbn.split(%r{\s*})
 if test_pisbn_length.length == 13 and test_pisbn_chars.length != 0
 	thissql = exactSearchSingleKey(pisbn, "EDITION_EAN")
 	myhash = runQuery(thissql)
-	if myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] and test_eisbn_length.length == 13 and test_eisbn_chars.length != 0
+	if myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] and test_eisbn_length.length == 13 and test_eisbn_chars.length != 0
 		thissql = exactSearchSingleKey(eisbn, "EDITION_EAN")
 		myhash = runQuery(thissql)
 	end
@@ -119,7 +119,7 @@ else
 	myhash = {}
 end
 
-unless myhash['book'].nil? or myhash['book'].empty? or !myhash['book']
+unless myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book']
   puts "DB Connection SUCCESS: Found a book record"
 else
 	puts "No DB record found; falling back to manuscript fields"
@@ -134,7 +134,7 @@ metaimprint = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="imprint
 # Finding author name(s)
 if !metabookauthor.nil?
 	authorname = HTMLEntities.new.decode(metabookauthor[2]).encode('utf-8')
-elsif myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['WORK_COVERAUTHOR'].nil? or myhash['book']['WORK_COVERAUTHOR'].empty? or !myhash['book']['WORK_COVERAUTHOR']
+elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['WORK_COVERAUTHOR'].nil? or myhash['book']['WORK_COVERAUTHOR'].empty? or !myhash['book']['WORK_COVERAUTHOR']
 	authorname = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageAuthorNameau">.*?</).join(", ").gsub(/<p class="TitlepageAuthorNameau">/,"").gsub(/</,"").gsub(/\[\]/,"")
 else
 	authorname = myhash['book']['WORK_COVERAUTHOR']
@@ -144,7 +144,7 @@ end
 # Finding book title
 if !metabooktitle.nil?
 	booktitle = HTMLEntities.new.decode(metabooktitle[2]).encode('utf-8')
-elsif myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_COVERTITLE"].nil? or myhash["book"]["WORK_COVERTITLE"].empty? or !myhash["book"]["WORK_COVERTITLE"]
+elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_COVERTITLE"].nil? or myhash["book"]["WORK_COVERTITLE"].empty? or !myhash["book"]["WORK_COVERTITLE"]
 	booktitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<title>.*?<\/title>/).to_s.gsub(/\["<title>/,"").gsub(/<\/title>"\]/,"").gsub(/\[\]/,"")
 else
 	booktitle = myhash["book"]["WORK_COVERTITLE"]
@@ -154,7 +154,7 @@ end
 # Finding book subtitle
 if !metabooksubtitle.nil?
 	booksubtitle = HTMLEntities.new.decode(metabooksubtitle[2]).encode('utf-8')
-elsif myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_SUBTITLE"].nil? or myhash["book"]["WORK_SUBTITLE"].empty? or !myhash["book"]["WORK_SUBTITLE"]
+elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_SUBTITLE"].nil? or myhash["book"]["WORK_SUBTITLE"].empty? or !myhash["book"]["WORK_SUBTITLE"]
   booksubtitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageBookSubtitlestit">.*?</).join(", ").gsub(/<p class="TitlepageBookSubtitlestit">/,"").gsub(/</,"")
 else
 	booksubtitle = myhash["book"]["WORK_SUBTITLE"]
@@ -170,7 +170,7 @@ stage_dir = Bkmkr::Project.input_file.split(Regexp.union(*[File::SEPARATOR, File
 # Manually populating for now, until we get the DB set up
 if !metaimprint.nil?
 	imprint = HTMLEntities.new.decode(metaimprint[2])
-elsif myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["IMPRINT_DESC"].nil? or myhash["book"]["IMPRINT_DESC"].empty? or !myhash["book"]["IMPRINT_DESC"]
+elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["IMPRINT_DESC"].nil? or myhash["book"]["IMPRINT_DESC"].empty? or !myhash["book"]["IMPRINT_DESC"]
 	if project_dir == "torDOTcom"
 		imprint = "Tom Doherty Associates"
 	elsif project_dir == "SMP"
