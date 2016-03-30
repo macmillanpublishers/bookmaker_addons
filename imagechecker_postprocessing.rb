@@ -88,7 +88,6 @@ def insertPlaceholders(arr, html, placeholder, dest)
   filecontents = html
   if arr.any?
     arr.each do |r|
-      puts "adding placeholder for #{r}"
       filecontents = filecontents.gsub(/#{r}/,"missing.jpg")
     end
     Mcmlln::Tools.copyFile(placeholder, dest)
@@ -101,9 +100,7 @@ def replaceFormats(arr, html)
   filecontents = html
   if arr.any?
     arr.each do |r|
-      puts "replacing html ref for #{r}"
       imgfilename = r.split(".").shift
-      puts imgfilename
       filecontents = filecontents.gsub(/#{r}/,"#{imgfilename}.jpg\"")
     end
   end
