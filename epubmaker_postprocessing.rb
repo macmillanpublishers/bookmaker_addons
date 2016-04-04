@@ -21,7 +21,7 @@ epubcheck = File.join(Bkmkr::Paths.core_dir, "epubmaker", "epubcheck", "epubchec
 searchdir = File.join(OEBPS_dir, "ch[0-9][0-9]*.html")
 chapfiles = Dir.glob(searchdir)
 chapfiles.each do |c|
-	replace = File.read(c).gsub(/(<section data-type="chapter".*?><h1.*?>)(.*?)(<\/h1>)/, "\\1<a href=\"toc01.html\">\\2</a>\\3")
+	replace = File.read(c).gsub(/(<section data-type="chapter".*?><h1.*?>)(.*?)(<\/h1>)/, "\\1<a href=\"toc01.html\">\\2</a>\\3").gsub(/(<section data-type="appendix".*?><h1.*?>)(.*?)(<\/h1>)/, "\\1<a href=\"toc01.html\">\\2</a>\\3")
 	File.open(c, "w") {|file| file.puts replace}
 end
 
