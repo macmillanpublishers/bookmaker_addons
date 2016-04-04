@@ -139,13 +139,17 @@ Bkmkr::Tools.insertaddons(epub_tmp_html, sectionjson, addonjson)
 # evaluate templates
 Bkmkr::Tools.compileJS(epub_tmp_html)
 
+filecontents = File.read(epub_tmp_html)
+
 # link author name to newsletter page
 aulink = "http://us.macmillan.com/newslettersignup?utm_source=ebook&utm_medium=adcard&utm_term=ebookreaders&utm_content={{AUTHORNAME}}_newslettersignup_macdotcom&utm_campaign={{EISBN}}"
 ausplit = Metadata.bookauthor.split(" ")
 aujoin = ausplit.join(")(<?.*?>?)(")
 aujoin = "(#{aujoin})"
+puts aujoin
 aujoinuc = aujoin.upcase
-filecontents = File.read(epub_tmp_html).gsub(/#{aujoin}/, Metadata.bookauthor).gsub(/#{aujoinuc}/, Metadata.bookauthor)
+puts aujoinuc
+filecontents = filecontents.gsub(/#{aujoin}/, Metadata.bookauthor).gsub(/#{aujoinuc}/, Metadata.bookauthor)
 filecontents = filecontents.gsub(Metadata.bookauthor,"<!--AUTHORSIGNUPSTART<a href=\"#{aulink}\">AUTHORSIGNUPEND-->\\0<!--AUTHORSIGNUPSTART</a>AUTHORSIGNUPEND-->")
 
 # find the author ID
@@ -168,9 +172,9 @@ end
 linkauthorname = linkauthorname.to_ascii
 
 if myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['PERSON_PARTNERID'].nil? or myhash['book']['PERSON_PARTNERID'].empty? or !myhash['book']['PERSON_PARTNERID']
-  filecontents = File.read(epub_tmp_html).gsub(/(data-displayheader="no")/,"class=\"ChapTitleNonprintingctnp\" \\1").gsub(/\{\{IMPRINT\}\}/,"#{Metadata.imprint}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthorname}").gsub(/\{\{EISBN\}\}/,"#{Metadata.eisbn}")
+  filecontents = filecontents.gsub(/(data-displayheader="no")/,"class=\"ChapTitleNonprintingctnp\" \\1").gsub(/\{\{IMPRINT\}\}/,"#{Metadata.imprint}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthorname}").gsub(/\{\{EISBN\}\}/,"#{Metadata.eisbn}")
 else
-  filecontents = File.read(epub_tmp_html).gsub(/(data-displayheader="no")/,"class=\"ChapTitleNonprintingctnp\" \\1").gsub(/\{\{IMPRINT\}\}/,"#{Metadata.imprint}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthorname}").gsub(/\{\{AUTHORID\}\}/,"#{myhash['book']['PERSON_PARTNERID']}").gsub(/\{\{EISBN\}\}/,"#{Metadata.eisbn}").gsub(/<!--AUTHORSIGNUPSTART/,"").gsub(/AUTHORSIGNUPEND-->/,"")
+  filecontents = filecontents.gsub(/(data-displayheader="no")/,"class=\"ChapTitleNonprintingctnp\" \\1").gsub(/\{\{IMPRINT\}\}/,"#{Metadata.imprint}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthorname}").gsub(/\{\{AUTHORID\}\}/,"#{myhash['book']['PERSON_PARTNERID']}").gsub(/\{\{EISBN\}\}/,"#{Metadata.eisbn}").gsub(/<!--AUTHORSIGNUPSTART/,"").gsub(/AUTHORSIGNUPEND-->/,"")
 end
 
 File.open(epub_tmp_html, 'w') do |output| 
