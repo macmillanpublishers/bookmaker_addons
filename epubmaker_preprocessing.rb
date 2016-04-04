@@ -139,6 +139,15 @@ Bkmkr::Tools.insertaddons(epub_tmp_html, sectionjson, addonjson)
 # evaluate templates
 Bkmkr::Tools.compileJS(epub_tmp_html)
 
+# link author name to newsletter page
+aulink = "http://us.macmillan.com/newslettersignup?utm_source=ebook&utm_medium=adcard&utm_term=ebookreaders&utm_content={{AUTHORNAME}}_newslettersignup_macdotcom&utm_campaign={{EISBN}}"
+ausplit = Metadata.bookauthor.split(" ")
+aujoin = ausplit.join(")(<?.*?>?)(")
+aujoin = "(#{aujoin})"
+aujoinuc = aujoin.upcase
+filecontents = File.read(epub_tmp_html).gsub(/#{aujoin}/, Metadata.bookauthor).gsub(/#{aujoinuc}/, Metadata.bookauthor)
+filecontents = filecontents.gsub(Metadata.bookauthor,"<!--AUTHORSIGNUPSTART<a href=\"#{aulink}\">AUTHORSIGNUPEND-->\\0<!--AUTHORSIGNUPSTART</a>AUTHORSIGNUPEND-->")
+
 # find the author ID
 thissql = personSearchSingleKey(Metadata.eisbn, "EDITION_EAN", "Author")
 myhash = runQuery(thissql)
