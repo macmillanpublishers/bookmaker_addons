@@ -130,6 +130,7 @@ metabooktitle = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="title
 metabooksubtitle = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="subtitle" content=")(.*?)("\/>)/i)
 metapublisher = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="publisher" content=")(.*?)("\/>)/i)
 metaimprint = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="imprint" content=")(.*?)("\/>)/i)
+metatemplate = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="template" content=")(.*?)("\/>)/i)
 
 # Finding author name(s)
 if !metabookauthor.nil?
@@ -195,7 +196,15 @@ end
 epub_css_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker", "css")
 pdf_css_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "css")
 
-if File.file?("#{pdf_css_dir}/#{project_dir}/#{stage_dir}.css")
+if !metatemplate.nil?
+  template = HTMLEntities.new.decode(metatemplate[2])
+else
+  template = ""
+end
+
+if !metatemplate.nil? and File.file?("#{pdf_css_dir}/#{project_dir}/#{template}.css")
+  pdf_css_file = "#{pdf_css_dir}/#{project_dir}/#{template}.css"
+elsif File.file?("#{pdf_css_dir}/#{project_dir}/#{stage_dir}.css")
 	pdf_css_file = "#{pdf_css_dir}/#{project_dir}/#{stage_dir}.css"
 elsif File.file?("#{pdf_css_dir}/#{project_dir}/pdf.css")
 	pdf_css_file = "#{pdf_css_dir}/#{project_dir}/pdf.css"
@@ -203,7 +212,9 @@ else
  	pdf_css_file = "#{pdf_css_dir}/torDOTcom/pdf.css"
 end
 
-if File.file?("#{epub_css_dir}/#{project_dir}/#{stage_dir}.css")
+if !metatemplate.nil? and File.file?("#{epub_css_dir}/#{project_dir}/#{template}.css")
+  epub_css_file = "#{epub_css_dir}/#{project_dir}/#{template}.css"
+elsif File.file?("#{epub_css_dir}/#{project_dir}/#{stage_dir}.css")
 	epub_css_file = "#{epub_css_dir}/#{project_dir}/#{stage_dir}.css"
 elsif File.file?("#{epub_css_dir}/#{project_dir}/epub.css")
 	epub_css_file = "#{epub_css_dir}/#{project_dir}/epub.css"
