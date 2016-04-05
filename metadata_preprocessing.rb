@@ -5,6 +5,9 @@ require 'json'
 require_relative '../bookmaker/core/header.rb'
 require_relative '../utilities/oraclequery.rb'
 
+# for logging purposes
+puts "RUNNING METADATA_PREPROCESSING"
+
 # formerly in metadata.rb
 # testing to see if ISBN style exists
 spanisbn = File.read(Bkmkr::Paths.outputtmp_html).scan(/spanISBNisbn/)
@@ -202,7 +205,7 @@ else
   template = ""
 end
 
-puts template
+puts "Template: #{template}"
 
 if !metatemplate.nil? and File.file?("#{pdf_css_dir}/#{project_dir}/#{template}.css")
   pdf_css_file = "#{pdf_css_dir}/#{project_dir}/#{template}.css"
@@ -214,7 +217,7 @@ else
  	pdf_css_file = "#{pdf_css_dir}/torDOTcom/pdf.css"
 end
 
-puts pdf_css_file
+puts "PDF CSS file: #{pdf_css_file}"
 
 if !metatemplate.nil? and File.file?("#{epub_css_dir}/#{project_dir}/#{template}.css")
   epub_css_file = "#{epub_css_dir}/#{project_dir}/#{template}.css"
