@@ -12,7 +12,7 @@ fs.readFile(file, function editContent (err, contents) {
           xmlMode: true
         });
 
-  // merge contiguous char styles
+  // merge contiguous small caps char styles
   $("p[class^='ChapOpeningText']").each(function (i) {
    $(this).children("span.spansmallcapscharacterssc").each(function () {
         var that = this.previousSibling;

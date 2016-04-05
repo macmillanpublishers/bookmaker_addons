@@ -99,6 +99,9 @@ strip_span_xsl = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "strip-
 # and strip manual breaks
 filecontents = File.read(epub_tmp_html).gsub(/(<p class="EBKLinkSourceLa">)(.*?)(<\/p>)(<p class="EBKLinkDestinationLb">)(.*?)(<\/p>)/,"\\1<a href=\"\\5\">\\2</a>\\3").gsub(/<br\/>/," ")
 
+# and combine contiguous span urls
+filecontents = filecontents.gsub(/(<span class="spanhyperlinkurl">)([^<|^>]*)(<\/span><span class="spanhyperlinkurl">)/,"\\1\\2")
+
 File.open(epub_tmp_html, 'w') do |output| 
   output.write filecontents
 end
