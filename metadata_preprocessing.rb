@@ -202,6 +202,8 @@ else
   template = ""
 end
 
+puts template
+
 if !metatemplate.nil? and File.file?("#{pdf_css_dir}/#{project_dir}/#{template}.css")
   pdf_css_file = "#{pdf_css_dir}/#{project_dir}/#{template}.css"
 elsif File.file?("#{pdf_css_dir}/#{project_dir}/#{stage_dir}.css")
@@ -211,6 +213,8 @@ elsif File.file?("#{pdf_css_dir}/#{project_dir}/pdf.css")
 else
  	pdf_css_file = "#{pdf_css_dir}/torDOTcom/pdf.css"
 end
+
+puts pdf_css_file
 
 if !metatemplate.nil? and File.file?("#{epub_css_dir}/#{project_dir}/#{template}.css")
   epub_css_file = "#{epub_css_dir}/#{project_dir}/#{template}.css"
