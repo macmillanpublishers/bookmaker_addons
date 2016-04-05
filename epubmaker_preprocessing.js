@@ -30,6 +30,10 @@ fs.readFile(file, function editContent (err, contents) {
 
   $('section[data-type="copyright-page"]').append(notice);
 
+  // add extra line to about the author
+  var aulink = "<!--AUTHORSIGNUPSTART<p>You can sign up for email updates <a href='http://us.macmillan.com/newslettersignup?utm_source=ebook&utm_medium=adcard&utm_term=ebookreaders&utm_content={{AUTHORNAME}}_newslettersignup_macdotcom&utm_campaign={{EISBN}}'>here</a>.</p>AUTHORSIGNUPEND-->";
+  $('section.abouttheauthor').append(aulink);
+
   // remove halftitle page sections
   $('section[data-type="halftitlepage"]').remove();
 
