@@ -33,6 +33,14 @@ chapfiles.each do |c|
   File.open(c, "w") {|file| file.puts replace}
 end
 
+# Add links back to TOC to adcard head
+searchdir = File.join(OEBPS_dir, "preface[0-9][0-9]*.html")
+chapfiles = Dir.glob(searchdir)
+chapfiles.each do |c|
+  replace = File.read(c).gsub(/(<section data-type="preface" class="adcard".*?><h1.*?>)(.*?)(<\/h1>)/, "\\1<a href=\"toc01.html\">\\2</a>\\3")
+  File.open(c, "w") {|file| file.puts replace}
+end
+
 # fix toc entry in ncx
 # fix title page text in ncx
 ncxcontents = File.read("#{OEBPS_dir}/toc.ncx")
