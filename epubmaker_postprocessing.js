@@ -7,9 +7,12 @@ fs.readFile(file, function editContent (err, contents) {
           xmlMode: true
         });
 
-
 // add link to adcard head
-  $('section.adcard h1').wrapInner("<a href='toc01.html'></a>");
+  $('section.adcard h1').each(function () {
+    var newlink = "<a href='toc01.html'>" + $( this ).text() + "</a>";
+    $(this).empty();
+    $(this).prepend(newlink); 
+  });
 
   var output = $.html();
 	  fs.writeFile(file, output, function(err) {
