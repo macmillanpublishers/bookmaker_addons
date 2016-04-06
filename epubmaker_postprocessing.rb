@@ -14,9 +14,12 @@ zipepub_py = File.join(Bkmkr::Paths.core_dir, "epubmaker", "zipepub.py")
 # path to epubcheck
 epubcheck = File.join(Bkmkr::Paths.core_dir, "epubmaker", "epubcheck", "epubcheck.jar")
 
+epubmakerpostprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "epubmaker_postprocessing.js")
+
 # ---------------------- METHODS
 
 # ---------------------- PROCESSES
+
 # Add links back to TOC to chapter heads
 searchdir = File.join(OEBPS_dir, "ch[0-9][0-9]*.html")
 chapfiles = Dir.glob(searchdir)
@@ -37,8 +40,7 @@ end
 searchdir = File.join(OEBPS_dir, "preface[0-9][0-9]*.html")
 chapfiles = Dir.glob(searchdir)
 chapfiles.each do |c|
-  replace = File.read(c).gsub(/(<section data-type="preface" class="adcard".*?><h1.*?>)(.*?)(<\/h1>)/, "\\1<a href=\"toc01.html\">\\2</a>\\3")
-  File.open(c, "w") {|file| file.puts replace}
+  Bkmkr::Tools.runnode(epubmakerpostprocessingjs, c)
 end
 
 # fix toc entry in ncx
