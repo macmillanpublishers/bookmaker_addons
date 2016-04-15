@@ -5,6 +5,23 @@ require 'json'
 require_relative '../bookmaker/core/header.rb'
 require_relative '../utilities/oraclequery.rb'
 
+# ---------------------- METHODS
+
+def getResourceDir(imprint, json)
+  data_hash = Mcmlln::Tools.readjson(json)
+  arr = []
+  # loop through each json record to see if imprint name matches formalname
+  data_hash['imprints'].each do |p|
+    if p['formalname'] == imprint
+      arr << p['shortname']
+    end
+  end
+  # in case of multiples, grab just the last entry and return it
+  path = arr.pop
+  return path
+end
+
+# ---------------------- PROCESSES
 # for logging purposes
 puts "RUNNING METADATA_PREPROCESSING"
 
@@ -189,6 +206,10 @@ else
 	imprint = imprint.encode('utf-8')
 end
 
+imprint_json = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "imprints.json")
+resource_dir = getResourceDir(imprint, imprint_json)
+puts resource_dir
+
 if !metapublisher.nil?
 	publisher = HTMLEntities.new.decode(metapublisher[2])
 else 
@@ -279,6 +300,7 @@ datahash.merge!(imprint: imprint)
 datahash.merge!(publisher: publisher)
 datahash.merge!(project: project_dir)
 datahash.merge!(stage: stage_dir)
+datahash.merge!(resourcedir: resource_dir)
 datahash.merge!(printcss: pdf_css_file)
 datahash.merge!(printjs: pdf_js_file)
 datahash.merge!(ebookcss: epub_css_file)
