@@ -17,7 +17,11 @@ def getResourceDir(imprint, json)
     end
   end
   # in case of multiples, grab just the last entry and return it
-  path = arr.pop
+  if arr.nil? or arr.empty?
+    path = "generic"
+  else
+    path = arr.pop
+  end
   return path
 end
 
@@ -208,7 +212,6 @@ end
 
 imprint_json = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "imprints.json")
 resource_dir = getResourceDir(imprint, imprint_json)
-puts resource_dir
 
 if !metapublisher.nil?
 	publisher = HTMLEntities.new.decode(metapublisher[2])

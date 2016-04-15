@@ -10,6 +10,7 @@ require_relative '../utilities/oraclequery.rb'
 data_hash = Mcmlln::Tools.readjson(Metadata.configfile)
 
 project_dir = data_hash['project']
+resource_dir = data_hash['resourcedir']
 
 epub_tmp_html = File.join(Bkmkr::Paths.project_tmp_dir, "epub_tmp.html")
 saxonpath = File.join(Bkmkr::Paths.resource_dir, "saxon", "#{Bkmkr::Tools.xslprocessor}.jar")
@@ -84,7 +85,7 @@ unless Metadata.epubtitlepage == "Unknown"
 end
 
 #set logo image based on project directory
-logo_img = File.join(assets_dir, "images", project_dir, "logo.jpg")
+logo_img = File.join(assets_dir, "images", resource_dir, "logo.jpg")
 
 #copy logo image file to epub folder if no epubtitlepage found
 if Metadata.epubtitlepage == "Unknown" and File.file?(logo_img)
