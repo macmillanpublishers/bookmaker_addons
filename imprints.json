@@ -1,0 +1,69 @@
+{
+  "imprints": [
+  {
+  "formalname": "Tor.com",
+  "shortname": "torDOTcom",
+  "searchkey": "Tor.com"
+  },
+  {
+  "formalname": "Feiwel & Friends",
+  "shortname": "feiwel",
+  "searchkey": "Feiwel Friends"
+  },
+  {
+  "formalname": "Flatiron Books",
+  "shortname": "flatiron",
+  "searchkey": "Flatiron Books"
+  },
+  {
+  "formalname": "St. Martin's Griffin",
+  "shortname": "griffin",
+  "searchkey": "St Martin Griffin"
+  },
+  {
+  "formalname": "Henry Holt and Co. (BYR)",
+  "shortname": "holtbyr",
+  "searchkey": "Henry Holt BYR"
+  },
+  {
+  "formalname": "Henry Holt and Co. BYR Paperbacks",
+  "shortname": "holtbyr",
+  "searchkey": "Henry Holt BYR Paperbacks"
+  },
+  {
+  "formalname": "Imprint",
+  "shortname": "imprint",
+  "searchkey": "Imprint"
+  },
+  {
+  "formalname": "St. Martin's Press",
+  "shortname": "SMP",
+  "searchkey": "St Martin Press"
+  },
+  {
+  "formalname": "Square Fish",
+  "shortname": "squarefish",
+  "searchkey": "Square Fish"
+  },
+  {
+  "formalname": "Swerve",
+  "shortname": "swerve",
+  "searchkey": "Swerve"
+  },
+  {
+  "formalname": "Swoon Reads",
+  "shortname": "swoon",
+  "searchkey": "Swoon Reads"
+  },
+  {
+  "formalname": "Picador",
+  "shortname": "picador",
+  "searchkey": "Picador"
+  },
+  {
+  "formalname": "Picador Macmillan Trade",
+  "shortname": "picador",
+  "searchkey": "Picador Macmillan Trade"
+  }
+  ]
+}
