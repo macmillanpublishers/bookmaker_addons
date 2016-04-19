@@ -286,7 +286,7 @@ end
 
 configfile = File.join(Bkmkr::Paths.project_tmp_dir, "config.json")
 
-if stage_dir == "firstpass" or stage_dir == "egalley" or stage_dir == "arc-sans" or stage_dir == "arc-serif" or stage_dir == "RBM" and frontcover.empty?
+if stage_dir == "firstpass" or stage_dir == "egalley" or stage_dir == "galley" or stage_dir == "arc-sans" or stage_dir == "arc-serif" or stage_dir == "RBM" and frontcover.empty?
 	frontcoverval = "#{pisbn}_FC.jpg"
 else
 	frontcoverval = frontcover
