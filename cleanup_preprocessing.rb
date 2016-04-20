@@ -32,10 +32,18 @@ class Ftpfunctions
 
   def self.deleteFTP(parentfolder, childfolder)
     ftp = Ftpfunctions.loginFTP(@@ftp_url, @@ftp_username, @@ftp_password)
-    files = ftp.chdir("/files/html/bookmaker/bookmakerimg/#{parentfolder}/#{childfolder}")
-    filenames = ftp.nlst()
-    filenames.each do |d|
-      file = ftp.delete(d)
+    files = ftp.chdir("/files/html/bookmaker/bookmakerimg/")
+    ls = ftp.nlst()
+    if ls.include?(parentfolder)
+      files = ftp.chdir(parentfolder)
+      ls = ftp.nlst()
+      if ls.include?(childfolder)
+        files = ftp.chdir(childfolder)
+        filenames = ftp.nlst()
+        filenames.each do |d|
+          file = ftp.delete(d)
+        end
+      end
     end
     files = ftp.nlst()
     ftp.close
