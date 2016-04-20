@@ -47,12 +47,8 @@ class Ftpfunctions
     end
     files = ftp.nlst()
     ftp.close
-    files
+    return files
   end
 end
 
-ftpstatus = Ftpfunctions.checkFTP("#{project_dir}_#{stage_dir}", Metadata.pisbn)
-
-unless ftpstatus.empty?
-  Ftpfunctions.deleteFTP("#{project_dir}_#{stage_dir}", Metadata.pisbn)
-end
+Ftpfunctions.deleteFTP("#{project_dir}_#{stage_dir}", Metadata.pisbn)
