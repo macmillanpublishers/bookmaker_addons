@@ -160,10 +160,10 @@ else
   puts "No DB record found; removing author links for addons"
 end
 
-# suppress addon headers as needed
 if myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['PERSON_REALNAME'].nil? or myhash['book']['PERSON_REALNAME'].empty? or !myhash['book']['PERSON_REALNAME']
   linkauthorname = Metadata.bookauthor.downcase.gsub(/\s/,"")
 else
+  puts myhash
   linkauthorname = myhash['book']['PERSON_REALNAME'].downcase.gsub(/\s/,"")
 end
 
