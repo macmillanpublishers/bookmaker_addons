@@ -151,6 +151,7 @@ filecontents = File.read(epub_tmp_html)
 # filecontents = filecontents.gsub(Metadata.bookauthor,"<!--AUTHORSIGNUPSTART<a href=\"#{aulink}\">AUTHORSIGNUPEND-->\\0<!--AUTHORSIGNUPSTART</a>AUTHORSIGNUPEND-->").gsub(auupcase,"<!--AUTHORSIGNUPSTART<a href=\"#{aulink}\">AUTHORSIGNUPEND-->\\0<!--AUTHORSIGNUPSTART</a>AUTHORSIGNUPEND-->")
 
 # find the author ID
+myhash = {}
 thissql = personSearchSingleKey(Metadata.eisbn, "EDITION_EAN", "Author")
 myhash = runQuery(thissql)
 
