@@ -316,6 +316,8 @@ unless podtitlepage.nil?
 	datahash.merge!(podtitlepage: podtitlepage)
 end
 
+puts datahash['title']
+
 finaljson = JSON.generate(datahash)
 
 # Printing the final JSON object
