@@ -36,31 +36,31 @@ multiple_isbns = File.read(Bkmkr::Paths.outputtmp_html).scan(/spanISBNisbn">\s*.
 
 # determining print isbn
 if spanisbn.length != 0 && multiple_isbns.length != 0
-	pisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/spanISBNisbn">\s*.+<\/span>\s*\(((hardcover)|(trade\s*paperback)|(mass.market.paperback)|(print.on.demand))\)/).to_s.gsub(/-/,"").gsub(/<span class="spanISBNisbn">/, "").gsub(/<\/span>/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
-	pisbn = pisbn_basestring.match(/\d+\(((hardcover)|(trade\s*paperback)|(mass.market.paperback)|(print.?on.?demand))\)/).to_s.gsub(/\(.*\)/,"").gsub(/\["/,"").gsub(/"\]/,"")
+  pisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/spanISBNisbn">\s*.+<\/span>\s*\(((hardcover)|(trade\s*paperback)|(mass.market.paperback)|(print.on.demand))\)/).to_s.gsub(/-/,"").gsub(/<span class="spanISBNisbn">/, "").gsub(/<\/span>/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
+  pisbn = pisbn_basestring.match(/\d+\(((hardcover)|(trade\s*paperback)|(mass.market.paperback)|(print.?on.?demand))\)/).to_s.gsub(/\(.*\)/,"").gsub(/\["/,"").gsub(/"\]/,"")
 elsif spanisbn.length != 0 && multiple_isbns.length == 0
-	pisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/spanISBNisbn">\s*.+<\/span>/).to_s.gsub(/-/,"").gsub(/<span class="spanISBNisbn">/, "").gsub(/<\/span>/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
-	pisbn = pisbn_basestring.match(/\d+/).to_s.gsub(/\["/,"").gsub(/"\]/,"")
+  pisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/spanISBNisbn">\s*.+<\/span>/).to_s.gsub(/-/,"").gsub(/<span class="spanISBNisbn">/, "").gsub(/<\/span>/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
+  pisbn = pisbn_basestring.match(/\d+/).to_s.gsub(/\["/,"").gsub(/"\]/,"")
 else
-	pisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/ISBN\s*.+\s*\(((hardcover)|(trade\s*paperback)|(mass.market.paperback)|(print.on.demand))\)/).to_s.gsub(/-/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
-	pisbn = pisbn_basestring.match(/\d+\(.*\)/).to_s.gsub(/\(.*\)/,"").gsub(/\["/,"").gsub(/"\]/,"")
+  pisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/ISBN\s*.+\s*\(((hardcover)|(trade\s*paperback)|(mass.market.paperback)|(print.on.demand))\)/).to_s.gsub(/-/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
+  pisbn = pisbn_basestring.match(/\d+\(.*\)/).to_s.gsub(/\(.*\)/,"").gsub(/\["/,"").gsub(/"\]/,"")
 end
 
 # determining ebook isbn
 if spanisbn.length != 0 && multiple_isbns.length != 0
-	eisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/<span class="spanISBNisbn">\s*.+<\/span>\s*\(e\s*-*\s*book\)/).to_s.gsub(/-/,"").gsub(/<span class="spanISBNisbn">/, "").gsub(/<\/span>/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
-	eisbn = eisbn_basestring.match(/\d+\(ebook\)/).to_s.gsub(/\(ebook\)/,"").gsub(/\["/,"").gsub(/"\]/,"")
+  eisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/<span class="spanISBNisbn">\s*.+<\/span>\s*\(e\s*-*\s*book\)/).to_s.gsub(/-/,"").gsub(/<span class="spanISBNisbn">/, "").gsub(/<\/span>/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
+  eisbn = eisbn_basestring.match(/\d+\(ebook\)/).to_s.gsub(/\(ebook\)/,"").gsub(/\["/,"").gsub(/"\]/,"")
 elsif spanisbn.length != 0 && multiple_isbns.length == 0
-	eisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/spanISBNisbn">\s*.+<\/span>/).to_s.gsub(/-/,"").gsub(/<span class="spanISBNisbn">/, "").gsub(/<\/span>/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
-	eisbn = pisbn_basestring.match(/\d+/).to_s.gsub(/\["/,"").gsub(/"\]/,"")
+  eisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/spanISBNisbn">\s*.+<\/span>/).to_s.gsub(/-/,"").gsub(/<span class="spanISBNisbn">/, "").gsub(/<\/span>/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
+  eisbn = pisbn_basestring.match(/\d+/).to_s.gsub(/\["/,"").gsub(/"\]/,"")
 else
-	eisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/ISBN\s*.+\s*\(e-*book\)/).to_s.gsub(/-/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
-	eisbn = eisbn_basestring.match(/\d+\(ebook\)/).to_s.gsub(/\(.*\)/,"").gsub(/\["/,"").gsub(/"\]/,"")
+  eisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/ISBN\s*.+\s*\(e-*book\)/).to_s.gsub(/-/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
+  eisbn = eisbn_basestring.match(/\d+\(ebook\)/).to_s.gsub(/\(.*\)/,"").gsub(/\["/,"").gsub(/"\]/,"")
 end
 
 # just in case no isbn is found
 if pisbn.length == 0 and eisbn.length != 0
-	pisbn = eisbn
+  pisbn = eisbn
 elsif pisbn.length == 0 and eisbn.length == 0
   pisbn = Bkmkr::Project.filename
 end
@@ -108,9 +108,9 @@ allcover = File.join(coverdir, "*")
 fcarr1 = Dir[allimg].select { |f| f.include?('_FC.')}
 
 if File.exist?(coverdir)
-	fcarr2 = Dir[allcover].select { |f| f.include?('_FC.')}
+  fcarr2 = Dir[allcover].select { |f| f.include?('_FC.')}
 else
-	fcarr2 = []
+  fcarr2 = []
 end
 
 if fcarr1.any?
@@ -130,23 +130,23 @@ test_eisbn_chars = eisbn.scan(/\d\d\d\d\d\d\d\d\d\d\d\d\d/)
 test_eisbn_length = eisbn.split(%r{\s*})
 
 if test_pisbn_length.length == 13 and test_pisbn_chars.length != 0
-	thissql = exactSearchSingleKey(pisbn, "EDITION_EAN")
-	myhash = runQuery(thissql)
-	if myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] and test_eisbn_length.length == 13 and test_eisbn_chars.length != 0
-		thissql = exactSearchSingleKey(eisbn, "EDITION_EAN")
-		myhash = runQuery(thissql)
-	end
+  thissql = exactSearchSingleKey(pisbn, "EDITION_EAN")
+  myhash = runQuery(thissql)
+  if myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] and test_eisbn_length.length == 13 and test_eisbn_chars.length != 0
+    thissql = exactSearchSingleKey(eisbn, "EDITION_EAN")
+    myhash = runQuery(thissql)
+  end
 elsif test_eisbn_length.length == 13 and test_eisbn_chars.length != 0
-	thissql = exactSearchSingleKey(eisbn, "EDITION_EAN")
-	myhash = runQuery(thissql)
+  thissql = exactSearchSingleKey(eisbn, "EDITION_EAN")
+  myhash = runQuery(thissql)
 else
-	myhash = {}
+  myhash = {}
 end
 
 unless myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book']
   puts "DB Connection SUCCESS: Found a book record"
 else
-	puts "No DB record found; falling back to manuscript fields"
+  puts "No DB record found; falling back to manuscript fields"
 end
 
 metabookauthor = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="author" content=")(.*?)("\/>)/i)
@@ -158,32 +158,35 @@ metatemplate = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="templa
 
 # Finding author name(s)
 if !metabookauthor.nil?
-	authorname = HTMLEntities.new.decode(metabookauthor[2]).encode('utf-8')
+  authorname = HTMLEntities.new.decode(metabookauthor[2]).encode('utf-8')
 elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['WORK_COVERAUTHOR'].nil? or myhash['book']['WORK_COVERAUTHOR'].empty? or !myhash['book']['WORK_COVERAUTHOR']
-	authorname = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageAuthorNameau">.*?</).join(", ").gsub(/<p class="TitlepageAuthorNameau">/,"").gsub(/</,"").gsub(/\[\]/,"")
+  authorname = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageAuthorNameau">.*?</).join(", ").gsub(/<p class="TitlepageAuthorNameau">/,"").gsub(/</,"").gsub(/\[\]/,"")
+  authorname = HTMLEntities.new.decode(authorname).encode('utf-8')
 else
-	authorname = myhash['book']['WORK_COVERAUTHOR']
-	authorname = authorname.encode('utf-8')
+  authorname = myhash['book']['WORK_COVERAUTHOR']
+  authorname = authorname.encode('utf-8')
 end
 
 # Finding book title
 if !metabooktitle.nil?
-	booktitle = HTMLEntities.new.decode(metabooktitle[2]).encode('utf-8')
+  booktitle = HTMLEntities.new.decode(metabooktitle[2]).encode('utf-8')
 elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_COVERTITLE"].nil? or myhash["book"]["WORK_COVERTITLE"].empty? or !myhash["book"]["WORK_COVERTITLE"]
-	booktitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<title>.*?<\/title>/).to_s.gsub(/\["<title>/,"").gsub(/<\/title>"\]/,"").gsub(/\[\]/,"")
+  booktitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<title>.*?<\/title>/).to_s.gsub(/\["<title>/,"").gsub(/<\/title>"\]/,"").gsub(/\[\]/,"")
+  booktitle = HTMLEntities.new.decode(booktitle).encode('utf-8')
 else
-	booktitle = myhash["book"]["WORK_COVERTITLE"]
-	booktitle = booktitle.encode('utf-8')
+  booktitle = myhash["book"]["WORK_COVERTITLE"]
+  booktitle = booktitle.encode('utf-8')
 end
 
 # Finding book subtitle
 if !metabooksubtitle.nil?
-	booksubtitle = HTMLEntities.new.decode(metabooksubtitle[2]).encode('utf-8')
+  booksubtitle = HTMLEntities.new.decode(metabooksubtitle[2]).encode('utf-8')
 elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_SUBTITLE"].nil? or myhash["book"]["WORK_SUBTITLE"].empty? or !myhash["book"]["WORK_SUBTITLE"]
   booksubtitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageBookSubtitlestit">.*?</).join(", ").gsub(/<p class="TitlepageBookSubtitlestit">/,"").gsub(/</,"")
+  booksubtitle = HTMLEntities.new.decode(booksubtitle).encode('utf-8')
 else
-	booksubtitle = myhash["book"]["WORK_SUBTITLE"]
-	booksubtitle = booksubtitle.encode('utf-8')
+  booksubtitle = myhash["book"]["WORK_SUBTITLE"]
+  booksubtitle = booksubtitle.encode('utf-8')
 end
 
 # project and stage
@@ -194,29 +197,29 @@ stage_dir = Bkmkr::Project.input_file.split(Regexp.union(*[File::SEPARATOR, File
 # imprint = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageImprintLineimp">.*?</).to_s.gsub(/\["<p class=\\"TitlepageImprintLineimp\\">/,"").gsub(/"\]/,"").gsub(/</,"")
 # Manually populating for now, until we get the DB set up
 if !metaimprint.nil?
-	imprint = HTMLEntities.new.decode(metaimprint[2])
+  imprint = HTMLEntities.new.decode(metaimprint[2])
 elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["IMPRINT_DESC"].nil? or myhash["book"]["IMPRINT_DESC"].empty? or !myhash["book"]["IMPRINT_DESC"]
-	if project_dir == "torDOTcom"
-		imprint = "Tom Doherty Associates"
-	elsif project_dir == "SMP"
-		imprint = "St. Martin's Press"
-	elsif project_dir == "picador"
-		imprint = "Picador"
-	else
-		imprint = "Macmillan"
-	end
+  if project_dir == "torDOTcom"
+    imprint = "Tom Doherty Associates"
+  elsif project_dir == "SMP"
+    imprint = "St. Martin's Press"
+  elsif project_dir == "picador"
+    imprint = "Picador"
+  else
+    imprint = "Macmillan"
+  end
 else
-	imprint = myhash["book"]["IMPRINT_DESC"]
-	imprint = imprint.encode('utf-8')
+  imprint = myhash["book"]["IMPRINT_DESC"]
+  imprint = imprint.encode('utf-8')
 end
 
 imprint_json = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "imprints.json")
 resource_dir = getResourceDir(imprint, imprint_json)
 
 if !metapublisher.nil?
-	publisher = HTMLEntities.new.decode(metapublisher[2])
+  publisher = HTMLEntities.new.decode(metapublisher[2])
 else 
-	publisher = imprint
+  publisher = imprint
 end
 
 # print and epub css files
@@ -234,11 +237,11 @@ puts "Template: #{template}"
 if !metatemplate.nil? and File.file?("#{pdf_css_dir}/#{project_dir}/#{template}.css")
   pdf_css_file = "#{pdf_css_dir}/#{project_dir}/#{template}.css"
 elsif File.file?("#{pdf_css_dir}/#{project_dir}/#{stage_dir}.css")
-	pdf_css_file = "#{pdf_css_dir}/#{project_dir}/#{stage_dir}.css"
+  pdf_css_file = "#{pdf_css_dir}/#{project_dir}/#{stage_dir}.css"
 elsif File.file?("#{pdf_css_dir}/#{project_dir}/pdf.css")
-	pdf_css_file = "#{pdf_css_dir}/#{project_dir}/pdf.css"
+  pdf_css_file = "#{pdf_css_dir}/#{project_dir}/pdf.css"
 else
- 	pdf_css_file = "#{pdf_css_dir}/torDOTcom/pdf.css"
+  pdf_css_file = "#{pdf_css_dir}/torDOTcom/pdf.css"
 end
 
 puts "PDF CSS file: #{pdf_css_file}"
@@ -246,11 +249,11 @@ puts "PDF CSS file: #{pdf_css_file}"
 if !metatemplate.nil? and File.file?("#{epub_css_dir}/#{project_dir}/#{template}.css")
   epub_css_file = "#{epub_css_dir}/#{project_dir}/#{template}.css"
 elsif File.file?("#{epub_css_dir}/#{project_dir}/#{stage_dir}.css")
-	epub_css_file = "#{epub_css_dir}/#{project_dir}/#{stage_dir}.css"
+  epub_css_file = "#{epub_css_dir}/#{project_dir}/#{stage_dir}.css"
 elsif File.file?("#{epub_css_dir}/#{project_dir}/epub.css")
-	epub_css_file = "#{epub_css_dir}/#{project_dir}/epub.css"
+  epub_css_file = "#{epub_css_dir}/#{project_dir}/epub.css"
 else
- 	epub_css_file = "#{epub_css_dir}/generic/epub.css"
+  epub_css_file = "#{epub_css_dir}/generic/epub.css"
 end
 
 proj_js_file = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "scripts", project_dir, "pdf.js")
@@ -258,28 +261,28 @@ fallback_js_file = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfm
 pdf_js_file = File.join(Bkmkr::Paths.project_tmp_dir, "pdf.js")
 
 if File.file?(proj_js_file)
-	js_file = proj_js_file
+  js_file = proj_js_file
 elsif File.file?(fallback_js_file)
- 	js_file = fallback_js_file
+  js_file = fallback_js_file
 else
- 	js_file = " "
+  js_file = " "
 end
 
 if File.file?(js_file)
     FileUtils.cp(js_file, pdf_js_file)
     jscontents = File.read(pdf_js_file).gsub(/BKMKRINSERTBKTITLE/,"\"#{booktitle}\"").gsub(/BKMKRINSERTBKAUTHOR/,"\"#{authorname}\"")
     File.open(pdf_js_file, 'w') do |output| 
-	  output.write jscontents
-	end
+    output.write jscontents
+  end
 end
 
 xml_file = File.join(Bkmkr::Paths.project_tmp_dir, "#{Bkmkr::Project.filename}.xml")
 check_tocbody = File.read(xml_file).scan(/w:pStyle w:val\="TOC/)
 check_tochead = File.read(Bkmkr::Paths.outputtmp_html).scan(/class="texttoc"/)
 if check_tocbody.any? or check_tochead.any?
-	toc_value = "true"
+  toc_value = "true"
 else
-	toc_value = "false"
+  toc_value = "false"
 end
 
 # Generating the json metadata
@@ -287,9 +290,9 @@ end
 configfile = File.join(Bkmkr::Paths.project_tmp_dir, "config.json")
 
 if stage_dir == "firstpass" or stage_dir == "egalley" or stage_dir == "galley" or stage_dir == "arc-sans" or stage_dir == "arc-serif" or stage_dir == "RBM" and frontcover.empty?
-	frontcoverval = "#{pisbn}_FC.jpg"
+  frontcoverval = "#{pisbn}_FC.jpg"
 else
-	frontcoverval = frontcover
+  frontcoverval = frontcover
 end
 
 datahash = {}
@@ -310,21 +313,15 @@ datahash.merge!(ebookcss: epub_css_file)
 datahash.merge!(pod_toc: toc_value)
 datahash.merge!(frontcover: frontcoverval)
 unless epubtitlepage.nil?
-	datahash.merge!(epubtitlepage: epubtitlepage)
+  datahash.merge!(epubtitlepage: epubtitlepage)
 end
 unless podtitlepage.nil?
-	datahash.merge!(podtitlepage: podtitlepage)
+  datahash.merge!(podtitlepage: podtitlepage)
 end
-
-puts datahash['title']
 
 finaljson = JSON.generate(datahash)
 
 # Printing the final JSON object
 File.open(configfile, 'w+:UTF-8') do |f|
-	f.puts finaljson
+  f.puts finaljson
 end
-
-testingFile = File.join(Bkmkr::Paths.done_dir, pisbn, "layout", "config2.json")
-
-Mcmlln::Tools.copyFile(configfile, testingFile)
