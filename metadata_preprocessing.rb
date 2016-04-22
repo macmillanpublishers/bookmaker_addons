@@ -323,6 +323,6 @@ File.open(configfile, 'w+:UTF-8') do |f|
 	f.puts finaljson
 end
 
-testingFile = File.join(Bkmkr::Paths.project_tmp_dir, "config2.json")
+testingFile = File.join(Bkmkr::Paths.done_dir, pisbn, "layout", "config2.json")
 
 Mcmlln::Tools.copyFile(configfile, testingFile)
