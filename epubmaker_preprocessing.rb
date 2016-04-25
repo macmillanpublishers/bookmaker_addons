@@ -152,7 +152,7 @@ filecontents = File.read(epub_tmp_html)
 
 # find the author ID
 thissql = personSearchSingleKey(Metadata.eisbn, "EDITION_EAN", "Author")
-myhash = runQuery(thissql)
+myhash = runPeopleQuery(thissql)
 
 unless myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book']
   puts "DB Connection SUCCESS: Found an author record"
@@ -160,20 +160,34 @@ else
   puts "No DB record found; removing author links for addons"
 end
 
+linkauthorarr = []
+
 if myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['PERSON_REALNAME'].nil? or myhash['book']['PERSON_REALNAME'].empty? or !myhash['book']['PERSON_REALNAME']
-  linkauthorname = Metadata.bookauthor.downcase.gsub(/\s/,"")
+  linkauthorarr = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageAuthorNameau">.*?</)
+  linkauthorarr.map! { |x| x.gsub(/<p class="TitlepageAuthorNameau">/,"").gsub(/<\//,"") }
 else
-  puts myhash
-  linkauthorname = myhash['book']['PERSON_REALNAME'].downcase.gsub(/\s/,"")
+  linkauthorarr = myhash['book']['PERSON_REALNAME']
 end
 
-linkauthornametxt = linkauthorname.gsub(/\W/,"").to_ascii
-linkauthornameall = linkauthorname.to_ascii
+puts linkauthorarr
 
-if myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['PERSON_PARTNERID'].nil? or myhash['book']['PERSON_PARTNERID'].empty? or !myhash['book']['PERSON_PARTNERID']
-  filecontents = filecontents.gsub(/(data-displayheader="no")/,"class=\"ChapTitleNonprintingctnp\" \\1").gsub(/\{\{IMPRINT\}\}/,"#{Metadata.imprint}").gsub(/\{\{AUTHORNAMETXT\}\}/,"#{linkauthornametxt}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthornameall}").gsub(/\{\{EISBN\}\}/,"#{Metadata.eisbn}")
+if linkauthorarr.count > 1
+  linkauthorarr.each do |a|
+    linkauthorname = a
+    linkauthorfirst = a.split(" ").shift
+    linkauthorlast = a.split(" ").pop
+    linkauthornametxt = a.downcase.gsub(/\s/,"").gsub(/\W/,"").to_ascii
+    linkauthornameall = a.downcase.gsub(/\s/,"").to_ascii
+    filecontents = filecontents.gsub(/(--><\/p><\/section><section data-type="appendix" class="abouttheauthor".*?#{linkauthorfirst}.*?#{linkauthorlast}.*?)(\{\{AUTHORNAME\}\})(.*?>here<\/a>)/,"\\1#{linkauthornameall}\\3")
+  end
 else
-  filecontents = filecontents.gsub(/(data-displayheader="no")/,"class=\"ChapTitleNonprintingctnp\" \\1").gsub(/\{\{IMPRINT\}\}/,"#{Metadata.imprint}").gsub(/\{\{AUTHORNAMETXT\}\}/,"#{linkauthornametxt}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthornameall}").gsub(/\{\{AUTHORID\}\}/,"#{myhash['book']['PERSON_PARTNERID']}").gsub(/\{\{EISBN\}\}/,"#{Metadata.eisbn}").gsub(/<!--AUTHORSIGNUPSTART/,"").gsub(/AUTHORSIGNUPEND-->/,"")
+  linkauthornametxt = linkauthorarr.to_s.downcase.gsub(/\s/,"").gsub(/\W/,"").to_ascii
+  linkauthornameall = linkauthorarr.to_s.downcase.gsub(/\s/,"").to_ascii
+  if myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['PERSON_PARTNERID'].nil? or myhash['book']['PERSON_PARTNERID'].empty? or !myhash['book']['PERSON_PARTNERID']
+  filecontents = filecontents.gsub(/(data-displayheader="no")/,"class=\"ChapTitleNonprintingctnp\" \\1").gsub(/\{\{IMPRINT\}\}/,"#{Metadata.imprint}").gsub(/\{\{AUTHORNAMETXT\}\}/,"#{linkauthornametxt}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthornameall}").gsub(/\{\{EISBN\}\}/,"#{Metadata.eisbn}")
+  else
+    filecontents = filecontents.gsub(/(data-displayheader="no")/,"class=\"ChapTitleNonprintingctnp\" \\1").gsub(/\{\{IMPRINT\}\}/,"#{Metadata.imprint}").gsub(/\{\{AUTHORNAMETXT\}\}/,"#{linkauthornametxt}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthornameall}").gsub(/\{\{AUTHORID\}\}/,"#{myhash['book']['PERSON_PARTNERID']}").gsub(/\{\{EISBN\}\}/,"#{Metadata.eisbn}").gsub(/<!--AUTHORSIGNUPSTART/,"").gsub(/AUTHORSIGNUPEND-->/,"")
+  end
 end
 
 File.open(epub_tmp_html, 'w') do |output| 
