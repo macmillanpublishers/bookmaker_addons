@@ -200,9 +200,9 @@ else
 end
 
 if myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['PERSON_PARTNERID'].nil? or myhash['book']['PERSON_PARTNERID'].empty? or !myhash['book']['PERSON_PARTNERID']
-  filecontents = filecontents.gsub(/\{\{IMPRINT\}\}/,"#{Metadata.imprint}").gsub(/\{\{EISBN\}\}/,"#{Metadata.eisbn}")
+  filecontents = filecontents.gsub(/(data-displayheader="no")/,"class=\"ChapTitleNonprintingctnp\" \\1").gsub(/\{\{IMPRINT\}\}/,"#{Metadata.imprint}").gsub(/\{\{EISBN\}\}/,"#{Metadata.eisbn}")
 else
-  filecontents = filecontents.gsub(/\{\{IMPRINT\}\}/,"#{Metadata.imprint}").gsub(/\{\{EISBN\}\}/,"#{Metadata.eisbn}").gsub(/<!--AUTHORSIGNUPSTART/,"").gsub(/AUTHORSIGNUPEND-->/,"")
+  filecontents = filecontents.gsub(/(data-displayheader="no")/,"class=\"ChapTitleNonprintingctnp\" \\1").gsub(/\{\{IMPRINT\}\}/,"#{Metadata.imprint}").gsub(/\{\{EISBN\}\}/,"#{Metadata.eisbn}").gsub(/<!--AUTHORSIGNUPSTART/,"").gsub(/AUTHORSIGNUPEND-->/,"")
 end
 
 File.open(epub_tmp_html, 'w') do |output| 
