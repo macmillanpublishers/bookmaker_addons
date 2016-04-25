@@ -188,14 +188,21 @@ if linkauthorarr.count > 1
     linkauthornameall = a.downcase.gsub(/\s/,"").to_ascii
     filecontents = filecontents.gsub(/(<section data-type="appendix" class="abouttheauthor".*?#{linkauthorfirst}.*?#{linkauthorlast}.*?)(\{\{AUTHORNAME\}\})(.*?>here<\/a>)/,"\\1#{linkauthornameall}\\3")
   end
+  # replace author ID
 else
   linkauthornametxt = linkauthorarr.to_s.downcase.gsub(/\s/,"").gsub(/\W/,"").to_ascii
   linkauthornameall = linkauthorarr.to_s.downcase.gsub(/\s/,"").to_ascii
   if myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['PERSON_PARTNERID'].nil? or myhash['book']['PERSON_PARTNERID'].empty? or !myhash['book']['PERSON_PARTNERID']
-  filecontents = filecontents.gsub(/(data-displayheader="no")/,"class=\"ChapTitleNonprintingctnp\" \\1").gsub(/\{\{IMPRINT\}\}/,"#{Metadata.imprint}").gsub(/\{\{AUTHORNAMETXT\}\}/,"#{linkauthornametxt}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthornameall}").gsub(/\{\{EISBN\}\}/,"#{Metadata.eisbn}")
+    filecontents = filecontents.gsub(/\{\{AUTHORNAMETXT\}\}/,"#{linkauthornametxt}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthornameall}")
   else
-    filecontents = filecontents.gsub(/(data-displayheader="no")/,"class=\"ChapTitleNonprintingctnp\" \\1").gsub(/\{\{IMPRINT\}\}/,"#{Metadata.imprint}").gsub(/\{\{AUTHORNAMETXT\}\}/,"#{linkauthornametxt}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthornameall}").gsub(/\{\{AUTHORID\}\}/,"#{myhash['book']['PERSON_PARTNERID']}").gsub(/\{\{EISBN\}\}/,"#{Metadata.eisbn}").gsub(/<!--AUTHORSIGNUPSTART/,"").gsub(/AUTHORSIGNUPEND-->/,"")
+    filecontents = filecontents.gsub(/\{\{AUTHORNAMETXT\}\}/,"#{linkauthornametxt}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthornameall}").gsub(/\{\{AUTHORID\}\}/,"#{myhash['book']['PERSON_PARTNERID']}")
   end
+end
+
+if myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['PERSON_PARTNERID'].nil? or myhash['book']['PERSON_PARTNERID'].empty? or !myhash['book']['PERSON_PARTNERID']
+  filecontents = filecontents.gsub(/\{\{IMPRINT\}\}/,"#{Metadata.imprint}").gsub(/\{\{EISBN\}\}/,"#{Metadata.eisbn}")
+else
+  filecontents = filecontents.gsub(/\{\{IMPRINT\}\}/,"#{Metadata.imprint}").gsub(/\{\{EISBN\}\}/,"#{Metadata.eisbn}").gsub(/<!--AUTHORSIGNUPSTART/,"").gsub(/AUTHORSIGNUPEND-->/,"")
 end
 
 File.open(epub_tmp_html, 'w') do |output| 
