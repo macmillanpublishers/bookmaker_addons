@@ -180,6 +180,14 @@ if linkauthorarr.count > 1
     linkauthornameall = a.downcase.gsub(/\s/,"").to_ascii
     filecontents = filecontents.gsub(/(--><\/p><\/section><section data-type="appendix" class="abouttheauthor".*?#{linkauthorfirst}.*?#{linkauthorlast}.*?)(\{\{AUTHORNAME\}\})(.*?>here<\/a>)/,"\\1#{linkauthornameall}\\3")
   end
+  linkauthorarr.each do |a|
+    linkauthorname = a
+    linkauthorfirst = a.split(" ").shift
+    linkauthorlast = a.split(" ").pop
+    linkauthornametxt = a.downcase.gsub(/\s/,"").gsub(/\W/,"").to_ascii
+    linkauthornameall = a.downcase.gsub(/\s/,"").to_ascii
+    filecontents = filecontents.gsub(/(<section data-type="appendix" class="abouttheauthor".*?#{linkauthorfirst}.*?#{linkauthorlast}.*?)(\{\{AUTHORNAME\}\})(.*?>here<\/a>)/,"\\1#{linkauthornameall}\\3")
+  end
 else
   linkauthornametxt = linkauthorarr.to_s.downcase.gsub(/\s/,"").gsub(/\W/,"").to_ascii
   linkauthornameall = linkauthorarr.to_s.downcase.gsub(/\s/,"").to_ascii
