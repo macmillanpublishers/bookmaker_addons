@@ -206,8 +206,8 @@ if linkauthorarr.count > 1
   oldlink = "<p style=\"text-align: center; text-indent: 0;\">For email updates on the author, click <a href=\"\S*\">here.</a></p>"
   filecontents = filecontents.gsub(/<p style=\"text-align: center; text-indent: 0;\">For email updates on the author, click <a href=\"\S*?\">here.<\/a><\/p>/, newsletterlink)
 else
-  linkauthornametxt = linkauthorarr.to_s.downcase.gsub(/\s/,"").gsub(/\W/,"").to_ascii
-  linkauthornameall = linkauthorarr.to_s.downcase.gsub(/\s/,"").to_ascii
+  linkauthornametxt = Metadata.bookauthor.downcase.gsub(/\s/,"").gsub(/\W/,"").to_ascii
+  linkauthornameall = Metadata.bookauthor.downcase.gsub(/\s/,"").to_ascii
   if myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['PERSON_PARTNERID'].nil? or myhash['book']['PERSON_PARTNERID'].empty? or !myhash['book']['PERSON_PARTNERID']
     filecontents = filecontents.gsub(/\{\{AUTHORNAMETXT\}\}/,"#{linkauthornametxt}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthornameall}")
   else
