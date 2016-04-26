@@ -172,6 +172,8 @@ else
 end
 
 if linkauthorarr.count > 1
+  # make mini toc entry plural
+  filecontents = filecontents.gsub(/(<a class="spanhyperlink" id="abouttheauthor" href="\S*?">About the Author)(<\/a>)/,"\\1s\\2")
   # insert new author links in newsletter
   # fix author links in ABA sections
   newslinkarr = []
@@ -219,8 +221,6 @@ else
     filecontents = filecontents.gsub(/\{\{AUTHORNAMETXT\}\}/,"#{linkauthornametxt}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthornameall}").gsub(/\{\{AUTHORID\}\}/,"#{authorid}")
   end
 end
-
-puts myhash['book']['PERSON_PARTNERID']
 
 if myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['PERSON_PARTNERID'].nil? or myhash['book']['PERSON_PARTNERID'].empty? or !myhash['book']['PERSON_PARTNERID']
   filecontents = filecontents.gsub(/(data-displayheader="no")/,"class=\"ChapTitleNonprintingctnp\" \\1").gsub(/\{\{IMPRINT\}\}/,"#{Metadata.imprint}").gsub(/\{\{EISBN\}\}/,"#{Metadata.eisbn}")
