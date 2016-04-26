@@ -161,17 +161,20 @@ else
 end
 
 linkauthorarr = []
+linkauthorid = []
 
 if myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['PERSON_REALNAME'].nil? or myhash['book']['PERSON_REALNAME'].empty? or !myhash['book']['PERSON_REALNAME']
   linkauthorarr = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageAuthorNameau">.*?</)
   linkauthorarr.map! { |x| x.gsub(/<p class="TitlepageAuthorNameau">/,"").gsub(/<\//,"") }
 else
   linkauthorarr = myhash['book']['PERSON_REALNAME']
+  linkauthorid = myhash['book']['PERSON_PARTNERID']
 end
 
-puts linkauthorarr
-
 if linkauthorarr.count > 1
+  # insert new author links in newsletter
+  # fix author links in ABA sections
+  newslinkarr = []
   linkauthorarr.each do |a|
     linkauthorname = a
     linkauthorfirst = a.split(" ").shift
@@ -180,6 +183,8 @@ if linkauthorarr.count > 1
     linkauthornameall = a.downcase.gsub(/\s/,"").to_ascii
     filecontents = filecontents.gsub(/(--><\/p><\/section><section data-type="appendix" class="abouttheauthor".*?#{linkauthorfirst}.*?#{linkauthorlast}.*?)(\{\{AUTHORNAME\}\})(.*?>here<\/a>)/,"\\1#{linkauthornameall}\\3")
   end
+  # another loop to fix the first ABA
+  # and prepare the newsletter links
   linkauthorarr.each do |a|
     linkauthorname = a
     linkauthorfirst = a.split(" ").shift
@@ -187,8 +192,19 @@ if linkauthorarr.count > 1
     linkauthornametxt = a.downcase.gsub(/\s/,"").gsub(/\W/,"").to_ascii
     linkauthornameall = a.downcase.gsub(/\s/,"").to_ascii
     filecontents = filecontents.gsub(/(<section data-type="appendix" class="abouttheauthor".*?#{linkauthorfirst}.*?#{linkauthorlast}.*?)(\{\{AUTHORNAME\}\})(.*?>here<\/a>)/,"\\1#{linkauthornameall}\\3")
+    thislink = "<p style=\"text-align: center; text-indent: 0;\">For email updates on the author, click <a href=\"http:\/\/us.macmillan.com\/authoralerts?authorName=#{linkauthornametxt}&amp;authorRefId=AUTHORID&amp;utm_source=ebook&amp;utm_medium=adcard&amp;utm_term=ebookreaders&amp;utm_content=#{linkauthornameall}_authoralertsignup_macdotcom&amp;utm_campaign=\{\{EISBN\}\}\">here.<\/a><\/p>"
+    newslinkarr << thislink
   end
-  # replace author ID
+  # replace author ID in newsletter links
+  linkauthorid.each_with_index do |b, i|
+    puts i
+    newslinkarr.collect!.with_index { |e, n|
+      (n == i) ? e.gsub(/AUTHORID/, b) : e
+    }
+  end
+  newsletterlink = newslinkarr.join(" ")
+  # remove old link
+  filecontents = filecontents.gsub(/<p style="text-align: center; text-indent: 0;">For email updates on the author, click <a href="http:\/\/us.macmillan.com\/authoralerts?authorName=\{\{AUTHORNAMETXT\}\}&amp;authorRefId=\{\{AUTHORID\}\}&amp;utm_source=ebook&amp;utm_medium=adcard&amp;utm_term=ebookreaders&amp;utm_content=\{\{AUTHORNAME\}\}_authoralertsignup_macdotcom&amp;utm_campaign=\d\d\d\d\d\d\d\d\d\d\d\d\d">here.<\/a><\/p>/,newsletterlink)
 else
   linkauthornametxt = linkauthorarr.to_s.downcase.gsub(/\s/,"").gsub(/\W/,"").to_ascii
   linkauthornameall = linkauthorarr.to_s.downcase.gsub(/\s/,"").to_ascii
