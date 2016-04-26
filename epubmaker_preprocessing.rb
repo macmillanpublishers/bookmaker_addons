@@ -197,14 +197,13 @@ if linkauthorarr.count > 1
   end
   # replace author ID in newsletter links
   linkauthorid.each_with_index do |b, i|
-    puts i
     newslinkarr.collect!.with_index { |e, n|
       (n == i) ? e.gsub(/AUTHORID/, b) : e
     }
   end
   newsletterlink = newslinkarr.join(" ")
   # remove old link
-  filecontents = filecontents.gsub(/<p style="text-align: center; text-indent: 0;">For email updates on the author, click <a href="http:\/\/us.macmillan.com\/authoralerts?authorName=\{\{AUTHORNAMETXT\}\}&amp;authorRefId=\{\{AUTHORID\}\}&amp;utm_source=ebook&amp;utm_medium=adcard&amp;utm_term=ebookreaders&amp;utm_content=\{\{AUTHORNAME\}\}_authoralertsignup_macdotcom&amp;utm_campaign=\d\d\d\d\d\d\d\d\d\d\d\d\d">here.<\/a><\/p>/,newsletterlink)
+  filecontents = filecontents.gsub(/<p style="text-align: center; text-indent: 0;">For email updates on the author, click <a href="http:\/\/us.macmillan.com\/authoralerts?authorName=\{\{AUTHORNAMETXT\}\}&amp;authorRefId=\{\{AUTHORID\}\}&amp;utm_source=ebook&amp;utm_medium=adcard&amp;utm_term=ebookreaders&amp;utm_content=\{\{AUTHORNAME\}\}_authoralertsignup_macdotcom&amp;utm_campaign=\{\{EISBN\}\}\">here.<\/a><\/p>/,newsletterlink)
 else
   linkauthornametxt = linkauthorarr.to_s.downcase.gsub(/\s/,"").gsub(/\W/,"").to_ascii
   linkauthornameall = linkauthorarr.to_s.downcase.gsub(/\s/,"").to_ascii
