@@ -167,8 +167,8 @@ if myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['boo
   linkauthorarr = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageAuthorNameau">.*?</)
   linkauthorarr.map! { |x| x.gsub(/<p class="TitlepageAuthorNameau">/,"").gsub(/<\//,"") }
 else
-  linkauthorarr = myhash['book']['PERSON_REALNAME']
-  linkauthorid = myhash['book']['PERSON_PARTNERID']
+  linkauthorarr = myhash['book']['PERSON_REALNAME'].clone
+  linkauthorid = myhash['book']['PERSON_PARTNERID'].clone
 end
 
 if linkauthorarr.count > 1
@@ -215,6 +215,8 @@ else
     filecontents = filecontents.gsub(/\{\{AUTHORNAMETXT\}\}/,"#{linkauthornametxt}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthornameall}").gsub(/\{\{AUTHORID\}\}/,"#{authorid}")
   end
 end
+
+puts myhash['book']['PERSON_PARTNERID']
 
 if myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['PERSON_PARTNERID'].nil? or myhash['book']['PERSON_PARTNERID'].empty? or !myhash['book']['PERSON_PARTNERID']
   filecontents = filecontents.gsub(/(data-displayheader="no")/,"class=\"ChapTitleNonprintingctnp\" \\1").gsub(/\{\{IMPRINT\}\}/,"#{Metadata.imprint}").gsub(/\{\{EISBN\}\}/,"#{Metadata.eisbn}")
