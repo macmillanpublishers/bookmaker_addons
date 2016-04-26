@@ -192,7 +192,7 @@ if linkauthorarr.count > 1
     linkauthornametxt = a.downcase.gsub(/\s/,"").gsub(/\W/,"").to_ascii
     linkauthornameall = a.downcase.gsub(/\s/,"").to_ascii
     filecontents = filecontents.gsub(/(<section data-type="appendix" class="abouttheauthor".*?#{linkauthorfirst}.*?#{linkauthorlast}.*?)(\{\{AUTHORNAME\}\})(.*?>here<\/a>)/,"\\1#{linkauthornameall}\\3")
-    thislink = "<p style=\"text-align: center; text-indent: 0;\">For email updates on the author, click <a href=\"http:\/\/us.macmillan.com\/authoralerts?authorName=#{linkauthornametxt}&amp;authorRefId=AUTHORID&amp;utm_source=ebook&amp;utm_medium=adcard&amp;utm_term=ebookreaders&amp;utm_content=#{linkauthornameall}_authoralertsignup_macdotcom&amp;utm_campaign=\{\{EISBN\}\}\">here.<\/a><\/p>"
+    thislink = "<p style=\"text-align: center; text-indent: 0;\">For email updates on #{a}, click <a href=\"http:\/\/us.macmillan.com\/authoralerts?authorName=#{linkauthornametxt}&amp;authorRefId=AUTHORID&amp;utm_source=ebook&amp;utm_medium=adcard&amp;utm_term=ebookreaders&amp;utm_content=#{linkauthornameall}_authoralertsignup_macdotcom&amp;utm_campaign=\{\{EISBN\}\}\">here.<\/a><\/p>"
     newslinkarr << thislink
   end
   # replace author ID in newsletter links
@@ -202,8 +202,9 @@ if linkauthorarr.count > 1
     }
   end
   newsletterlink = newslinkarr.join(" ")
+  puts newsletterlink
   # remove old link
-  filecontents = filecontents.gsub(/<p style="text-align: center; text-indent: 0;">For email updates on the author, click <a href="http:\/\/us.macmillan.com\/authoralerts?authorName=\{\{AUTHORNAMETXT\}\}&amp;authorRefId=\{\{AUTHORID\}\}&amp;utm_source=ebook&amp;utm_medium=adcard&amp;utm_term=ebookreaders&amp;utm_content=\{\{AUTHORNAME\}\}_authoralertsignup_macdotcom&amp;utm_campaign=\{\{EISBN\}\}\">here.<\/a><\/p>/,newsletterlink)
+  filecontents = filecontents.gsub(/<p style="text-align: center; text-indent: 0;">For email updates on the author, click <a href="http:\/\/us.macmillan.com\/authoralerts?authorName=\{\{AUTHORNAMETXT\}\}&amp;authorRefId=\{\{AUTHORID\}\}&amp;utm_source=ebook&amp;utm_medium=adcard&amp;utm_term=ebookreaders&amp;utm_content=\{\{AUTHORNAME\}\}_authoralertsignup_macdotcom&amp;utm_campaign=\{\{EISBN\}\}\">here.<\/a><\/p>/, newsletterlink)
 else
   linkauthornametxt = linkauthorarr.to_s.downcase.gsub(/\s/,"").gsub(/\W/,"").to_ascii
   linkauthornameall = linkauthorarr.to_s.downcase.gsub(/\s/,"").to_ascii
