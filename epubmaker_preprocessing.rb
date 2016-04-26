@@ -203,7 +203,7 @@ if linkauthorarr.count > 1
   end
   newsletterlink = newslinkarr.join(" ")
   # remove old link
-  oldlink = "<p style=\"text-align: center; text-indent: 0;\">For email updates on the author, click <a href=\"http:\/\/us.macmillan.com\/authoralerts?authorName=\{\{AUTHORNAMETXT\}\}&amp;authorRefId=\{\{AUTHORID\}\}&amp;utm_source=ebook&amp;utm_medium=adcard&amp;utm_term=ebookreaders&amp;utm_content=\{\{AUTHORNAME\}\}_authoralertsignup_macdotcom&amp;utm_campaign=\{\{EISBN\}\}\">here.<\/a><\/p>"
+  oldlink = "<p style=\"text-align: center; text-indent: 0;\">For email updates on the author, click <a href=\"http://us.macmillan.com/authoralerts?authorName=\{\{AUTHORNAMETXT\}\}&amp;authorRefId=\{\{AUTHORID\}\}&amp;utm_source=ebook&amp;utm_medium=adcard&amp;utm_term=ebookreaders&amp;utm_content=\{\{AUTHORNAME\}\}_authoralertsignup_macdotcom&amp;utm_campaign=\{\{EISBN\}\}\">here.</a></p>"
   mytest = filecontents.scan(/#{oldlink}/)
   puts mytest
   filecontents = filecontents.gsub(/#{oldlink}/, newsletterlink)
