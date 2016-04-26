@@ -206,7 +206,7 @@ if linkauthorarr.count > 1
   filecontents = filecontents.gsub(/<p style=\"text-align: center; text-indent: 0;\">For email updates on the author, click <a href=\"\S*?\">here.<\/a><\/p>/, newsletterlink)
   # set newsletter button link to use first author
   linkauthornametxt = linkauthorarr[0].downcase.gsub(/\s/,"").gsub(/\W/,"").to_ascii
-  linkauthornameall = linkauthorarr[0]].downcase.gsub(/\s/,"").to_ascii
+  linkauthornameall = linkauthorarr[0].downcase.gsub(/\s/,"").to_ascii
   authorid = linkauthorid[0]
   filecontents = filecontents.gsub(/\{\{AUTHORNAMETXT\}\}/,"#{linkauthornametxt}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthornameall}").gsub(/\{\{AUTHORID\}\}/,"#{authorid}")
 else
