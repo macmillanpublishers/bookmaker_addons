@@ -277,10 +277,14 @@ if File.file?(js_file)
 end
 
 xml_file = File.join(Bkmkr::Paths.project_tmp_dir, "#{Bkmkr::Project.filename}.xml")
-check_tocbody = File.read(xml_file).scan(/w:pStyle w:val\="TOC/)
-check_tochead = File.read(Bkmkr::Paths.outputtmp_html).scan(/class="texttoc"/)
-if check_tocbody.any? or check_tochead.any?
-  toc_value = "true"
+if Mcmlln::Tools.checkFileExist(xml_file)
+  check_tocbody = File.read(xml_file).scan(/w:pStyle w:val\="TOC/)
+  check_tochead = File.read(Bkmkr::Paths.outputtmp_html).scan(/class="texttoc"/)
+  if check_tocbody.any? or check_tochead.any?
+    toc_value = "true"
+  else
+    toc_value = "false"
+  end
 else
   toc_value = "false"
 end
