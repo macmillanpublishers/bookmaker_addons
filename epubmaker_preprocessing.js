@@ -68,6 +68,9 @@ $("span.spanhyperlinkurl:not(:has(a))").each(function () {
     $(this).prepend(text); 
   });
 
+  // remove classes from span elements
+  $("em.spanitaliccharactersital").removeClass().removeAttr( "class" );
+
   // remove textual toc for epub
   $('section.texttoc').remove();
 

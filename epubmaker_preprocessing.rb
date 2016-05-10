@@ -228,6 +228,9 @@ else
   filecontents = filecontents.gsub(/(data-displayheader="no")/,"class=\"ChapTitleNonprintingctnp\" \\1").gsub(/\{\{IMPRINT\}\}/,"#{Metadata.imprint}").gsub(/\{\{EISBN\}\}/,"#{Metadata.eisbn}").gsub(/<!--AUTHORSIGNUPSTART/,"").gsub(/AUTHORSIGNUPEND-->/,"")
 end
 
+# add some line breaks to make the html easier to deal with
+filecontents = filecontents.gsub(/(<p)/,"\n\\1")
+
 File.open(epub_tmp_html, 'w') do |output| 
   output.write filecontents
 end
