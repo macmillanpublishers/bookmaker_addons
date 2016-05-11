@@ -29,16 +29,18 @@ fs.readFile(file, function editContent (err, contents) {
     var thisclass = $(this).attr('class');
     var previousclass = $(that).attr('class');
     if ((that && that.nodeType === 1 && that.tagName === this.tagName && typeof $(that).attr('class') !== 'undefined' && thisclass === previousclass)) {
-        var node = $.createElement(this.tagName);
-        while (that.firstChild) {
-            node.appendChild(that.firstChild);
-        }
-        while (this.firstChild) {
-            node.appendChild(this.firstChild);
-        }
-        this.parentNode.insertBefore(node, this.nextSibling);
-        that.parentNode.removeChild(that);
-        this.parentNode.removeChild(this);
+      var document = $;
+      var node = document.createElement(this.tagName);
+      while (that.firstChild) {
+          node.appendChild(that.firstChild);
+      }
+      while (this.firstChild) {
+          node.appendChild(this.firstChild);
+      }
+      this.parentNode.insertBefore(node, this.nextSibling);
+      that.parentNode.removeChild(that);
+      this.parentNode.removeChild(this);
+ 
     }
   });
 
