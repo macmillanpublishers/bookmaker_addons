@@ -39,13 +39,11 @@ fs.readFile(file, function editContent (err, contents) {
       while (this.firstChild) {
           node.append(this.firstChild);
       }
-      that.parentNode.removeChild(that);
-      this.parentNode.removeChild(this);
+      that.remove();
+      this.remove();
     }
     $(".temp").removeClass("temp");
   });
-
-
 
 
   var output = $.html();
