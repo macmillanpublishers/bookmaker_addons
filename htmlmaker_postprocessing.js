@@ -29,20 +29,22 @@ fs.readFile(file, function editContent (err, contents) {
     var thisclass = $(this).attr('class');
     var previousclass = $(that).attr('class');
     if ((that && that.nodeType === 1 && that.tagName === this.tagName && typeof $(that).attr('class') !== 'undefined' && thisclass === previousclass)) {
-      var document = $("html");
-      var node = document.createElement(this.tagName);
+      var mytag = this.tagName.toString();
+      var el = $("<" + mytag + "/>").addClass("temp");
+      $(this).after(el);
+      var node = $(".temp");
       while (that.firstChild) {
-          node.appendChild(that.firstChild);
+          node.append(that.firstChild);
       }
       while (this.firstChild) {
-          node.appendChild(this.firstChild);
+          node.append(this.firstChild);
       }
-      this.parentNode.insertBefore(node, this.nextSibling);
       that.parentNode.removeChild(that);
       this.parentNode.removeChild(this);
- 
     }
+    $(".temp").removeClass("temp");
   });
+
 
 
 
