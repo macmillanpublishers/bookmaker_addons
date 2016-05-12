@@ -42,7 +42,7 @@ fs.readFile(file, function editContent (err, contents) {
       $(that).remove();
       $(this).remove();
     }
-    $(".temp").removeClass("temp");
+    $(".temp").addClass(thisclass).removeClass("temp");
   });
 
 
