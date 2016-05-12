@@ -23,6 +23,29 @@ fs.readFile(file, function editContent (err, contents) {
       });
     });
 
+  //function to merge all contiguous spans
+ $("span, em").each(function () {
+    var that = this.previousSibling;
+    var thisclass = $(this).attr('class');
+    var previousclass = $(that).attr('class');
+    if ((that && that.nodeType === 1 && that.tagName === this.tagName && typeof $(that).attr('class') !== 'undefined' && thisclass === previousclass)) {
+      var mytag = this.tagName.toString();
+      var el = $("<" + mytag + "/>").addClass("temp");
+      $(this).after(el);
+      var node = $(".temp");
+      while (that.firstChild) {
+          node.append(that.firstChild);
+      }
+      while (this.firstChild) {
+          node.append(this.firstChild);
+      }
+      $(that).remove();
+      $(this).remove();
+    }
+    $(".temp").addClass(thisclass).removeClass("temp");
+  });
+
+
   var output = $.html();
     fs.writeFile(file, output, function(err) {
       if(err) {
