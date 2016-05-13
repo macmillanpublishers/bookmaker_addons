@@ -125,6 +125,9 @@ addonjson = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker",
 # move abouttheauthor to back
 Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "abouttheauthor", "1", "endofbook", "1")
 
+# move bobad to back
+Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "bobad", "1", "endofbook", "1")
+
 # move adcard to back
 Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "adcard", "1", "endofbook", "1")
 
