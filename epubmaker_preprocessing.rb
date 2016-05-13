@@ -133,11 +133,12 @@ def getNumberOfSections(name)
   return sections
 end
 
-# get number of ABA sections
-Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "abouttheauthor", "", "endofbook", "1")
-
+# when moving sections to back of book, last section should be moved first
 # move bobad to back
 Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "bobad", "", "endofbook", "1")
+
+# move about the author to back
+Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "abouttheauthor", "", "endofbook", "1")
 
 # move adcard to back
 Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "adcard", "", "endofbook", "1")
