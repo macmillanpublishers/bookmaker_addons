@@ -125,12 +125,12 @@ addonjson = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker",
 # move abouttheauthor to back
 def getNumberOfSections(name)
   sections = File.read(Bkmkr::Paths.outputtmp_html).scan(/class="#{name}"/)
-  if sections.count > 0
-    num = sections.count
-  else
-    num = "1"
-  end
-  return num
+  # if sections.count > 0
+  #   num = sections.count
+  # else
+  #   num = "1"
+  # end
+  return sections
 end
 
 # get number of ABA sections
