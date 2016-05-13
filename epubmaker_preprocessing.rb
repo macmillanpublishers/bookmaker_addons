@@ -134,11 +134,7 @@ def getNumberOfSections(name)
 end
 
 # get number of ABA sections
-ss = getNumberOfSections("abouttheauthor")
-puts ss.count
-ss.each_with_index do |a, i|
-  Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "abouttheauthor", "#{i}", "endofbook", "1")
-end
+Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "abouttheauthor", "", "endofbook", "1")
 
 # move bobad to back
 ss = getNumberOfSections("bobad")
