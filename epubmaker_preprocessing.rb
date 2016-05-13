@@ -122,23 +122,11 @@ Bkmkr::Tools.runnode(epubmakerpreprocessingjs, epub_tmp_html)
 sectionjson = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "sections.json")
 addonjson = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker", "addons", "addons.json")
 
-# move abouttheauthor to back
-def getNumberOfSections(name)
-  sections = File.read(Bkmkr::Paths.outputtmp_html).scan(/(class=".*?)(#{name})(.*?)("*?)/)
-  # if sections.count > 0
-  #   num = sections.count
-  # else
-  #   num = "1"
-  # end
-  return sections
-end
-
-# when moving sections to back of book, last section should be moved first
-# move bobad to back
-Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "bobad", "", "endofbook", "1")
-
 # move about the author to back
 Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "abouttheauthor", "", "endofbook", "1")
+
+# move bobad to back
+Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "bobad", "", "endofbook", "1")
 
 # move adcard to back
 Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "adcard", "", "endofbook", "1")
