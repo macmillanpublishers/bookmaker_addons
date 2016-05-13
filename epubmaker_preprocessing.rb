@@ -123,7 +123,7 @@ sectionjson = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "sections.
 addonjson = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker", "addons", "addons.json")
 
 # move abouttheauthor to back
-def getNumberOfSections()
+def getNumberOfSections(name)
   sections = File.read(Bkmkr::Paths.outputtmp_html).scan(/class="#{name}"/)
   if sections.count > 0
     num = sections.count
