@@ -147,7 +147,7 @@ Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "adcard", "#{ss}", "endofbo
 
 # move front sales to back
 ss = getNumberOfSections("frontsales")
-Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "frontsales", "#{frontsales}", "endofbook", "1")
+Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "frontsales", "#{ss}", "endofbook", "1")
 
 # move toc to back
 Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "toc", "1", "endofbook", "1")
