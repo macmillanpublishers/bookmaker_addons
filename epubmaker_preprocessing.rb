@@ -137,23 +137,13 @@ end
 Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "abouttheauthor", "", "endofbook", "1")
 
 # move bobad to back
-ss = getNumberOfSections("bobad")
-puts ss.count
-ss.each_with_index do |a, i|
-  Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "bobad", "#{i}", "endofbook", "1")
-end
+Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "bobad", "", "endofbook", "1")
 
 # move adcard to back
-ss = getNumberOfSections("adcard")
-ss.each_with_index do |a, i|
-  Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "adcard", "#{i}", "endofbook", "1")
-end
+Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "adcard", "", "endofbook", "1")
 
 # move front sales to back
-ss = getNumberOfSections("frontsales")
-ss.each_with_index do |a, i|
-  Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "frontsales", "#{i}", "endofbook", "1")
-end
+Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "frontsales", "", "endofbook", "1")
 
 # move toc to back
 Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "toc", "1", "endofbook", "1")
