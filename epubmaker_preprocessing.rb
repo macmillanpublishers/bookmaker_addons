@@ -123,16 +123,31 @@ sectionjson = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "sections.
 addonjson = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker", "addons", "addons.json")
 
 # move abouttheauthor to back
-Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "abouttheauthor", "", "endofbook", "1")
+def getNumberOfSections()
+  sections = File.read(Bkmkr::Paths.outputtmp_html).scan(/class="#{name}"/)
+  if sections.count > 0
+    num = sections.count
+  else
+    num = "1"
+  end
+  return num
+end
+
+# get number of ABA sections
+ss = getNumberOfSections("abouttheauthor")
+Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "abouttheauthor", "#{ss}", "endofbook", "1")
 
 # move bobad to back
-Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "bobad", "", "endofbook", "1")
+ss = getNumberOfSections("bobad")
+Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "bobad", "#{ss}", "endofbook", "1")
 
 # move adcard to back
-Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "adcard", "", "endofbook", "1")
+ss = getNumberOfSections("adcard")
+Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "adcard", "#{ss}", "endofbook", "1")
 
 # move front sales to back
-Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "frontsales", "", "endofbook", "1")
+ss = getNumberOfSections("frontsales")
+Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "frontsales", "#{frontsales}", "endofbook", "1")
 
 # move toc to back
 Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "toc", "1", "endofbook", "1")
