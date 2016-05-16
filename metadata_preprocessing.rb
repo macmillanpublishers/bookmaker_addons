@@ -234,29 +234,29 @@ end
 
 puts "Template: #{template}"
 
-if !metatemplate.nil? and File.file?("#{pdf_css_dir}/#{project_dir}/#{template}.css")
-  pdf_css_file = "#{pdf_css_dir}/#{project_dir}/#{template}.css"
-elsif File.file?("#{pdf_css_dir}/#{project_dir}/#{stage_dir}.css")
-  pdf_css_file = "#{pdf_css_dir}/#{project_dir}/#{stage_dir}.css"
-elsif File.file?("#{pdf_css_dir}/#{project_dir}/pdf.css")
-  pdf_css_file = "#{pdf_css_dir}/#{project_dir}/pdf.css"
+if !metatemplate.nil? and File.file?("#{pdf_css_dir}/#{resource_dir}/#{template}.css")
+  pdf_css_file = "#{pdf_css_dir}/#{resource_dir}/#{template}.css"
+elsif File.file?("#{pdf_css_dir}/#{resource_dir}/#{stage_dir}.css")
+  pdf_css_file = "#{pdf_css_dir}/#{resource_dir}/#{stage_dir}.css"
+elsif File.file?("#{pdf_css_dir}/#{resource_dir}/pdf.css")
+  pdf_css_file = "#{pdf_css_dir}/#{resource_dir}/pdf.css"
 else
   pdf_css_file = "#{pdf_css_dir}/torDOTcom/pdf.css"
 end
 
 puts "PDF CSS file: #{pdf_css_file}"
 
-if !metatemplate.nil? and File.file?("#{epub_css_dir}/#{project_dir}/#{template}.css")
-  epub_css_file = "#{epub_css_dir}/#{project_dir}/#{template}.css"
-elsif File.file?("#{epub_css_dir}/#{project_dir}/#{stage_dir}.css")
-  epub_css_file = "#{epub_css_dir}/#{project_dir}/#{stage_dir}.css"
-elsif File.file?("#{epub_css_dir}/#{project_dir}/epub.css")
-  epub_css_file = "#{epub_css_dir}/#{project_dir}/epub.css"
+if !metatemplate.nil? and File.file?("#{epub_css_dir}/#{resource_dir}/#{template}.css")
+  epub_css_file = "#{epub_css_dir}/#{resource_dir}/#{template}.css"
+elsif File.file?("#{epub_css_dir}/#{resource_dir}/#{stage_dir}.css")
+  epub_css_file = "#{epub_css_dir}/#{resource_dir}/#{stage_dir}.css"
+elsif File.file?("#{epub_css_dir}/#{resource_dir}/epub.css")
+  epub_css_file = "#{epub_css_dir}/#{resource_dir}/epub.css"
 else
   epub_css_file = "#{epub_css_dir}/generic/epub.css"
 end
 
-proj_js_file = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "scripts", project_dir, "pdf.js")
+proj_js_file = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "scripts", resource_dir, "pdf.js")
 fallback_js_file = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "scripts", "torDOTcom", "pdf.js")
 pdf_js_file = File.join(Bkmkr::Paths.project_tmp_dir, "pdf.js")
 
