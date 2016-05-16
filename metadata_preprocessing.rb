@@ -7,6 +7,24 @@ require_relative '../utilities/oraclequery.rb'
 
 # ---------------------- METHODS
 
+def getImprint(projectdir, json)
+  data_hash = Mcmlln::Tools.readjson(json)
+  arr = []
+  # loop through each json record to see if imprint name matches formalname
+  data_hash['imprints'].each do |p|
+    if p['shortname'] == projectdir
+      arr << p['formalname']
+    end
+  end
+  # in case of multiples, grab just the last entry and return it
+  if arr.nil? or arr.empty?
+    path = "Macmillan"
+  else
+    path = arr.pop
+  end
+  return path
+end
+
 def getResourceDir(imprint, json)
   data_hash = Mcmlln::Tools.readjson(json)
   arr = []
@@ -192,6 +210,8 @@ end
 # project and stage
 project_dir = Bkmkr::Project.input_file.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact))[0...-2].pop.to_s.split("_").shift
 stage_dir = Bkmkr::Project.input_file.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact))[0...-2].pop.to_s.split("_").pop
+imprint_json = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "imprints.json")
+resource_dir = getResourceDir(imprint, imprint_json)
 
 # Finding imprint name
 # imprint = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageImprintLineimp">.*?</).to_s.gsub(/\["<p class=\\"TitlepageImprintLineimp\\">/,"").gsub(/"\]/,"").gsub(/</,"")
@@ -199,22 +219,11 @@ stage_dir = Bkmkr::Project.input_file.split(Regexp.union(*[File::SEPARATOR, File
 if !metaimprint.nil?
   imprint = HTMLEntities.new.decode(metaimprint[2])
 elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["IMPRINT_DESC"].nil? or myhash["book"]["IMPRINT_DESC"].empty? or !myhash["book"]["IMPRINT_DESC"]
-  if project_dir == "torDOTcom"
-    imprint = "Tom Doherty Associates"
-  elsif project_dir == "SMP"
-    imprint = "St. Martin's Press"
-  elsif project_dir == "picador"
-    imprint = "Picador"
-  else
-    imprint = "Macmillan"
-  end
+  imprint = getImprint(project_dir, imprint_json)
 else
   imprint = myhash["book"]["IMPRINT_DESC"]
   imprint = imprint.encode('utf-8')
 end
-
-imprint_json = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "imprints.json")
-resource_dir = getResourceDir(imprint, imprint_json)
 
 if !metapublisher.nil?
   publisher = HTMLEntities.new.decode(metapublisher[2])
