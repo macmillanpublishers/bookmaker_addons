@@ -234,6 +234,7 @@ end
 epub_css_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker", "css")
 pdf_css_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "css")
 resource_dir = getResourceDir(imprint, imprint_json)
+puts "Resource dir: #{resource_dir}"
 
 if !metatemplate.nil?
   template = HTMLEntities.new.decode(metatemplate[2])
