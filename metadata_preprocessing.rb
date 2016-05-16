@@ -189,7 +189,7 @@ end
 if !metabooktitle.nil?
   booktitle = HTMLEntities.new.decode(metabooktitle[2]).encode('utf-8')
 elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_COVERTITLE"].nil? or myhash["book"]["WORK_COVERTITLE"].empty? or !myhash["book"]["WORK_COVERTITLE"]
-  booktitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<title>.*?<\/title>/).to_s.gsub(/\["<title>/,"").gsub(/<\/title>"\]/,"").gsub(/\[\]/,"")
+  booktitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageBookTitletit">.*?</).join(", ").gsub(/<p class="TitlepageBookTitletit">/,"").gsub(/</,"")
   booktitle = HTMLEntities.new.decode(booktitle).encode('utf-8')
 else
   booktitle = myhash["book"]["WORK_COVERTITLE"]
