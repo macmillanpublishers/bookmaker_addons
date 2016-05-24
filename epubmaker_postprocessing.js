@@ -22,7 +22,7 @@ fs.readFile(file, function editContent (err, contents) {
   });
 
 // add link back to TOC to preface heads
-  $("section.frontsales h1").each(function () {
+  $("section[data-type='preface'] h1").each(function () {
     var newlink = "<a href='toc01.html'>" + $( this ).text() + "</a>";
     $(this).empty();
     $(this).prepend(newlink); 
