@@ -34,7 +34,7 @@ chapfiles.each do |c|
   Bkmkr::Tools.runnode(epubmakerpostprocessingjs, c)
 end
 
-# Add links back to TOC to preface heads (explicitly, to exempt TOC & Title page)
+# Add links back to TOC to preface heads
 searchdir = File.join(OEBPS_dir, "preface[0-9][0-9]*.html")
 chapfiles = Dir.glob(searchdir)
 chapfiles.each do |c|
