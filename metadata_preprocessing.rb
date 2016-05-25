@@ -7,6 +7,19 @@ require_relative '../utilities/oraclequery.rb'
 
 # ---------------------- METHODS
 
+def findSpecificISBN(file, string)
+  #isbn_basestring = File.read(file).match(/<span class="spanISBNisbn">\s*.+<\/span>\s*\(#{string}\)/).to_s.gsub(/-/,"").gsub(/<span class="spanISBNisbn">/, "").gsub(/<\/span>/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
+  isbn_basestring = file.match(/<span class="spanISBNisbn">\s*978(\D?\d?){10}<\/span>\s*\(?#{string}\)?/).to_s.gsub(/-/,"").gsub(/\s+/,"")
+  isbn = isbn_basestring.match(/\d{13}/).to_s.gsub(/\["/,"").gsub(/"\]/,"")
+  return isbn
+end
+
+def findAnyISBN(file)
+  isbn_basestring = File.read(file).match(/spanISBNisbn">\s*978(\D?\d?){10}<\/span>/).to_s.gsub(/-/,"").gsub(/\s+/,"")
+  isbn = isbn_basestring.match(/\d{13}/).to_s.gsub(/\["/,"").gsub(/"\]/,"")
+  return isbn
+end
+
 def getImprint(projectdir, json)
   data_hash = Mcmlln::Tools.readjson(json)
   arr = []
@@ -49,31 +62,65 @@ puts "RUNNING METADATA_PREPROCESSING"
 
 # formerly in metadata.rb
 # testing to see if ISBN style exists
-spanisbn = File.read(Bkmkr::Paths.outputtmp_html).scan(/spanISBNisbn/)
-multiple_isbns = File.read(Bkmkr::Paths.outputtmp_html).scan(/spanISBNisbn">\s*.+<\/span>\s*\(((hardcover)|(trade\s*paperback)|(mass.market.paperback)|(print.on.demand)|(e\s*-*\s*book))\)/)
-
-# determining print isbn
-if spanisbn.length != 0 && multiple_isbns.length != 0
-  pisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/spanISBNisbn">\s*.+<\/span>\s*\(((hardcover)|(trade\s*paperback)|(mass.market.paperback)|(print.on.demand))\)/).to_s.gsub(/-/,"").gsub(/<span class="spanISBNisbn">/, "").gsub(/<\/span>/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
-  pisbn = pisbn_basestring.match(/\d+\(((hardcover)|(trade\s*paperback)|(mass.market.paperback)|(print.?on.?demand))\)/).to_s.gsub(/\(.*\)/,"").gsub(/\["/,"").gsub(/"\]/,"")
-elsif spanisbn.length != 0 && multiple_isbns.length == 0
-  pisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/spanISBNisbn">\s*.+<\/span>/).to_s.gsub(/-/,"").gsub(/<span class="spanISBNisbn">/, "").gsub(/<\/span>/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
-  pisbn = pisbn_basestring.match(/\d+/).to_s.gsub(/\["/,"").gsub(/"\]/,"")
+# REGEXP: 978(\D?\d?){10}
+looseisbn = File.read(Bkmkr::Paths.outputtmp_html).scan(/978(\D?\d?){10}/).shift.gsub(/\D/,"")
+pisbn = ""
+eisbn = ""
+# search for any isbn
+# query biblio, get WORK_ID
+if looseisbn.length == 13
+  isbnhash = {}
+  thissql = exactSearchSingleKey(looseisbn, "EDITION_EAN")
+  isbnhash = runQuery(thissql)
 else
-  pisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/ISBN\s*.+\s*\(((hardcover)|(trade\s*paperback)|(mass.market.paperback)|(print.on.demand))\)/).to_s.gsub(/-/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
-  pisbn = pisbn_basestring.match(/\d+\(.*\)/).to_s.gsub(/\(.*\)/,"").gsub(/\["/,"").gsub(/"\]/,"")
+  isbnhash = {}
 end
 
-# determining ebook isbn
-if spanisbn.length != 0 && multiple_isbns.length != 0
-  eisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/<span class="spanISBNisbn">\s*.+<\/span>\s*\(e\s*-*\s*book\)/).to_s.gsub(/-/,"").gsub(/<span class="spanISBNisbn">/, "").gsub(/<\/span>/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
-  eisbn = eisbn_basestring.match(/\d+\(ebook\)/).to_s.gsub(/\(ebook\)/,"").gsub(/\["/,"").gsub(/"\]/,"")
-elsif spanisbn.length != 0 && multiple_isbns.length == 0
-  eisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/spanISBNisbn">\s*.+<\/span>/).to_s.gsub(/-/,"").gsub(/<span class="spanISBNisbn">/, "").gsub(/<\/span>/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
-  eisbn = pisbn_basestring.match(/\d+/).to_s.gsub(/\["/,"").gsub(/"\]/,"")
+unless isbnhash.nil? or isbnhash.empty? or !isbnhash or isbnhash['book'].nil? or isbnhash['book'].empty? or !isbnhash['book']
+  puts "DB Connection SUCCESS: Found an isbn record"
+  workid = isbnhash['book']['WORK_ID']
+  thissql = exactSearchSingleKey(workid, "WORK_ID")
+  editionshash = runQuery(thissql)
+  unless editionshash.nil? or editionshash.empty? or !editionshash
+    editionshash['book'].each do |b|
+      if b['PRODUCTTYPE_DESC'] and b['PRODUCTTYPE_DESC'] == "Book"
+        pisbn = b['EDITION_EAN']
+      elsif b['PRODUCTTYPE_DESC'] and b['PRODUCTTYPE_DESC'] == "EBook"
+        eisbn = b['EDITION_EAN']
+    end
+  end
 else
-  eisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/ISBN\s*.+\s*\(e-*book\)/).to_s.gsub(/-/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
-  eisbn = eisbn_basestring.match(/\d+\(ebook\)/).to_s.gsub(/\(.*\)/,"").gsub(/\["/,"").gsub(/"\]/,"")
+  puts "No DB record found; falling back to manuscript fields"
+  # if not found, revert to the old way:
+  spanisbn = File.read(Bkmkr::Paths.outputtmp_html).scan(/spanISBNisbn/)
+
+  # determining print isbn
+  if spanisbn.length != 0
+    psearchstring = "(?!(e|E)\s*-*\s*(b|B)ook).*"
+    pisbn = findSpecificISBN(Bkmkr::Paths.outputtmp_html, psearchstring)
+    esearchstring = "(e|E)\s*-*\s*(b|B)ook"
+    eisbn = findSpecificISBN(Bkmkr::Paths.outputtmp_html, esearchstring)
+  elsif spanisbn.length != 0 && multiple_isbns.length == 0
+    pisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/spanISBNisbn">\s*.+<\/span>/).to_s.gsub(/-/,"").gsub(/<span class="spanISBNisbn">/, "").gsub(/<\/span>/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
+    pisbn = pisbn_basestring.match(/\d+/).to_s.gsub(/\["/,"").gsub(/"\]/,"")
+  else
+    pisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/ISBN\s*.+\s*\((?!(e|E)\s*-*\s*(b|B)ook).*|(e|E)\s*-*\s*(b|B)ook\)/).to_s.gsub(/-/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
+    pisbn = pisbn_basestring.match(/\d+\(.*\)/).to_s.gsub(/\(.*\)/,"").gsub(/\["/,"").gsub(/"\]/,"")
+    eisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/ISBN\s*.+\s*\(e-*book\)/).to_s.gsub(/-/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
+    eisbn = eisbn_basestring.match(/\d+\(ebook\)/).to_s.gsub(/\(.*\)/,"").gsub(/\["/,"").gsub(/"\]/,"")
+  end
+
+  # determining ebook isbn
+  if spanisbn.length != 0 && multiple_isbns.length != 0
+    eisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/<span class="spanISBNisbn">\s*.+<\/span>\s*\((e|E)\s*-*\s*(b|B)ook\)/).to_s.gsub(/-/,"").gsub(/<span class="spanISBNisbn">/, "").gsub(/<\/span>/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
+    eisbn = eisbn_basestring.match(/\d+\(ebook\)/).to_s.gsub(/\(ebook\)/,"").gsub(/\["/,"").gsub(/"\]/,"")
+  elsif spanisbn.length != 0 && multiple_isbns.length == 0
+    eisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/spanISBNisbn">\s*.+<\/span>/).to_s.gsub(/-/,"").gsub(/<span class="spanISBNisbn">/, "").gsub(/<\/span>/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
+    eisbn = pisbn_basestring.match(/\d+/).to_s.gsub(/\["/,"").gsub(/"\]/,"")
+  else
+    eisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/ISBN\s*.+\s*\(e-*book\)/).to_s.gsub(/-/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
+    eisbn = eisbn_basestring.match(/\d+\(ebook\)/).to_s.gsub(/\(.*\)/,"").gsub(/\["/,"").gsub(/"\]/,"")
+  end
 end
 
 # just in case no isbn is found
