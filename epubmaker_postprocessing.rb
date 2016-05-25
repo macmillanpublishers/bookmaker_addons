@@ -24,20 +24,25 @@ epubmakerpostprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addon
 searchdir = File.join(OEBPS_dir, "ch[0-9][0-9]*.html")
 chapfiles = Dir.glob(searchdir)
 chapfiles.each do |c|
-	replace = File.read(c).gsub(/(<section data-type="chapter".*?><h1.*?>)(.*?)(<\/h1>)/, "\\1<a href=\"toc01.html\">\\2</a>\\3")
-	File.open(c, "w") {|file| file.puts replace}
+  Bkmkr::Tools.runnode(epubmakerpostprocessingjs, c)
 end
 
 # Add links back to TOC to appendix heads
 searchdir = File.join(OEBPS_dir, "app[0-9][0-9]*.html")
 chapfiles = Dir.glob(searchdir)
 chapfiles.each do |c|
-  replace = File.read(c).gsub(/(<section data-type="appendix".*?><h1.*?>)(.*?)(<\/h1>)/, "\\1<a href=\"toc01.html\">\\2</a>\\3")
-  File.open(c, "w") {|file| file.puts replace}
+  Bkmkr::Tools.runnode(epubmakerpostprocessingjs, c)
 end
 
-# Add links back to TOC to adcard head
+# Add links back to TOC to preface heads
 searchdir = File.join(OEBPS_dir, "preface[0-9][0-9]*.html")
+chapfiles = Dir.glob(searchdir)
+chapfiles.each do |c|
+  Bkmkr::Tools.runnode(epubmakerpostprocessingjs, c)
+end
+
+# Add links back to TOC to part heads
+searchdir = File.join(OEBPS_dir, "part[0-9][0-9]*.html")
 chapfiles = Dir.glob(searchdir)
 chapfiles.each do |c|
   Bkmkr::Tools.runnode(epubmakerpostprocessingjs, c)
