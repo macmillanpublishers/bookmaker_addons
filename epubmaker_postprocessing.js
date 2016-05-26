@@ -7,8 +7,29 @@ fs.readFile(file, function editContent (err, contents) {
           xmlMode: true
         });
 
-// add link to adcard head
-  $('section.adcard h1').each(function () {
+// Add links back to TOC to chapter heads
+  $("section[data-type='chapter'] h1").each(function () {
+    var newlink = "<a href='toc01.html'>" + $( this ).text() + "</a>";
+    $(this).empty();
+    $(this).prepend(newlink); 
+  });
+
+// Add links back to TOC to appendix heads
+  $("section[data-type='appendix'] h1").each(function () {
+    var newlink = "<a href='toc01.html'>" + $( this ).text() + "</a>";
+    $(this).empty();
+    $(this).prepend(newlink); 
+  });
+
+// add link back to TOC to preface heads
+  $("section[data-type='preface'] h1").each(function () {
+    var newlink = "<a href='toc01.html'>" + $( this ).text() + "</a>";
+    $(this).empty();
+    $(this).prepend(newlink); 
+  });
+
+// Add links back to TOC to part heads
+  $("div[data-type='part'] h1").each(function () {
     var newlink = "<a href='toc01.html'>" + $( this ).text() + "</a>";
     $(this).empty();
     $(this).prepend(newlink); 
