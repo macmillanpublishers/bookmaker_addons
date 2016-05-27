@@ -87,6 +87,7 @@ unless isbnhash.nil? or isbnhash.empty? or !isbnhash or isbnhash['book'].nil? or
   workid = isbnhash['book']['WORK_ID']
   thissql = exactSearchSingleKey(workid, "WORK_ID")
   editionshash = runQuery(thissql)
+  puts editionshash
   unless editionshash.nil? or editionshash.empty? or !editionshash
     editionshash['book'].each do |b|
       if b['PRODUCTTYPE_DESC'] and b['PRODUCTTYPE_DESC'] == "Book"
