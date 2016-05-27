@@ -45,6 +45,18 @@ fs.readFile(file, function editContent (err, contents) {
     $(".temp").addClass(thisclass).removeClass("temp");
   });
 
+  //tag isbns if not tagged already
+  $("p[class^='CopyrightText']:not(:has(a.spanISBNisbn))").each(function () {
+      var mypattern1 = new RegExp( "978(\\D?\\d?){10}", "g");
+      var result1 = mypattern1.test($( this ).text());
+  console.log(result1);
+      if ( result1 === true ) {
+        var newtext = $( this ).text().replace(/(978(\D?\d?){10})/g, '<span class="spanISBNisbn">$1</span>');
+        $(this).empty();
+        $(this).prepend(newtext);
+      }
+    });
+
 
   var output = $.html();
     fs.writeFile(file, output, function(err) {

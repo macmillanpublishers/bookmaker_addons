@@ -8,15 +8,24 @@ require_relative '../utilities/oraclequery.rb'
 # ---------------------- METHODS
 
 def findSpecificISBN(file, string)
-  #isbn_basestring = File.read(file).match(/<span class="spanISBNisbn">\s*.+<\/span>\s*\(#{string}\)/).to_s.gsub(/-/,"").gsub(/<span class="spanISBNisbn">/, "").gsub(/<\/span>/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
-  isbn_basestring = file.match(/<span class="spanISBNisbn">\s*978(\D?\d?){10}<\/span>\s*\(?#{string}\)?/).to_s.gsub(/-/,"").gsub(/\s+/,"")
-  isbn = isbn_basestring.match(/\d{13}/).to_s.gsub(/\["/,"").gsub(/"\]/,"")
+  isbn_basestring = File.read(file).match(/<span class="spanISBNisbn">\s*978(\D?\d?){10}<\/span>\s*\(?#{string}\)?/)
+  unless isbn_basestring.length == 0
+    isbn_basestring = isbn_basestring.shift.gsub(/-/,"").gsub(/\s+/,"")
+    isbn = isbn_basestring.match(/\d{13}/).shift
+  else
+    isbn = ""
+  end
   return isbn
 end
 
 def findAnyISBN(file)
-  isbn_basestring = File.read(file).match(/spanISBNisbn">\s*978(\D?\d?){10}<\/span>/).to_s.gsub(/-/,"").gsub(/\s+/,"")
-  isbn = isbn_basestring.match(/\d{13}/).to_s.gsub(/\["/,"").gsub(/"\]/,"")
+  isbn_basestring = File.read(file).match(/spanISBNisbn">\s*978(\D?\d?){10}/)
+  unless isbn_basestring.length == 0
+    isbn_basestring = isbn_basestring.shift.gsub(/-/,"").gsub(/\s+/,"")
+    isbn = isbn_basestring.match(/\d{13}/).shift
+  else
+    isbn = ""
+  end
   return isbn
 end
 
@@ -60,20 +69,16 @@ end
 # for logging purposes
 puts "RUNNING METADATA_PREPROCESSING"
 
-# formerly in metadata.rb
-# testing to see if ISBN style exists
-# REGEXP: 978(\D?\d?){10}
-looseisbn = File.read(Bkmkr::Paths.outputtmp_html).scan(/978(\D?\d?){10}/).shift.gsub(/\D/,"")
+# search for any isbn
+looseisbn = findAnyISBN(Bkmkr::Paths.outputtmp_html)
 pisbn = ""
 eisbn = ""
-# search for any isbn
+isbnhash = {}
+
 # query biblio, get WORK_ID
 if looseisbn.length == 13
-  isbnhash = {}
   thissql = exactSearchSingleKey(looseisbn, "EDITION_EAN")
   isbnhash = runQuery(thissql)
-else
-  isbnhash = {}
 end
 
 unless isbnhash.nil? or isbnhash.empty? or !isbnhash or isbnhash['book'].nil? or isbnhash['book'].empty? or !isbnhash['book']
@@ -85,12 +90,14 @@ unless isbnhash.nil? or isbnhash.empty? or !isbnhash or isbnhash['book'].nil? or
     editionshash['book'].each do |b|
       if b['PRODUCTTYPE_DESC'] and b['PRODUCTTYPE_DESC'] == "Book"
         pisbn = b['EDITION_EAN']
+        puts "Found a print product: #{pisbn}"
       elsif b['PRODUCTTYPE_DESC'] and b['PRODUCTTYPE_DESC'] == "EBook"
         eisbn = b['EDITION_EAN']
+        puts "Found an ebook product: #{eisbn}"
     end
   end
 else
-  puts "No DB record found; falling back to manuscript fields"
+  puts "No DB record found; retrieving ISBNs from manuscript fields"
   # if not found, revert to the old way:
   spanisbn = File.read(Bkmkr::Paths.outputtmp_html).scan(/spanISBNisbn/)
 
@@ -98,16 +105,14 @@ else
   if spanisbn.length != 0
     psearchstring = "(?!(e|E)\s*-*\s*(b|B)ook).*"
     pisbn = findSpecificISBN(Bkmkr::Paths.outputtmp_html, psearchstring)
+    if pisbn.length == 0
+      pisbn = looseisbn
+    end
     esearchstring = "(e|E)\s*-*\s*(b|B)ook"
     eisbn = findSpecificISBN(Bkmkr::Paths.outputtmp_html, esearchstring)
-  elsif spanisbn.length != 0 && multiple_isbns.length == 0
-    pisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/spanISBNisbn">\s*.+<\/span>/).to_s.gsub(/-/,"").gsub(/<span class="spanISBNisbn">/, "").gsub(/<\/span>/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
-    pisbn = pisbn_basestring.match(/\d+/).to_s.gsub(/\["/,"").gsub(/"\]/,"")
-  else
-    pisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/ISBN\s*.+\s*\((?!(e|E)\s*-*\s*(b|B)ook).*|(e|E)\s*-*\s*(b|B)ook\)/).to_s.gsub(/-/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
-    pisbn = pisbn_basestring.match(/\d+\(.*\)/).to_s.gsub(/\(.*\)/,"").gsub(/\["/,"").gsub(/"\]/,"")
-    eisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/ISBN\s*.+\s*\(e-*book\)/).to_s.gsub(/-/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
-    eisbn = eisbn_basestring.match(/\d+\(ebook\)/).to_s.gsub(/\(.*\)/,"").gsub(/\["/,"").gsub(/"\]/,"")
+    if eisbn.length == 0
+      eisbn = looseisbn
+    end
   end
 
   # determining ebook isbn
