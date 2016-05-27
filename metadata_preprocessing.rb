@@ -77,6 +77,7 @@ isbnhash = {}
 
 # query biblio, get WORK_ID
 if looseisbn.length == 13
+  puts "Searching data warehouse for ISBN: #{looseisbn}"
   thissql = exactSearchSingleKey(looseisbn, "EDITION_EAN")
   isbnhash = runQuery(thissql)
 end
