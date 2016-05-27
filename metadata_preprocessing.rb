@@ -71,8 +71,6 @@ puts "RUNNING METADATA_PREPROCESSING"
 
 # search for any isbn
 looseisbn = findAnyISBN(Bkmkr::Paths.outputtmp_html)
-puts looseisbn.count('\\d')
-puts looseisbn.length
 pisbn = ""
 eisbn = ""
 isbnhash = {}
@@ -93,9 +91,11 @@ unless isbnhash.nil? or isbnhash.empty? or !isbnhash or isbnhash['book'].nil? or
     editionshash['book'].each do |b|
       if b['PRODUCTTYPE_DESC'] and b['PRODUCTTYPE_DESC'] == "Book"
         pisbn = b['EDITION_EAN']
+        puts b['EDITION_EAN']
         puts "Found a print product: #{pisbn}"
       elsif b['PRODUCTTYPE_DESC'] and b['PRODUCTTYPE_DESC'] == "EBook"
         eisbn = b['EDITION_EAN']
+        puts b['EDITION_EAN']
         puts "Found an ebook product: #{eisbn}"
       end
     end
