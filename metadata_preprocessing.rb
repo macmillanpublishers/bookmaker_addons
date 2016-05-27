@@ -71,7 +71,7 @@ puts "RUNNING METADATA_PREPROCESSING"
 
 # search for any isbn
 looseisbn = findAnyISBN(Bkmkr::Paths.outputtmp_html)
-puts looseisbn
+puts looseisbn.length
 pisbn = ""
 eisbn = ""
 isbnhash = {}
