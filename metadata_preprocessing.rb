@@ -19,7 +19,7 @@ def findSpecificISBN(file, string)
 end
 
 def findAnyISBN(file)
-  isbn_basestring = File.read(file).match(/spanISBNisbn">\s*978(\D?\d?){10}/)
+  isbn_basestring = File.read(file).match(/spanISBNisbn">\s*978(\D?\d?){10}<\/span>/)
   unless isbn_basestring.length == 0
     isbn_basestring = isbn_basestring.shift.gsub(/-/,"").gsub(/\s+/,"")
     isbn = isbn_basestring.match(/\d{13}/).shift

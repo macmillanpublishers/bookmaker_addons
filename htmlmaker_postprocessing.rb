@@ -9,6 +9,7 @@ require_relative '../bookmaker/core/metadata.rb'
 
 def fixISBNSpans(html)
   filecontents = html.gsub(/(<span class="spanISBNisbn">)(\D+)(\d)/, "\\2\\1\\3")
+  filecontents = filecontents.gsub(/(<span class="spanISBNisbn">\s*978(\D?\d){10})((?!(<\/span>)).*?)(<\/span>)/, "\\1\\3\\2")
   return filecontents
 end
 
