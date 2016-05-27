@@ -108,23 +108,17 @@ else
     if pisbn.length == 0
       pisbn = looseisbn
     end
+    unless pisbn.length == 0
+      puts "Found a print isbn: #{pisbn}"
+    end
     esearchstring = "(e|E)\s*-*\s*(b|B)ook"
     eisbn = findSpecificISBN(Bkmkr::Paths.outputtmp_html, esearchstring)
     if eisbn.length == 0
       eisbn = looseisbn
     end
-  end
-
-  # determining ebook isbn
-  if spanisbn.length != 0 && multiple_isbns.length != 0
-    eisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/<span class="spanISBNisbn">\s*.+<\/span>\s*\((e|E)\s*-*\s*(b|B)ook\)/).to_s.gsub(/-/,"").gsub(/<span class="spanISBNisbn">/, "").gsub(/<\/span>/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
-    eisbn = eisbn_basestring.match(/\d+\(ebook\)/).to_s.gsub(/\(ebook\)/,"").gsub(/\["/,"").gsub(/"\]/,"")
-  elsif spanisbn.length != 0 && multiple_isbns.length == 0
-    eisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/spanISBNisbn">\s*.+<\/span>/).to_s.gsub(/-/,"").gsub(/<span class="spanISBNisbn">/, "").gsub(/<\/span>/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
-    eisbn = pisbn_basestring.match(/\d+/).to_s.gsub(/\["/,"").gsub(/"\]/,"")
-  else
-    eisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/ISBN\s*.+\s*\(e-*book\)/).to_s.gsub(/-/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
-    eisbn = eisbn_basestring.match(/\d+\(ebook\)/).to_s.gsub(/\(.*\)/,"").gsub(/\["/,"").gsub(/"\]/,"")
+    unless eisbn.length == 0
+      puts "Found an ebook isbn: #{eisbn}"
+    end
   end
 end
 
