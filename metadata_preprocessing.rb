@@ -10,8 +10,8 @@ require_relative '../utilities/oraclequery.rb'
 def findSpecificISBN(file, string)
   isbn_basestring = File.read(file).match(/<span class="spanISBNisbn">\s*978(\D?\d?){10}<\/span>\s*\(?#{string}\)?/)
   unless isbn_basestring.length == 0
-    isbn_basestring = isbn_basestring.shift.gsub(/-/,"").gsub(/\s+/,"")
-    isbn = isbn_basestring.match(/\d{13}/).shift
+    isbn_basestring = isbn_basestring.to_s.gsub(/\D/,"")
+    isbn = isbn_basestring.match(/978\d{10}/).shift
   else
     isbn = ""
   end
@@ -21,8 +21,8 @@ end
 def findAnyISBN(file)
   isbn_basestring = File.read(file).match(/spanISBNisbn">\s*978(\D?\d?){10}<\/span>/)
   unless isbn_basestring.length == 0
-    isbn_basestring = isbn_basestring.shift.gsub(/-/,"").gsub(/\s+/,"")
-    isbn = isbn_basestring.match(/\d{13}/).shift
+    isbn_basestring = isbn_basestring.to_s.gsub(/\D/,"")
+    isbn = isbn_basestring.match(/978\d{10}/).shift
   else
     isbn = ""
   end
