@@ -94,6 +94,7 @@ unless isbnhash.nil? or isbnhash.empty? or !isbnhash or isbnhash['book'].nil? or
       elsif b['PRODUCTTYPE_DESC'] and b['PRODUCTTYPE_DESC'] == "EBook"
         eisbn = b['EDITION_EAN']
         puts "Found an ebook product: #{eisbn}"
+      end
     end
   end
 else
