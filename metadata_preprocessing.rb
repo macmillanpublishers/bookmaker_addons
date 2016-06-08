@@ -87,16 +87,15 @@ unless isbnhash.nil? or isbnhash.empty? or !isbnhash or isbnhash['book'].nil? or
   workid = isbnhash['book']['WORK_ID']
   thissql = exactSearchSingleKey(workid, "WORK_ID")
   editionshash = runQuery(thissql)
-  puts editionshash
+  hashfile = "/Users/nellie.mckesson/git/isbnhash.txt"
+  Mcmlln::Tools.overwriteFile(hashfile, editionshash)
   unless editionshash.nil? or editionshash.empty? or !editionshash
-    editionshash['book'].each do |b|
-      if b['PRODUCTTYPE_DESC'] and b['PRODUCTTYPE_DESC'] == "Book"
-        pisbn = b['EDITION_EAN']
-        puts b['EDITION_EAN']
+    editionshash.each do |k, v|
+      if v['PRODUCTTYPE_DESC'] and v['PRODUCTTYPE_DESC'] == "Book"
+        pisbn = v['EDITION_EAN']
         puts "Found a print product: #{pisbn}"
-      elsif b['PRODUCTTYPE_DESC'] and b['PRODUCTTYPE_DESC'] == "EBook"
-        eisbn = b['EDITION_EAN']
-        puts b['EDITION_EAN']
+      elsif v['PRODUCTTYPE_DESC'] and v['PRODUCTTYPE_DESC'] == "EBook"
+        eisbn = v['EDITION_EAN']
         puts "Found an ebook product: #{eisbn}"
       end
     end
