@@ -7,6 +7,31 @@ require_relative '../utilities/oraclequery.rb'
 
 # ---------------------- METHODS
 
+# find a tagged isbn in an html file that matches a provided book type
+def findSpecificISBN(file, string)
+  isbn_basestring = File.read(file).match(/<span class="spanISBNisbn">\s*978(\D?\d?){10}<\/span>\s*\(?#{string}\)?/)
+  unless isbn_basestring.length == 0
+    isbn_basestring = isbn_basestring.to_s.gsub(/\D/,"")
+    isbn = isbn_basestring.match(/978(\d{10})/).to_s
+  else
+    isbn = ""
+  end
+  return isbn
+end
+
+# find any tagged isbn in an html file
+def findAnyISBN(file)
+  isbn_basestring = File.read(file).match(/spanISBNisbn">\s*978(\D?\d?){10}<\/span>/)
+  unless isbn_basestring.length == 0
+    isbn_basestring = isbn_basestring.to_s.gsub(/\D/,"")
+    isbn = isbn_basestring.match(/978(\d{10})/).to_s
+  else
+    isbn = ""
+  end
+  return isbn
+end
+
+# find the publisher imprint based on the imprints.json database
 def getImprint(projectdir, json)
   data_hash = Mcmlln::Tools.readjson(json)
   arr = []
@@ -25,6 +50,7 @@ def getImprint(projectdir, json)
   return path
 end
 
+# determine directory name for assets e.g. css, js, logo images
 def getResourceDir(imprint, json)
   data_hash = Mcmlln::Tools.readjson(json)
   arr = []
@@ -47,36 +73,67 @@ end
 # for logging purposes
 puts "RUNNING METADATA_PREPROCESSING"
 
-# formerly in metadata.rb
-# testing to see if ISBN style exists
-spanisbn = File.read(Bkmkr::Paths.outputtmp_html).scan(/spanISBNisbn/)
-multiple_isbns = File.read(Bkmkr::Paths.outputtmp_html).scan(/spanISBNisbn">\s*.+<\/span>\s*\(((hardcover)|(trade\s*paperback)|(mass.market.paperback)|(print.on.demand)|(e\s*-*\s*book))\)/)
+# search for any isbn
+looseisbn = findAnyISBN(Bkmkr::Paths.outputtmp_html)
+pisbn = ""
+eisbn = ""
+isbnhash = {}
 
-# determining print isbn
-if spanisbn.length != 0 && multiple_isbns.length != 0
-  pisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/spanISBNisbn">\s*.+<\/span>\s*\(((hardcover)|(trade\s*paperback)|(mass.market.paperback)|(print.on.demand))\)/).to_s.gsub(/-/,"").gsub(/<span class="spanISBNisbn">/, "").gsub(/<\/span>/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
-  pisbn = pisbn_basestring.match(/\d+\(((hardcover)|(trade\s*paperback)|(mass.market.paperback)|(print.?on.?demand))\)/).to_s.gsub(/\(.*\)/,"").gsub(/\["/,"").gsub(/"\]/,"")
-elsif spanisbn.length != 0 && multiple_isbns.length == 0
-  pisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/spanISBNisbn">\s*.+<\/span>/).to_s.gsub(/-/,"").gsub(/<span class="spanISBNisbn">/, "").gsub(/<\/span>/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
-  pisbn = pisbn_basestring.match(/\d+/).to_s.gsub(/\["/,"").gsub(/"\]/,"")
-else
-  pisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/ISBN\s*.+\s*\(((hardcover)|(trade\s*paperback)|(mass.market.paperback)|(print.on.demand))\)/).to_s.gsub(/-/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
-  pisbn = pisbn_basestring.match(/\d+\(.*\)/).to_s.gsub(/\(.*\)/,"").gsub(/\["/,"").gsub(/"\]/,"")
+# query biblio, get WORK_ID
+if looseisbn.length == 13
+  puts "Searching data warehouse for ISBN: #{looseisbn}"
+  thissql = exactSearchSingleKey(looseisbn, "EDITION_EAN")
+  isbnhash = runQuery(thissql)
 end
 
-# determining ebook isbn
-if spanisbn.length != 0 && multiple_isbns.length != 0
-  eisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/<span class="spanISBNisbn">\s*.+<\/span>\s*\(e\s*-*\s*book\)/).to_s.gsub(/-/,"").gsub(/<span class="spanISBNisbn">/, "").gsub(/<\/span>/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
-  eisbn = eisbn_basestring.match(/\d+\(ebook\)/).to_s.gsub(/\(ebook\)/,"").gsub(/\["/,"").gsub(/"\]/,"")
-elsif spanisbn.length != 0 && multiple_isbns.length == 0
-  eisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/spanISBNisbn">\s*.+<\/span>/).to_s.gsub(/-/,"").gsub(/<span class="spanISBNisbn">/, "").gsub(/<\/span>/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
-  eisbn = pisbn_basestring.match(/\d+/).to_s.gsub(/\["/,"").gsub(/"\]/,"")
+# if query returns results, query again to find all book records under the same WORK_ID
+unless isbnhash.nil? or isbnhash.empty? or !isbnhash or isbnhash['book'].nil? or isbnhash['book'].empty? or !isbnhash['book']
+  puts "DB Connection SUCCESS: Found an isbn record"
+  workid = isbnhash['book']['WORK_ID']
+  thissql = exactSearchSingleKey(workid, "WORK_ID")
+  editionshash = runQuery(thissql)
+  hashfile = "/Users/nellie.mckesson/git/isbnhash.txt"
+  Mcmlln::Tools.overwriteFile(hashfile, editionshash)
+  unless editionshash.nil? or editionshash.empty? or !editionshash
+    editionshash.each do |k, v|
+      # find a print product if it exists
+      if v['PRODUCTTYPE_DESC'] and v['PRODUCTTYPE_DESC'] == "Book"
+        pisbn = v['EDITION_EAN']
+        puts "Found a print product: #{pisbn}"
+      # find an ebook product if it exists
+      elsif v['PRODUCTTYPE_DESC'] and v['PRODUCTTYPE_DESC'] == "EBook"
+        eisbn = v['EDITION_EAN']
+        puts "Found an ebook product: #{eisbn}"
+      end
+    end
+  end
 else
-  eisbn_basestring = File.read(Bkmkr::Paths.outputtmp_html).match(/ISBN\s*.+\s*\(e-*book\)/).to_s.gsub(/-/,"").gsub(/\s+/,"").gsub(/\["/,"").gsub(/"\]/,"")
-  eisbn = eisbn_basestring.match(/\d+\(ebook\)/).to_s.gsub(/\(.*\)/,"").gsub(/\["/,"").gsub(/"\]/,"")
+  puts "No DB record found; retrieving ISBNs from manuscript fields"
+  # if not found, revert to mining manuscript fields for isbns
+  spanisbn = File.read(Bkmkr::Paths.outputtmp_html).scan(/spanISBNisbn/)
+
+  # determining print isbn
+  if spanisbn.length != 0
+    psearchstring = "(?!(e|E)\s*-*\s*(b|B)ook).*"
+    pisbn = findSpecificISBN(Bkmkr::Paths.outputtmp_html, psearchstring)
+    if pisbn.length == 0
+      pisbn = looseisbn
+    end
+    unless pisbn.length == 0
+      puts "Found a print isbn: #{pisbn}"
+    end
+    esearchstring = "(e|E)\s*-*\s*(b|B)ook"
+    eisbn = findSpecificISBN(Bkmkr::Paths.outputtmp_html, esearchstring)
+    if eisbn.length == 0
+      eisbn = looseisbn
+    end
+    unless eisbn.length == 0
+      puts "Found an ebook isbn: #{eisbn}"
+    end
+  end
 end
 
-# just in case no isbn is found
+# just in case no isbn is found, rename based on filename
 if pisbn.length == 0 and eisbn.length != 0
   pisbn = eisbn
 elsif pisbn.length == 0 and eisbn.length == 0
@@ -238,11 +295,11 @@ puts "Resource dir: #{resource_dir}"
 
 if !metatemplate.nil?
   template = HTMLEntities.new.decode(metatemplate[2])
+  puts "Design template: #{template}"
 else
   template = ""
+  puts "Design template: default"
 end
-
-puts "Template: #{template}"
 
 if !metatemplate.nil? and File.file?("#{pdf_css_dir}/#{resource_dir}/#{template}.css")
   pdf_css_file = "#{pdf_css_dir}/#{resource_dir}/#{template}.css"

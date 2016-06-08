@@ -136,8 +136,12 @@ imgarr = listImages(filecontents)
 
 # run method: checkImages
 format, supported = checkImages(images, Bkmkr::Paths.project_tmp_dir_img)
-puts "UNSUPPORTED:"
-puts format
+
+# print a list of any unsupported image types
+unless format.nil? or format.empty? or !format
+  puts "UNSUPPORTED IMAGE TYPES:"
+  puts format
+end
 
 # run method: convertImages
 corrupt, converted = convertImages(supported, Bkmkr::Paths.project_tmp_dir_img)
