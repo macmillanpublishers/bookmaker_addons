@@ -92,8 +92,6 @@ unless isbnhash.nil? or isbnhash.empty? or !isbnhash or isbnhash['book'].nil? or
   workid = isbnhash['book']['WORK_ID']
   thissql = exactSearchSingleKey(workid, "WORK_ID")
   editionshash = runQuery(thissql)
-  hashfile = "/Users/nellie.mckesson/git/isbnhash.txt"
-  Mcmlln::Tools.overwriteFile(hashfile, editionshash)
   unless editionshash.nil? or editionshash.empty? or !editionshash
     editionshash.each do |k, v|
       # find a print product if it exists
