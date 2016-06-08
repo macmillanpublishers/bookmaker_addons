@@ -288,11 +288,11 @@ puts "Resource dir: #{resource_dir}"
 
 if !metatemplate.nil?
   template = HTMLEntities.new.decode(metatemplate[2])
+  puts "Design template: #{template}"
 else
   template = ""
+  puts "Design template: default"
 end
-
-puts "Template: #{template}"
 
 if !metatemplate.nil? and File.file?("#{pdf_css_dir}/#{resource_dir}/#{template}.css")
   pdf_css_file = "#{pdf_css_dir}/#{resource_dir}/#{template}.css"
