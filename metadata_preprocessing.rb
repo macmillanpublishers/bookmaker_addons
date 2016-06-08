@@ -7,6 +7,7 @@ require_relative '../utilities/oraclequery.rb'
 
 # ---------------------- METHODS
 
+# find a tagged isbn in an html file that matches a provided book type
 def findSpecificISBN(file, string)
   isbn_basestring = File.read(file).match(/<span class="spanISBNisbn">\s*978(\D?\d?){10}<\/span>\s*\(?#{string}\)?/)
   unless isbn_basestring.length == 0
@@ -18,6 +19,7 @@ def findSpecificISBN(file, string)
   return isbn
 end
 
+# find any tagged isbn in an html file
 def findAnyISBN(file)
   isbn_basestring = File.read(file).match(/spanISBNisbn">\s*978(\D?\d?){10}<\/span>/)
   unless isbn_basestring.length == 0
@@ -29,6 +31,7 @@ def findAnyISBN(file)
   return isbn
 end
 
+# find the publisher imprint based on the imprints.json database
 def getImprint(projectdir, json)
   data_hash = Mcmlln::Tools.readjson(json)
   arr = []
@@ -47,6 +50,7 @@ def getImprint(projectdir, json)
   return path
 end
 
+# determine directory name for assets e.g. css, js, logo images
 def getResourceDir(imprint, json)
   data_hash = Mcmlln::Tools.readjson(json)
   arr = []
@@ -82,6 +86,7 @@ if looseisbn.length == 13
   isbnhash = runQuery(thissql)
 end
 
+# if query returns results, query again to find all book records under the same WORK_ID
 unless isbnhash.nil? or isbnhash.empty? or !isbnhash or isbnhash['book'].nil? or isbnhash['book'].empty? or !isbnhash['book']
   puts "DB Connection SUCCESS: Found an isbn record"
   workid = isbnhash['book']['WORK_ID']
@@ -91,9 +96,11 @@ unless isbnhash.nil? or isbnhash.empty? or !isbnhash or isbnhash['book'].nil? or
   Mcmlln::Tools.overwriteFile(hashfile, editionshash)
   unless editionshash.nil? or editionshash.empty? or !editionshash
     editionshash.each do |k, v|
+      # find a print product if it exists
       if v['PRODUCTTYPE_DESC'] and v['PRODUCTTYPE_DESC'] == "Book"
         pisbn = v['EDITION_EAN']
         puts "Found a print product: #{pisbn}"
+      # find an ebook product if it exists
       elsif v['PRODUCTTYPE_DESC'] and v['PRODUCTTYPE_DESC'] == "EBook"
         eisbn = v['EDITION_EAN']
         puts "Found an ebook product: #{eisbn}"
@@ -102,7 +109,7 @@ unless isbnhash.nil? or isbnhash.empty? or !isbnhash or isbnhash['book'].nil? or
   end
 else
   puts "No DB record found; retrieving ISBNs from manuscript fields"
-  # if not found, revert to the old way:
+  # if not found, revert to mining manuscript fields for isbns
   spanisbn = File.read(Bkmkr::Paths.outputtmp_html).scan(/spanISBNisbn/)
 
   # determining print isbn
@@ -126,7 +133,7 @@ else
   end
 end
 
-# just in case no isbn is found
+# just in case no isbn is found, rename based on filename
 if pisbn.length == 0 and eisbn.length != 0
   pisbn = eisbn
 elsif pisbn.length == 0 and eisbn.length == 0
