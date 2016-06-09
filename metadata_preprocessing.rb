@@ -394,3 +394,11 @@ finaljson = JSON.generate(datahash)
 File.open(configfile, 'w+:UTF-8') do |f|
   f.puts finaljson
 end
+
+# set html title to match JSON
+if booktitle.nil? or booktitle.empty? or !booktitle
+  booktitle = Bkmkr::Project.filename
+end
+
+title_js = File.join(Bkmkr::Paths.core_dir, "htmlmaker", "title.js")
+Bkmkr::Tools.runnode(title_js, "#{Bkmkr::Paths.outputtmp_html} \"#{booktitle}\"")
