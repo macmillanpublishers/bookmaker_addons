@@ -400,5 +400,5 @@ if booktitle.nil? or booktitle.empty? or !booktitle
   booktitle = Bkmkr::Project.filename
 end
 
-title_js = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "title.js")
+title_js = File.join(Bkmkr::Paths.core_dir, "htmlmaker", "title.js")
 Bkmkr::Tools.runnode(title_js, "#{Bkmkr::Paths.outputtmp_html} \"#{booktitle}\"")
