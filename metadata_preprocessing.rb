@@ -394,3 +394,7 @@ finaljson = JSON.generate(datahash)
 File.open(configfile, 'w+:UTF-8') do |f|
   f.puts finaljson
 end
+
+# set html title to match JSON
+title_js = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "title.js")
+Bkmkr::Tools.runnode(title_js, "#{Bkmkr::Paths.outputtmp_html} \"#{Metadata.booktitle}\"")
