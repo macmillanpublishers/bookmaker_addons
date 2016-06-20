@@ -24,7 +24,7 @@ fs.readFile(file, function editContent (err, contents) {
     });
 
   //function to merge all contiguous spans
-  $("span:not(.FootnoteText,[data-type='footnote']), em").each(function () {
+  $("span:not(.FootnoteText,[data-type='footnote']), em, strong").each(function () {
     var that = this.previousSibling;
     var thisclass = $(this).attr('class');
     var previousclass = $(that).attr('class');
