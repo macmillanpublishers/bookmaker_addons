@@ -7,9 +7,9 @@ require_relative '../utilities/oraclequery.rb'
 
 # ---------------------- METHODS
 
-# find a tagged isbn in an html file that matches a provided book type
-def findSpecificISBN(file, string)
-  isbn_basestring = File.read(file).match(/<span class="spanISBNisbn">\s*978(\D?\d?){10}<\/span>\s*\(?#{string}\)?/)
+# find any tagged isbn in an html file
+def findAnyISBN(file)
+  isbn_basestring = File.read(file).match(/spanISBNisbn">\s*978(\D?\d?){10}<\/span>/)
   unless isbn_basestring.length == 0
     isbn_basestring = isbn_basestring.to_s.gsub(/\D/,"")
     isbn = isbn_basestring.match(/978(\d{10})/).to_s
@@ -19,9 +19,25 @@ def findSpecificISBN(file, string)
   return isbn
 end
 
-# find any tagged isbn in an html file
-def findAnyISBN(file)
-  isbn_basestring = File.read(file).match(/spanISBNisbn">\s*978(\D?\d?){10}<\/span>/)
+# find a tagged isbn in an html file that matches a provided book type
+def findSpecificISBN(file, string, type)
+  allisbns = File.read(file).scan(/(<span class="spanISBNisbn">\s*97[89]((\D?\d){10})<\/span>\s*\(?.*?\)?\s*<\/p>)/)
+  pisbn = []
+  allisbns.each do |k|
+    testisbn = ""
+    testisbn = k.to_s.match(/#{string}/)
+    case type
+    when "include"
+      unless testisbn.nil?
+        pisbn.push(k)
+      end
+    when "exclude"
+      if testisbn.nil?
+        pisbn.push(k)
+      end
+    end
+  end
+  isbn_basestring = pisbn.shift
   unless isbn_basestring.length == 0
     isbn_basestring = isbn_basestring.to_s.gsub(/\D/,"")
     isbn = isbn_basestring.match(/978(\d{10})/).to_s
@@ -112,16 +128,16 @@ else
 
   # determining print isbn
   if spanisbn.length != 0
-    psearchstring = "(?!(e|E)\s*-*\s*(b|B)ook).*"
-    pisbn = findSpecificISBN(Bkmkr::Paths.outputtmp_html, psearchstring)
+    psearchstring = "[eE]\\s*-*\\s*[bB]ook"
+    pisbn = findSpecificISBN(Bkmkr::Paths.outputtmp_html, psearchstring, "exclude")
     if pisbn.length == 0
       pisbn = looseisbn
     end
     unless pisbn.length == 0
       puts "Found a print isbn: #{pisbn}"
     end
-    esearchstring = "(e|E)\s*-*\s*(b|B)ook"
-    eisbn = findSpecificISBN(Bkmkr::Paths.outputtmp_html, esearchstring)
+    esearchstring = "[eE]\\s*-*\\s*[bB]ook"
+    eisbn = findSpecificISBN(Bkmkr::Paths.outputtmp_html, esearchstring, "include")
     if eisbn.length == 0
       eisbn = looseisbn
     end
