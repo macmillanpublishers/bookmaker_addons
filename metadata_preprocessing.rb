@@ -213,7 +213,7 @@ if fcarr1.any?
     cisbn = c.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop.split("_").shift
     puts cisbn
     if allworks.include?(cisbn)
-      mycover = c
+      fcarr2.push(c)
     end
   end
 end
