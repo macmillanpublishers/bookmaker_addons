@@ -169,8 +169,6 @@ elsif pisbn.length == 0 and eisbn.length == 0
   eisbn = Bkmkr::Project.filename
 end
 
-puts allworks
-
 # find titlepage images
 allimg = File.join(Bkmkr::Paths.submitted_images, "*")
 finalimg = File.join(Bkmkr::Paths.done_dir, pisbn, "images", "*")
@@ -204,8 +202,7 @@ coverdir = File.join(Bkmkr::Paths.done_dir, pisbn, "cover")
 allcover = File.join(coverdir, "*")
 # first find any cover files in the submitted images dir
 fcarr1 = Dir[allimg].select { |f| f.include?('_FC.')}
-puts "---------COVERS IN SUBMITTED IMAGES:"
-puts fcarr1
+
 # now narrow down the list of found covers to only include files that match the book isbns
 fcarr2 = []
 if fcarr1.any?
@@ -218,17 +215,12 @@ if fcarr1.any?
   end
 end
 
-puts "---------COVERS WITH WORK ISBNS:"
-puts fcarr2
-
 # now let's see if there are any old covers in the done dir
 if File.exist?(coverdir)
   fcarr3 = Dir[allcover].select { |f| f.include?('_FC.')}
 else
   fcarr3 = []
 end
-puts "---------ARCHIVED COVERS:"
-puts fcarr3
 
 # priority is given to any newly submitted cover images
 if fcarr2.any?
