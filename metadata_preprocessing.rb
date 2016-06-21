@@ -139,6 +139,7 @@ else
     end
     unless pisbn.length == 0
       puts "Found a print isbn: #{pisbn}"
+      allworks.push(pisbn)
     end
     esearchstring = "[eE]\\s*-*\\s*[bB]ook"
     eisbn = findSpecificISBN(Bkmkr::Paths.outputtmp_html, esearchstring, "include")
@@ -147,6 +148,7 @@ else
     end
     unless eisbn.length == 0
       puts "Found an ebook isbn: #{eisbn}"
+      allworks.push(eisbn)
     end
   end
 end
@@ -166,6 +168,8 @@ elsif pisbn.length == 0 and eisbn.length == 0
   pisbn = Bkmkr::Project.filename
   eisbn = Bkmkr::Project.filename
 end
+
+puts allworks
 
 # find titlepage images
 allimg = File.join(Bkmkr::Paths.submitted_images, "*")
