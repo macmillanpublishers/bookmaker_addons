@@ -102,6 +102,9 @@ if looseisbn.length == 13
   isbnhash = runQuery(thissql)
 end
 
+# we'll use this later to find the cover file
+allworks = []
+
 # if query returns results, query again to find all book records under the same WORK_ID
 unless isbnhash.nil? or isbnhash.empty? or !isbnhash or isbnhash['book'].nil? or isbnhash['book'].empty? or !isbnhash['book']
   puts "DB Connection SUCCESS: Found an isbn record"
@@ -110,6 +113,7 @@ unless isbnhash.nil? or isbnhash.empty? or !isbnhash or isbnhash['book'].nil? or
   editionshash = runQuery(thissql)
   unless editionshash.nil? or editionshash.empty? or !editionshash
     editionshash.each do |k, v|
+      allworks.push(v['EDITION_EAN'])
       # find a print product if it exists
       if v['PRODUCTTYPE_DESC'] and v['PRODUCTTYPE_DESC'] == "Book"
         pisbn = v['EDITION_EAN']
@@ -135,6 +139,7 @@ else
     end
     unless pisbn.length == 0
       puts "Found a print isbn: #{pisbn}"
+      allworks.push(pisbn)
     end
     esearchstring = "[eE]\\s*-*\\s*[bB]ook"
     eisbn = findSpecificISBN(Bkmkr::Paths.outputtmp_html, esearchstring, "include")
@@ -143,6 +148,7 @@ else
     end
     unless eisbn.length == 0
       puts "Found an ebook isbn: #{eisbn}"
+      allworks.push(eisbn)
     end
   end
 end
@@ -194,19 +200,33 @@ end
 # Find front cover
 coverdir = File.join(Bkmkr::Paths.done_dir, pisbn, "cover")
 allcover = File.join(coverdir, "*")
+# first find any cover files in the submitted images dir
 fcarr1 = Dir[allimg].select { |f| f.include?('_FC.')}
 
-if File.exist?(coverdir)
-  fcarr2 = Dir[allcover].select { |f| f.include?('_FC.')}
-else
-  fcarr2 = []
+# now narrow down the list of found covers to only include files that match the book isbns
+fcarr2 = []
+if fcarr1.any?
+  fcarr1.each do |c|
+    cisbn = c.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop.split("_").shift
+    if allworks.include?(cisbn)
+      fcarr2.push(c)
+    end
+  end
 end
 
-if fcarr1.any?
-  mycover = fcarr1.max_by(&File.method(:ctime))
-  frontcover = mycover.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
-elsif fcarr2.any?
+# now let's see if there are any old covers in the done dir
+if File.exist?(coverdir)
+  fcarr3 = Dir[allcover].select { |f| f.include?('_FC.')}
+else
+  fcarr3 = []
+end
+
+# priority is given to any newly submitted cover images
+if fcarr2.any?
   mycover = fcarr2.max_by(&File.method(:ctime))
+  frontcover = mycover.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
+elsif fcarr3.any?
+  mycover = fcarr3.max_by(&File.method(:ctime))
   frontcover = mycover.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
 else
   frontcover = ""
