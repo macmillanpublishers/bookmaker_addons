@@ -208,7 +208,6 @@ fcarr2 = []
 if fcarr1.any?
   fcarr1.each do |c|
     cisbn = c.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop.split("_").shift
-    puts cisbn
     if allworks.include?(cisbn)
       fcarr2.push(c)
     end
