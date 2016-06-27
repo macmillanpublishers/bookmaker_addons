@@ -60,7 +60,7 @@ $("span.spanhyperlinkurl:not(:has(a))").each(function () {
   });
 
   // convert small caps text to uppercase
-  $("span.spansmallcapscharacterssc, span.spansmcapboldscbold, span.spansmcapitalscital").each(function () {
+  $("span.spansmallcapscharacterssc, span.spansmcapboldscbold, span.spansmcapitalscital, span.spansmcapbolditalscbi").each(function () {
     var text = $( this ).text();
     text = text.toUpperCase();
     console.log(text);
