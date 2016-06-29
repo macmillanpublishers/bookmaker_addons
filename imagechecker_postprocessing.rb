@@ -15,7 +15,7 @@ final_cover = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "cover", Metadata
 image_error = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "IMAGE_ERROR.txt")
 
 # path to placeholder image
-missing = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "images", "generic", "missing.jpg")
+missing_jpg = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "images", "generic", "missing.jpg")
 
 # ---------------------- METHODS
 # If an image_error file exists, delete it
@@ -33,7 +33,9 @@ def listImages(html)
   imgarr
 end
 
-def checkImages(imglist, inputdir)
+def checkImages(imglist, inputdirlist, finaldirlist, inputdir)
+  # An empty array to store the list of any missing images
+  missing = []  
   # An empty array to store filenames with bad types
   format = []
   supported = []
@@ -49,8 +51,11 @@ def checkImages(imglist, inputdir)
     else
       supported << match
     end
+    if !inputdirlist.include?("#{match}") and match != Metadata.frontcover and !finaldirlist.include?("#{match}")
+      missing << match
+    end       
   end
-  return format, supported
+  return format, supported, missing
 end
 
 def convertImages(arr, dir)
@@ -135,7 +140,7 @@ checkErrorFile(image_error)
 imgarr = listImages(filecontents)
 
 # run method: checkImages
-format, supported = checkImages(images, Bkmkr::Paths.project_tmp_dir_img)
+format, supported, missing = checkImages(imgarr, images, finalimages, Bkmkr::Paths.project_tmp_dir_img)
 
 # print a list of any unsupported image types
 unless format.nil? or format.empty? or !format
@@ -146,8 +151,11 @@ end
 # run method: convertImages
 corrupt, converted = convertImages(supported, Bkmkr::Paths.project_tmp_dir_img)
 
-# run method: insertPlaceholders
-filecontents = insertPlaceholders(format, filecontents, missing, Bkmkr::Paths.project_tmp_dir_img)
+# run method: insertPlaceholders for format
+filecontents = insertPlaceholders(format, filecontents, missing_jpg, Bkmkr::Paths.project_tmp_dir_img)
+
+# run method: insertPlaceholders for missing
+filecontents = insertPlaceholders(missing, filecontents, missing_jpg, Bkmkr::Paths.project_tmp_dir_img)
 
 # run method: writeTypeErrors
 writeTypeErrors(format, image_error)
