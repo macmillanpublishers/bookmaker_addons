@@ -60,7 +60,6 @@
   "shortname": "picador",
   "searchkey": "Picador"
   },
-
   {
   "formalname": "Henry Holt and Co.",
   "shortname": "holt",
@@ -113,7 +112,7 @@
   },
   {
   "formalname": "Thomas Dunne Books",
-  "shortname": "thomasdunne",
+  "shortname": "thomas_dunne",
   "searchkey": "Thomas Dunne Books"
   },
   {
@@ -123,12 +122,12 @@
   },
   {
   "formalname": "Tor Fantasy",
-  "shortname": "torfantasy",
+  "shortname": "tor_fantasy",
   "searchkey": "Tor Fantasy"
   },
   {
   "formalname": "Tor Science Fiction",
-  "shortname": "torsf",
+  "shortname": "tor_sf",
   "searchkey": "Tor Science Fiction"
   },
   {
