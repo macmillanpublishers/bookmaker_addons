@@ -16,6 +16,9 @@ epubcheck = File.join(Bkmkr::Paths.core_dir, "epubmaker", "epubcheck", "epubchec
 
 epubmakerpostprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "epubmaker_postprocessing.js")
 
+# full path of epubcheck error file
+epubcheck_errfile = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "EPUBCHECK_ERROR.txt")
+
 # ---------------------- METHODS
 
 # ---------------------- PROCESSES
@@ -92,5 +95,36 @@ if data_hash['stage'].include? "egalley" or data_hash['stage'].include? "galley"
   csfilename = "#{Metadata.eisbn}_EPUBfirstpass"
 end
 
-# validate epub file
-Bkmkr::Tools.runjar(epubcheck, "#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{csfilename}.epub")
+# validate epub file 
+epubcheck_output = Bkmkr::Tools.runjar(epubcheck, "#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{csfilename}.epub")
+puts epubcheck_output  #for log (so warnings are still visible)
+
+#if error in epubcheck, write file for user and email workflows
+if epubcheck_output =~ /ERROR/ || epubcheck_output =~ /Check finished with errors/
+	File.open(epubcheck_errfile, 'w') do |output|
+		output.puts "Epub validation via epubchecker encountered errors.\n"
+		output.puts "Here is the output from epubchecker:"
+		output.puts epubcheck_output
+	end
+
+message = <<MESSAGE_END
+From: Workflows <workflows@macmillan.com>
+To: Workflows <workflows@macmillan.com>
+Subject: ERROR: epubchecker validation encountered errors
+
+Epubchecker validation encountered errors for file:
+#{csfilename}
+
+epubchecker output:
+#{epubcheck_output}
+MESSAGE_END
+
+	unless File.file?(testing_value_file)
+	  Net::SMTP.start('10.249.0.12') do |smtp|
+	    smtp.send_message message, 'workflows@macmillan.com', 
+	                               'workflows@macmillan.com'
+	  end
+	end
+end
+
+
