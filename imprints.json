@@ -64,6 +64,81 @@
   "formalname": "Picador Macmillan Trade",
   "shortname": "picador",
   "searchkey": "Picador Macmillan Trade"
+  },    
+  {
+  "formalname": "Henry Holt and Co.",
+  "shortname": "holt",
+  "searchkey": "Henry Holt and Co"
+  },
+  {
+  "formalname": "Farrar, Straus and Giroux",
+  "shortname": "fsg",
+  "searchkey": "Farrar Straus and Giroux"
+  },
+  {
+  "formalname": "Farrar, Straus and Giroux (FSG Adult)",
+  "shortname": "fsg",
+  "searchkey": "Farrar, Straus and Giroux (FSG Adult)"
+  }, 
+  {
+  "formalname": "Forge Books",
+  "shortname": "forge",
+  "searchkey": "Forge Books"
+  },
+  {
+  "formalname": "Metropolitan Books",
+  "shortname": "metro",
+  "searchkey": "Metropolitan Books"
+  },
+  {
+  "formalname": "Minotaur Books",
+  "shortname": "minotaur",
+  "searchkey": "Minotaur Books"
+  },
+  {
+  "formalname": "Orb Books",
+  "shortname": "orb",
+  "searchkey": "Orb Books"
+  },
+  {
+  "formalname": "Palgrave Macmillan Trade",
+  "shortname": "palgravemacmillan",
+  "searchkey": "Palgrave Macmillan Trade"
+  },
+  {
+  "formalname": "Roaring Brook Press",
+  "shortname": "roaringbrook",
+  "searchkey": "Roaring Brook Press"
+  },
+  {
+  "formalname": "Starscape",
+  "shortname": "starscape",
+  "searchkey": "Starscape"
+  },
+  {
+  "formalname": "Thomas Dunne Books",
+  "shortname": "thomas_dunne",
+  "searchkey": "Thomas Dunne Books"
+  },
+  {
+  "formalname": "Tor Books",
+  "shortname": "tor",
+  "searchkey": "Tor Books"
+  },
+  {
+  "formalname": "Tor Fantasy",
+  "shortname": "tor_fantasy",
+  "searchkey": "Tor Fantasy"
+  },
+  {
+  "formalname": "Tor Science Fiction",
+  "shortname": "tor_sf",
+  "searchkey": "Tor Science Fiction"
+  },
+  {
+  "formalname": "Tor Teen",
+  "shortname": "torteen",
+  "searchkey": "Tor Teen"
   }
   ]
 }
