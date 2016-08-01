@@ -1,4 +1,5 @@
 require 'fileutils'
+require 'net/smtp'
 
 require_relative '../bookmaker/core/header.rb'
 require_relative '../bookmaker/core/metadata.rb'
@@ -15,6 +16,11 @@ zipepub_py = File.join(Bkmkr::Paths.core_dir, "epubmaker", "zipepub.py")
 epubcheck = File.join(Bkmkr::Paths.core_dir, "epubmaker", "epubcheck", "epubcheck.jar")
 
 epubmakerpostprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "epubmaker_postprocessing.js")
+
+testing_value_file = File.join(Bkmkr::Paths.resource_dir, "staging.txt")
+
+# full path of epubcheck error file
+epubcheck_errfile = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "EPUBCHECK_ERROR.txt")
 
 # ---------------------- METHODS
 
@@ -68,7 +74,7 @@ tocid = opfcontents.match(/(id=")(toc-.*?)(")/)[2]
 toc_tag = opfcontents.match(/<itemref idref="toc-.*?"\/>/)
 if copyright_tag.any?
 	replace = opfcontents.gsub(/#{toc_tag}/,"").gsub(/(<itemref idref="copyright-page)/,"#{toc_tag}\\1")
-else 
+else
 	replace = opfcontents.gsub(/#{toc_tag}/,"").gsub(/(<\/spine)/,"#{toc_tag}\\1")
 end
 File.open("#{OEBPS_dir}/content.opf", "w") {|file| file.puts replace}
@@ -93,4 +99,33 @@ if data_hash['stage'].include? "egalley" or data_hash['stage'].include? "galley"
 end
 
 # validate epub file
-Bkmkr::Tools.runjar(epubcheck, "#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{csfilename}.epub")
+epubcheck_output = Bkmkr::Tools.runjar(epubcheck, "#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{csfilename}.epub")
+puts epubcheck_output  #for log (so warnings are still visible)
+
+#if error in epubcheck, write file for user, and email workflows
+if epubcheck_output =~ /ERROR/ || epubcheck_output =~ /Check finished with errors/
+	File.open(epubcheck_errfile, 'w') do |output|
+		output.puts "Epub validation via epubcheck encountered errors."
+		output.puts "\n \n(Epubcheck detailed output:)\n "
+		output.puts epubcheck_output
+	end
+
+message = <<MESSAGE_END
+From: Workflows <workflows@macmillan.com>
+To: Workflows <workflows@macmillan.com>
+Subject: ERROR: epubcheck errors for #{csfilename}.epub
+
+Epubcheck validation found errors for file:
+#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{csfilename}.epub
+
+Epubcheck output:
+#{epubcheck_output}
+MESSAGE_END
+
+	unless File.file?(testing_value_file)
+	  Net::SMTP.start('10.249.0.12') do |smtp|
+	    smtp.send_message message, 'workflows@macmillan.com',
+	                               'workflows@macmillan.com'
+	  end
+	end
+end
