@@ -12,6 +12,9 @@ OEBPS_dir = File.join(Bkmkr::Paths.project_tmp_dir, "OEBPS")
 
 zipepub_py = File.join(Bkmkr::Paths.core_dir, "epubmaker", "zipepub.py")
 
+# path to fallback font file
+font = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker", "fonts", "NotoSansSymbols-Regular.ttf")
+
 # path to epubcheck
 epubcheck = File.join(Bkmkr::Paths.core_dir, "epubmaker", "epubcheck", "epubcheck.jar")
 
@@ -86,6 +89,9 @@ if File.file?(podtitlepagetmp)
 end
 
 csfilename = "#{Metadata.eisbn}_EPUB"
+
+# copy fallback font to package
+Mcmlln::Tools.copyFile(font, OEBPS_dir)
 
 # zip epub
 Bkmkr::Tools.runpython(zipepub_py, "#{csfilename}.epub #{Bkmkr::Paths.project_tmp_dir}")
