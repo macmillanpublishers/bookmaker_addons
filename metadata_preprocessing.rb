@@ -10,7 +10,7 @@ require_relative '../utilities/oraclequery.rb'
 # find any tagged isbn in an html file
 def findAnyISBN(file)
   isbn_basestring = File.read(file).match(/spanISBNisbn">\s*978(\D?\d?){10}<\/span>/)
-  unless isbn_basestring.length == 0
+  unless isbn_basestring.nil?
     isbn_basestring = isbn_basestring.to_s.gsub(/\D/,"")
     isbn = isbn_basestring.match(/978(\d{10})/).to_s
   else
@@ -38,7 +38,7 @@ def findSpecificISBN(file, string, type)
     end
   end
   isbn_basestring = pisbn.shift
-  unless isbn_basestring.length == 0
+  unless isbn_basestring.nil?
     isbn_basestring = isbn_basestring.to_s.gsub(/\D/,"")
     isbn = isbn_basestring.match(/978(\d{10})/).to_s
   else
@@ -317,7 +317,7 @@ end
 
 if !metapublisher.nil?
   publisher = HTMLEntities.new.decode(metapublisher[2])
-else 
+else
   publisher = imprint
 end
 
@@ -372,7 +372,7 @@ end
 if File.file?(js_file)
     FileUtils.cp(js_file, pdf_js_file)
     jscontents = File.read(pdf_js_file).gsub(/BKMKRINSERTBKTITLE/,"\"#{booktitle}\"").gsub(/BKMKRINSERTBKAUTHOR/,"\"#{authorname}\"")
-    File.open(pdf_js_file, 'w') do |output| 
+    File.open(pdf_js_file, 'w') do |output|
     output.write jscontents
   end
 end
