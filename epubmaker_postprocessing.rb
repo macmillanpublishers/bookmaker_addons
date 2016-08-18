@@ -26,8 +26,16 @@ testing_value_file = File.join(Bkmkr::Paths.resource_dir, "staging.txt")
 epubcheck_errfile = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "EPUBCHECK_ERROR.txt")
 
 # ---------------------- METHODS
+# If an epubcheck_errfile exists, delete it
+def checkErrorFile(file)
+  if File.file?(file)
+    Mcmlln::Tools.deleteFile(file)
+  end
+end
 
 # ---------------------- PROCESSES
+
+checkErrorFile(epubcheck_errfile)
 
 # Add links back to TOC to chapter heads
 searchdir = File.join(OEBPS_dir, "ch[0-9][0-9]*.html")
