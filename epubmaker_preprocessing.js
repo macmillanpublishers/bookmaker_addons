@@ -40,7 +40,9 @@ fs.readFile(file, function editContent (err, contents) {
   // add chap numbers to chap titles if specified
   $("h1[data-labeltext]").each(function () {
       var labeltext = $(this).attr('data-labeltext');
-      $(this).prepend(labeltext + ": ");    
+      if (labeltext.trim()) {
+        $(this).prepend(labeltext + ": "); 
+      };   
   });
 
 $("span.spanhyperlinkurl:not(:has(a))").each(function () {
