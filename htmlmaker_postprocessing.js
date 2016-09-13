@@ -58,7 +58,7 @@ fs.readFile(file, function editContent (err, contents) {
     });
 
   // tag page placeholders as design notes
-  $('section h1 + p:last-child').each( function () {
+  $('section h1[class*="Nonprinting"] + p:last-child').each( function () {
     var mytext = $(this).text().trim();
     var mypattern = new RegExp( "^\[[i|I|v|V|x|X|0-9]+\]$", "g");
     var result = mypattern.test(mytext);
