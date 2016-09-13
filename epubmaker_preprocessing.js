@@ -26,7 +26,13 @@ fs.readFile(file, function editContent (err, contents) {
   // add extra paragraph to copyright page
   $('section[data-type="copyright-page"] p:last-child').removeClass( "CopyrightTextsinglespacecrtx" ).addClass( "CopyrightTextdoublespacecrtxd" );
 
-  var notice = '<p class="CopyrightTextsinglespacecrtx">Our eBooks may be purchased in bulk for promotional, educational, or business use. Please contact the Macmillan Corporate and Premium Sales Department at 1-800-221-7945, ext. 5442, or by e-mail at <a href="mailto:MacmillanSpecialMarkets@macmillan.com">MacmillanSpecialMarkets@macmillan.com</a>.</p>';
+  var notice = '<p class="CopyrightTextdoublespacecrtx">Our eBooks may be purchased in bulk for promotional, educational, or business use. Please contact the Macmillan Corporate and Premium Sales Department at 1-800-221-7945, ext. 5442, or by e-mail at <a href="mailto:MacmillanSpecialMarkets@macmillan.com">MacmillanSpecialMarkets@macmillan.com</a>.</p>';
+  
+  var printnotice = $('section[data-type="copyright-page"] p:contains("Our books may be purchased in bulk")');
+
+  if (printnotice) {
+    printnotice.remove();
+  };
 
   $('section[data-type="copyright-page"]').append(notice);
 
