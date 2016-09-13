@@ -57,6 +57,12 @@ fs.readFile(file, function editContent (err, contents) {
       }
     });
 
+  // remove design notes
+  $('.DesignNotedn').remove();
+
+  // remove empty section
+  $('section h1[class*="Nonprinting"]:only-child').parent().remove();
+
 
   var output = $.html();
     fs.writeFile(file, output, function(err) {
