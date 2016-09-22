@@ -11,8 +11,8 @@ require_relative '../bookmaker/core/utilities/mcmlln-tools.rb'
 epub_tmp_html = File.join(Bkmkr::Paths.project_tmp_dir, "epub_tmp.html")
 pdf_tmp_html = File.join(Bkmkr::Paths.project_tmp_dir, "pdf_tmp.html")
 
-verified_path = File.join(new_path, "verified_files")
 new_path = Bkmkr::Project.working_dir
+verified_path = File.join(new_path, "verified_files")
 testdir = File.join(new_path, "test_tmpdir")
 
 vhtml = File.join(verified_path, "9780809089178.html")
