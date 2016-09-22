@@ -16,15 +16,16 @@ verified_path = File.join(new_path, "verified_files")
 testdir = File.join(new_path, "test_tmpdir")
 
 vhtml = File.join(verified_path, "9780809089178.html")
-nhtml = File.join(new_path, "layout", "9780809089178.html")
+nhtml = File.join(Bkmkr::Paths.done_dir, "layout", "9780809089178.html")
 vepub = File.join(verified_path, "9781429945257_EPUBfirstpass.epub")
-nepub = File.join(new_path, "9781429945257_EPUBfirstpass.epub")
+nepub = File.join(Bkmkr::Paths.done_dir, "9781429945257_EPUBfirstpass.epub")
 vjson = File.join(verified_path, "config.json")
-njson = File.join(new_path, "layout", "config.json")
+njson = File.join(Bkmkr::Paths.done_dir, "layout", "config.json")
 vecss = File.join(verified_path, "epub.css")
-necss = File.join(new_path, "layout", "epub.css")
+necss = File.join(Bkmkr::Paths.done_dir, "layout", "epub.css")
 vpcss = File.join(verified_path, "pdf.css")
-npcss = File.join(new_path, "layout", "pdf.css")
+npcss = File.join(Bkmkr::Paths.done_dir, "layout", "pdf.css")
+testoutput = File.join(testdir, "testoutput.txt")
 
 def prettyprintHTML(file, dir, prefix)
   contents = File.read(file)
@@ -47,7 +48,12 @@ end
 Mcmlln::Tools.copyFile(epub_tmp_html, testdir)
 Mcmlln::Tools.copyFile(pdf_tmp_html, testdir)
 
-# check pdf html for differences
+# PAUSED HERE
+# TO DO: commit this change to get pretty printed pdf html,
+# then add that to the verified files
+# then add the diff for pdf and epub
+# fix error in stdout
+pdf_tmp_html = prettyprintHTML(pdf_tmp_html, testdir, "V")
 
 # check epub html for differences
 
@@ -69,7 +75,7 @@ diff_ecss = `diff '#{vecss}' '#{necss}'`
 # check pdf css for differences
 diff_pcss = `diff '#{vpcss}' '#{npcss}'`
 
-File.open(file, 'w') do |output| 
+File.open(testoutput, 'w') do |output| 
   # output.puts "----------CHECKING PDF HTML-----------"
   # output.puts diff_pdf
   # output.puts "----------CHECKING EPUB HTML-----------"
