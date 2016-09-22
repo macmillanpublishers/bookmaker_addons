@@ -15,6 +15,8 @@ new_path = Bkmkr::Project.working_dir
 verified_path = File.join(new_path, "verified_files")
 testdir = File.join(new_path, "test_tmpdir")
 
+vpdf = File.join(verified_path, "pdf_tmp.html")
+vepub = File.join(verified_path, "epub_tmp.html")
 vhtml = File.join(verified_path, "9780809089178.html")
 nhtml = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "layout", "9780809089178.html")
 vepub = File.join(verified_path, "9781429945257_EPUBfirstpass.epub")
@@ -49,13 +51,15 @@ Mcmlln::Tools.copyFile(epub_tmp_html, testdir)
 Mcmlln::Tools.copyFile(pdf_tmp_html, testdir)
 
 # PAUSED HERE
-# TO DO: commit this change to get pretty printed pdf html,
-# then add that to the verified files
-# then add the diff for pdf and epub
-# fix error in stdout
+# TO DO: 
+# add the diff for pdf and epub
 pdf_tmp_html = prettyprintHTML(pdf_tmp_html, testdir, "V")
 
+diff_pdf = `diff '#{vpdf}' '#{pdf_tmp_html}'`
+
 # check epub html for differences
+
+diff_epub = `diff '#{vepub}' '#{epub_tmp_html}'`
 
 # check layout html for differences
 vhtml = prettyprintHTML(vhtml, testdir, "V")
@@ -76,10 +80,10 @@ diff_ecss = `diff '#{vecss}' '#{necss}'`
 diff_pcss = `diff '#{vpcss}' '#{npcss}'`
 
 File.open(testoutput, 'w') do |output| 
-  # output.puts "----------CHECKING PDF HTML-----------"
-  # output.puts diff_pdf
-  # output.puts "----------CHECKING EPUB HTML-----------"
-  # output.puts diff_epub
+  output.puts "----------CHECKING PDF HTML-----------"
+  output.puts diff_pdf
+  output.puts "----------CHECKING EPUB HTML-----------"
+  output.puts diff_epub
   output.puts "----------CHECKING LAYOUT HTML-----------"
   output.puts diff_html
   puts "----------CHECKING JSON-----------"
