@@ -48,17 +48,12 @@ end
 Mcmlln::Tools.copyFile(epub_tmp_html, testdir)
 Mcmlln::Tools.copyFile(pdf_tmp_html, testdir)
 
-# PAUSED HERE
-# TO DO: 
-# add the diff for pdf and epub
+# check pdf html for differences
 pdf_tmp_html = prettyprintHTML(pdf_tmp_html, testdir, "N")
 
 diff_pdf = `diff '#{vpdf}' '#{pdf_tmp_html}'`
 
 # check epub html for differences
-# PAUSED HERE
-# Fix file refs
-
 diff_epub = `diff '#{vepub}' '#{epub_tmp_html}'`
 
 # check layout html for differences
@@ -86,11 +81,11 @@ File.open(testoutput, 'w') do |output|
   output.puts diff_epub
   output.puts "----------CHECKING LAYOUT HTML-----------"
   output.puts diff_html
-  puts "----------CHECKING JSON-----------"
+  output.puts "----------CHECKING JSON-----------"
   output.puts diff_json
-  puts "----------CHECKING EPUB CSS-----------"
+  output.puts "----------CHECKING EPUB CSS-----------"
   output.puts diff_ecss
-  puts "----------CHECKING PDF CSS-----------"
+  output.puts "----------CHECKING PDF CSS-----------"
   output.puts diff_pcss
 end
 
