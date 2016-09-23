@@ -148,8 +148,8 @@ Bkmkr::Tools.compileJS(epub_tmp_html)
 
 filecontents = File.read(epub_tmp_html)
 
-# link author name to newsletter page - need to restrict this so it only works on appendix sections
-# aulink = "http://us.macmillan.com/newslettersignup?utm_source=ebook&utm_medium=adcard&utm_term=ebookreaders&utm_content={{AUTHORNAME}}_newslettersignup_macdotcom&utm_campaign={{EISBN}}"
+# link author name to author updates webpage - need to restrict this so it only works on appendix sections
+# aulink = "http://us.macmillan.com/authoralerts?authorName=#{linkauthornametxt}&amp;authorRefId=AUTHORID&amp;utm_source=ebook&amp;utm_medium=adcard&amp;utm_term=ebookreaders&amp;utm_content=#{linkauthornameall}_authoralertsignup_macdotcom&amp;utm_campaign={{EISBN}}"
 # auupcase = Metadata.bookauthor.upcase
 # filecontents = filecontents.gsub(Metadata.bookauthor,"<!--AUTHORSIGNUPSTART<a href=\"#{aulink}\">AUTHORSIGNUPEND-->\\0<!--AUTHORSIGNUPSTART</a>AUTHORSIGNUPEND-->").gsub(auupcase,"<!--AUTHORSIGNUPSTART<a href=\"#{aulink}\">AUTHORSIGNUPEND-->\\0<!--AUTHORSIGNUPSTART</a>AUTHORSIGNUPEND-->")
 
