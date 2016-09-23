@@ -54,7 +54,10 @@ pdf_tmp_html = prettyprintHTML(pdf_tmp_html, testdir, "N")
 diff_pdf = `diff '#{vpdf}' '#{pdf_tmp_html}'`
 
 # check epub html for differences
-diff_epub = `diff '#{vepub}' '#{epub_tmp_html}'`
+vepub = prettyprintHTML(vepub, testdir, "V")
+nepub = prettyprintHTML(epub_tmp_html, testdir, "N")
+
+diff_epub = `diff '#{vepub}' '#{nepub}'`
 
 # check layout html for differences
 vhtml = prettyprintHTML(vhtml, testdir, "V")
