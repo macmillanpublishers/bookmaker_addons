@@ -19,8 +19,6 @@ vpdf = File.join(verified_path, "pdf_tmp.html")
 vepub = File.join(verified_path, "epub_tmp.html")
 vhtml = File.join(verified_path, "9780809089178.html")
 nhtml = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "layout", "9780809089178.html")
-vepub = File.join(verified_path, "9781429945257_EPUBfirstpass.epub")
-nepub = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "9781429945257_EPUBfirstpass.epub")
 vjson = File.join(verified_path, "config.json")
 njson = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "layout", "config.json")
 vecss = File.join(verified_path, "epub.css")
@@ -53,11 +51,13 @@ Mcmlln::Tools.copyFile(pdf_tmp_html, testdir)
 # PAUSED HERE
 # TO DO: 
 # add the diff for pdf and epub
-pdf_tmp_html = prettyprintHTML(pdf_tmp_html, testdir, "V")
+pdf_tmp_html = prettyprintHTML(pdf_tmp_html, testdir, "N")
 
 diff_pdf = `diff '#{vpdf}' '#{pdf_tmp_html}'`
 
 # check epub html for differences
+# PAUSED HERE
+# Fix file refs
 
 diff_epub = `diff '#{vepub}' '#{epub_tmp_html}'`
 
