@@ -49,6 +49,7 @@ Mcmlln::Tools.copyFile(epub_tmp_html, testdir)
 Mcmlln::Tools.copyFile(pdf_tmp_html, testdir)
 
 # check pdf html for differences
+vpdf = prettyprintHTML(vpdf, testdir, "V")
 pdf_tmp_html = prettyprintHTML(pdf_tmp_html, testdir, "N")
 
 diff_pdf = `diff '#{vpdf}' '#{pdf_tmp_html}'`
@@ -93,4 +94,10 @@ File.open(testoutput, 'w') do |output|
 end
 
 Mcmlln::Tools.deleteFile(vhtml)
+Mcmlln::Tools.deleteFile(nhtml)
+Mcmlln::Tools.deleteFile(vepub)
+Mcmlln::Tools.deleteFile(nepub)
 Mcmlln::Tools.deleteFile(vjson)
+Mcmlln::Tools.deleteFile(njson)
+Mcmlln::Tools.deleteFile(vpdf)
+Mcmlln::Tools.deleteFile(npdf)
