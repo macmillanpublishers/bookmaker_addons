@@ -93,6 +93,4 @@ File.open(testoutput, 'w') do |output|
 end
 
 Mcmlln::Tools.deleteFile(vhtml)
-Mcmlln::Tools.deleteFile(nhtml)
 Mcmlln::Tools.deleteFile(vjson)
-Mcmlln::Tools.deleteFile(njson)
