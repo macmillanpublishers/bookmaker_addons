@@ -50,9 +50,9 @@ Mcmlln::Tools.copyFile(pdf_tmp_html, testdir)
 
 # check pdf html for differences
 vpdf = prettyprintHTML(vpdf, testdir, "V")
-pdf_tmp_html = prettyprintHTML(pdf_tmp_html, testdir, "N")
+npdf = prettyprintHTML(pdf_tmp_html, testdir, "N")
 
-diff_pdf = `diff '#{vpdf}' '#{pdf_tmp_html}'`
+diff_pdf = `diff '#{vpdf}' '#{npdf}'`
 
 # check epub html for differences
 vepub = prettyprintHTML(vepub, testdir, "V")
