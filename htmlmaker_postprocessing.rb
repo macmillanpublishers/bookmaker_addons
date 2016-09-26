@@ -15,6 +15,14 @@ def fixISBNSpans(html)
   return filecontents
 end
 
+def fixNoteCallouts(html)
+  # retag Note Callout as superscript spans
+  filecontents = html.gsub(/(&lt;NoteCallout&gt;)(\w*)(&lt;\/NoteCallout&gt;)/, "<sup class=\"spansuperscriptcharacterssup\">\\2</sup>")
+  return filecontents
+end
+
+
+
 # ---------------------- PROCESSES
 
 # run content conversions
@@ -23,5 +31,6 @@ Bkmkr::Tools.runnode(htmlmakerpostprocessingjs, Bkmkr::Paths.outputtmp_html)
 
 filecontents = Mcmlln::Tools.readFile(Bkmkr::Paths.outputtmp_html)
 filecontents = fixISBNSpans(filecontents)
+filecontents = fixNoteCallouts(filecontents)
 
 Mcmlln::Tools.overwriteFile(Bkmkr::Paths.outputtmp_html, filecontents)
