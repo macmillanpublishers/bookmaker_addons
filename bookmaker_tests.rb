@@ -12,7 +12,7 @@ epub_tmp_html = File.join(Bkmkr::Paths.project_tmp_dir, "epub_tmp.html")
 pdf_tmp_html = File.join(Bkmkr::Paths.project_tmp_dir, "pdf_tmp.html")
 
 new_path = Bkmkr::Project.working_dir
-verified_path = File.join(new_path, "verified_files")
+verified_path = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_tests", "verified_files")
 testdir = File.join(new_path, "test_tmpdir")
 
 vpdf = File.join(verified_path, "pdf_tmp.html")
