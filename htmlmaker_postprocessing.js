@@ -73,6 +73,14 @@ fs.readFile(file, function editContent (err, contents) {
   // remove empty section
   $('section h1[class*="Nonprinting"]:only-child').parent().remove();
 
+  // build inline illustration holders 
+  // (this should be replaced with htmlmaker_js)
+  $('span.Illustrationholderinlineilli').each(function () {
+    var mytext = $(this).text().trim();
+    var el = $('<img class="illustrationholderinlineilli" src="images/' + mytext + '"></img>');
+    $(this).empty();
+    $(this).append(el);
+  });
 
   var output = $.html();
     fs.writeFile(file, output, function(err) {
