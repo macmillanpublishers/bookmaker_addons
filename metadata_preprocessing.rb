@@ -89,6 +89,13 @@ end
 # for logging purposes
 puts "RUNNING METADATA_PREPROCESSING"
 
+# give preference to isbns found in the book
+# Loop through array of found ISBNs
+# check to see if one is a Book product
+# If so, use that one
+# If there are two Book product ISBNs in the found array, use the TP ISBN
+# Else, use HC Book ISBN if found, else use any Book ISBN
+
 # search for any isbn
 looseisbn = findAnyISBN(Bkmkr::Paths.outputtmp_html)
 pisbn = ""
