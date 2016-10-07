@@ -47,6 +47,20 @@ def findSpecificISBN(file, string, type)
   return isbn
 end
 
+# find any tagged isbn in an html file
+def findAllISBN(file)
+  isbns_raw = File.read(file).scan(/spanISBNisbn">\s*978(\D?\d?){10}<\/span>/)
+  isbns = []
+  unless isbns_raw.nil? or isbns_raw.empty?
+    isbns_raw.each do |n|
+      isbn = n.to_s.gsub(/\D/,"")
+      isbn = isbn.match(/978(\d{10})/).to_s
+      isbns << n
+    end
+  end
+  return isbns
+end
+
 # find the publisher imprint based on the imprints.json database
 def getImprint(projectdir, json)
   data_hash = Mcmlln::Tools.readjson(json)
@@ -98,7 +112,13 @@ puts "RUNNING METADATA_PREPROCESSING"
 
 # search for any isbn
 looseisbn = findAnyISBN(Bkmkr::Paths.outputtmp_html)
+book_isbn
+work_tp = ""
+paperback_isbn = ""
+work_hc = ""
+hardback_isbn = ""
 pisbn = ""
+work_eb = ""
 eisbn = ""
 isbnhash = {}
 
@@ -111,6 +131,7 @@ end
 
 # we'll use this later to find the cover file
 allworks = []
+allisbns = findAllISBN(Bkmkr::Paths.outputtmp_html)
 
 # if query returns results, query again to find all book records under the same WORK_ID
 unless isbnhash.nil? or isbnhash.empty? or !isbnhash or isbnhash['book'].nil? or isbnhash['book'].empty? or !isbnhash['book']
@@ -118,23 +139,74 @@ unless isbnhash.nil? or isbnhash.empty? or !isbnhash or isbnhash['book'].nil? or
   workid = isbnhash['book']['WORK_ID']
   thissql = exactSearchSingleKey(workid, "WORK_ID")
   editionshash = runQuery(thissql)
+
   unless editionshash.nil? or editionshash.empty? or !editionshash
+
     editionshash.each do |k, v|
       allworks.push(v['EDITION_EAN'])
-      # find a print product if it exists
-      if v['PRODUCTTYPE_DESC'] and v['PRODUCTTYPE_DESC'] == "Book"
-        if v['EDITION_EAN'].length == 13
-          pisbn = v['EDITION_EAN']
-          puts "Found a print product: #{pisbn}"
+    end
+
+    # classify the isbns found in the book
+    editionshash.each do |k, v|
+      # first, let's get any book ISBN in the work family, for fallbacks
+      if v['PRODUCTTYPE_DESC'] and v['PRODUCTTYPE_DESC'] == "Book" and v['EDITION_EAN'].length == 13
+        book_isbn = v['EDITION_EAN']
+      end
+
+      # now let's see if we can narrow our book isbn options down
+      # to just an isbn included on the copyright page.
+      # first, we'll see if there is a paperback isbn in the work family:
+      if v['BINDING_SHORTNAME'] and v['BINDING_SHORTNAME'] == "P" and v['EDITION_EAN'].length == 13
+        # if so, we'll see if that ISBN is on the book copyright page
+        if allisbns.include? v['EDITION_EAN']
+          paperback_isbn = v['EDITION_EAN']
+          puts "Paperback ISBN on copyright page: #{paperback_isbn}"
         end
-      # find an ebook product if it exists
-      elsif v['PRODUCTTYPE_DESC'] and v['PRODUCTTYPE_DESC'] == "EBook"
-        if v['EDITION_EAN'].length == 13
+      # next we'll see if there is a hardcover isbn in the work family:
+      elsif v['BINDING_SHORTNAME'] and v['BINDING_SHORTNAME'] == "C" and v['EDITION_EAN'].length == 13
+        # if so, we'll save it for fallback purposes
+        work_hc = v['EDITION_EAN']
+        # and then we'll see if it's included on the book copyright page
+        if allisbns.include? v['EDITION_EAN']
+          hardback_isbn = v['EDITION_EAN']
+          puts "Hardcover ISBN on copyright page: #{hardback_isbn}"
+        end
+      # Now let's see if there is an ebook isbn in the work family
+      elsif v['PRODUCTTYPE_DESC'] and v['PRODUCTTYPE_DESC'] == "EBook" and v['EDITION_EAN'].length == 13 and 
+        # if so, we'll save it for fallback purposes
+        work_eb = v['EDITION_EAN']
+        # and then we'll see if it's included on the book copyright page
+        if allisbns.include? v['EDITION_EAN']
           eisbn = v['EDITION_EAN']
-          puts "Found an ebook product: #{eisbn}"
-        end  
+          puts "Ebook ISBN on copyright page: #{eisbn}"
+        end
       end
     end
+
+    # no we'll assign the final pisbn value based on our rules of precedence
+    # if a paperback isbn is listed in the book, we assume this is the paperback edition
+    if paperback_isbn
+      pisbn = paperback_isbn
+    # else if there is no paperback isbn, but there is a hardback isbn, we assume this is the hardback edition
+    elsif hardback_isbn
+      pisbn = hardback_isbn
+    # if neither is listed, we fall back to the hardback edition
+    elsif work_hc
+      pisbn = work_hc
+    # if there was no hardback edition, we fall back to whatever book isbn we could find
+    else
+      pisbn = book_isbn
+    end
+
+    puts "Print ISBN: #{pisbn}"
+
+    # if no ebook isbn was listed on the copyright page, we fall back to whatever ebook isbn we could find
+    if eisbn.nil?
+      eisbn = work_eb
+    end
+
+    puts "Ebook ISBN: #{eisbn}"
+
   end
 else
   puts "No DB record found; retrieving ISBNs from manuscript fields"
