@@ -176,27 +176,23 @@ unless isbnhash.nil? or isbnhash.empty? or !isbnhash or isbnhash['book'].nil? or
 
     # no we'll assign the final pisbn value based on our rules of precedence
     # if a paperback isbn is listed in the book, we assume this is the paperback edition
-    if paperback_isbn
+    if paperback_isbn != ""
       pisbn = paperback_isbn
     # else if there is no paperback isbn, but there is a hardback isbn, we assume this is the hardback edition
-    elsif hardback_isbn
+    elsif hardback_isbn != ""
       pisbn = hardback_isbn
     # if neither is listed, we fall back to the hardback edition
-    elsif work_hc
+    elsif work_hc != ""
       pisbn = work_hc
     # if there was no hardback edition, we fall back to whatever book isbn we could find
     else
       pisbn = book_isbn
     end
 
-    puts "Print ISBN: #{pisbn}"
-
     # if no ebook isbn was listed on the copyright page, we fall back to whatever ebook isbn we could find
-    if eisbn.nil?
+    if eisbn == ""
       eisbn = work_eb
     end
-
-    puts "Ebook ISBN: #{eisbn}"
 
   end
 else
@@ -242,6 +238,9 @@ elsif pisbn.length == 0 and eisbn.length == 0
   pisbn = Bkmkr::Project.filename
   eisbn = Bkmkr::Project.filename
 end
+
+puts "Print ISBN: #{pisbn}"
+puts "Ebook ISBN: #{eisbn}"
 
 # find titlepage images
 allimg = File.join(Bkmkr::Paths.submitted_images, "*")
