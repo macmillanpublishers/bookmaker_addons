@@ -49,13 +49,13 @@ end
 
 # find any tagged isbn in an html file
 def findAllISBN(file)
-  isbns_raw = File.read(file).scan(/spanISBNisbn">\s*978(\D?\d?){10}<\/span>/)
+  isbns_raw = File.read(file).scan(/spanISBNisbn">\s*(978(\D?\d?){10})<\/span>/)
   isbns = []
   unless isbns_raw.nil? or isbns_raw.empty?
     isbns_raw.each do |n|
       isbn = n.to_s.gsub(/\D/,"")
       isbn = isbn.match(/978(\d{10})/).to_s
-      isbns << n
+      isbns << isbn
     end
   end
   return isbns
@@ -135,12 +135,10 @@ unless isbnhash.nil? or isbnhash.empty? or !isbnhash or isbnhash['book'].nil? or
 
   unless editionshash.nil? or editionshash.empty? or !editionshash
 
-    editionshash.each do |k, v|
-      allworks.push(v['EDITION_EAN'])
-    end
-
     # classify the isbns found in the book
     editionshash.each do |k, v|
+      allworks.push(v['EDITION_EAN'])
+
       # first, let's get any book ISBN in the work family, for fallbacks
       if v['PRODUCTTYPE_DESC'] and v['PRODUCTTYPE_DESC'] == "Book" and v['EDITION_EAN'].length == 13
         book_isbn = v['EDITION_EAN']
