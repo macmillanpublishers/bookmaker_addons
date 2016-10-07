@@ -105,7 +105,7 @@ puts "RUNNING METADATA_PREPROCESSING"
 
 # search for any isbn
 looseisbn = findAnyISBN(Bkmkr::Paths.outputtmp_html)
-book_isbn
+book_isbn = ""
 work_tp = ""
 paperback_isbn = ""
 work_hc = ""
