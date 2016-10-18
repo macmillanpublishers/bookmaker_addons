@@ -50,7 +50,7 @@ end
 # for logging purposes
 puts "RUNNING METADATA_PREPROCESSING"
 
-pisbn, eisbn = findBookISBNs(Bkmkr::Paths.outputtmp_html, Bkmkr::Project.filename)
+pisbn, eisbn, allworks = findBookISBNs(Bkmkr::Paths.outputtmp_html, Bkmkr::Project.filename)
 
 # find titlepage images
 allimg = File.join(Bkmkr::Paths.submitted_images, "*")
