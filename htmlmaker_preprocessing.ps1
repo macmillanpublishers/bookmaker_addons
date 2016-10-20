@@ -18,7 +18,7 @@ $currVol=split-path $currVolPath -Qualifier	#C: or S:
 $filenameSplit=split-path $inputFile -Leaf			#file name without path
 Write-Host "Input file is $filenameSplit"
 $filename=$filenameSplit.SubString(0, $filenameSplit.LastIndexOf('.')).replace(' ','')	#filename w/out extension or spaces
-$fileType=$filenameSplit.SubString(1, $filenameSplit.LastIndexOf('.'))  # just extension
+$fileType=$filenameSplit.SubString($filenameSplit.LastIndexOf('.'))  # just extension
 $subfolder=$inputFile -match "(?:bookmaker\w+)(?<imprint>/.+?/)"    # regex to match level that follow 'bookmaker' or 'bookmaker_tmp', incl leading and training backslash
 $imprintPath=$matches["imprint"]                             # returns match from previous line
 
@@ -35,10 +35,12 @@ Function LogWrite
    Add-content $Logfile -value "$logstring"
 }
 
-
 # Converts a word .doc in bookmaker_tmp to a .docx
 # so you have to have already run tmparchive.rb
-write-host "Converting $filenameSplit to .docx from $fileType"
+If ($fileType -like ".doc")
+{
+ write-host "Converting $filenameSplit to .docx from $fileType"
+}
 
 $SaveFormat = "microsoft.office.interop.word.WdSaveFormat" -as [type]
 $word = New-Object -ComObject word.application
@@ -46,26 +48,31 @@ $word.visible = $false
 
 # Make sure "Store random number..." setting is off 
 $word.Options.StoreRSIDOnSave = $false
+Write-Host "Removing revision data"
 
 $doc = $word.documents.open($docpath + $fileType)
 
 # turn off track changes, accept all changes and delete all comments
 # have to do here, or we don't solve dumb XML revision problem
 $doc.TrackRevisions = $false
-$doc.Revisions.AcceptAll
+$doc.Revisions.AcceptAll()
 Foreach($comment in $doc.Comments)
 {
-    $comment.Delete
+    $comment.Delete()
 }
 
 # save file as .docx
+# If we didn't make changes we still need to force save, so we can
+# remove any revision data in XML file, so set 'Saved' property to false
+$doc.Saved=$false
 $wdFormatDocx = 16  # wdFormatDocumentDefault is docx, reference number is 16
 	
 # Have to add [ref]s for certain versions of powershell (2.0), 
 # we'll see which way works on server
 # https://richardspowershellblog.wordpress.com/2012/10/15/powershell-3-and-word/
 # so only use one or the other of these next two lines
-# $doc.saveas($docpath, $wdFormatDocx)
+$saved=$doc.Saved
+#$doc.saveas($docpath, $wdFormatDocx)
 $doc.saveas([ref]$docpath, [ref]$wdFormatDocx)
 	
 $doc.close()
