@@ -4,17 +4,15 @@ require_relative '../bookmaker/core/header.rb'
 require_relative '../bookmaker/core/metadata.rb'
 require_relative '../bookmaker/core/utilities/mcmlln-tools.rb'
 
-# first input argument must be the path to the folder where the verified files live
-# second input argument must be the path to the folder where the newly converted files live
-# third input argument is your testing directory
-
 epub_tmp_html = File.join(Bkmkr::Paths.project_tmp_dir, "epub_tmp.html")
 pdf_tmp_html = File.join(Bkmkr::Paths.project_tmp_dir, "pdf_tmp.html")
+tmp_xml = File.join(Bkmkr::Paths.project_tmp_dir, "#{Bkmkr::Project.filename}.xml")
 
 new_path = Bkmkr::Project.working_dir
 verified_path = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_tests", "verified_files")
 testdir = File.join(new_path, "test_tmpdir")
 
+vxml = File.join(verified_path, "#{Bkmkr::Project.filename}.xml")
 vpdf = File.join(verified_path, "pdf_tmp.html")
 vepub = File.join(verified_path, "epub_tmp.html")
 vhtml = File.join(verified_path, "#{Metadata.pisbn}.html")
@@ -48,6 +46,13 @@ end
 Mcmlln::Tools.copyFile(epub_tmp_html, testdir)
 Mcmlln::Tools.copyFile(pdf_tmp_html, testdir)
 
+# check xml for differences
+nxml = prettyprintHTML(tmp_xml, testdir, "N")
+
+diff_xml = `diff '#{vxml}' '#{nxml}'`
+
+#Mcmlln::Tools.copyFile(tmp_xml, verified_path)
+
 # check pdf html for differences
 vpdf = prettyprintHTML(vpdf, testdir, "V")
 npdf = prettyprintHTML(pdf_tmp_html, testdir, "N")
@@ -79,6 +84,8 @@ diff_ecss = `diff '#{vecss}' '#{necss}'`
 diff_pcss = `diff '#{vpcss}' '#{npcss}'`
 
 File.open(testoutput, 'w') do |output| 
+  output.puts "----------CHECKING XML-----------"
+  output.puts diff_xml
   output.puts "----------CHECKING PDF HTML-----------"
   output.puts diff_pdf
   output.puts "----------CHECKING EPUB HTML-----------"
