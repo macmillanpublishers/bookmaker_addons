@@ -52,7 +52,7 @@ Mcmlln::Tools.copyFile(pdf_tmp_html, testdir)
 
 #diff_xml = `diff '#{vxml}' '#{nxml}'`
 
-Mcmlln::Tools.copyFile(nxml, verified_path)
+Mcmlln::Tools.copyFile(tmp_xml, verified_path)
 
 # check pdf html for differences
 vpdf = prettyprintHTML(vpdf, testdir, "V")
