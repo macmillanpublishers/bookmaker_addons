@@ -47,7 +47,6 @@ Mcmlln::Tools.copyFile(epub_tmp_html, testdir)
 Mcmlln::Tools.copyFile(pdf_tmp_html, testdir)
 
 # check xml for differences
-vxml = prettyprintHTML(vxml, testdir, "V")
 nxml = prettyprintHTML(tmp_xml, testdir, "N")
 
 diff_xml = `diff '#{vxml}' '#{nxml}'`
@@ -101,7 +100,6 @@ File.open(testoutput, 'w') do |output|
   output.puts diff_pcss
 end
 
-Mcmlln::Tools.deleteFile(vxml)
 Mcmlln::Tools.deleteFile(vhtml)
 Mcmlln::Tools.deleteFile(nhtml)
 Mcmlln::Tools.deleteFile(vepub)
