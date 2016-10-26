@@ -12,7 +12,7 @@ new_path = Bkmkr::Project.working_dir
 verified_path = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_tests", "verified_files")
 testdir = File.join(new_path, "test_tmpdir")
 
-#vxml = File.join(verified_path, "#{Bkmkr::Project.filename}.xml")
+vxml = File.join(verified_path, "#{Bkmkr::Project.filename}.xml")
 vpdf = File.join(verified_path, "pdf_tmp.html")
 vepub = File.join(verified_path, "epub_tmp.html")
 vhtml = File.join(verified_path, "#{Metadata.pisbn}.html")
@@ -47,12 +47,12 @@ Mcmlln::Tools.copyFile(epub_tmp_html, testdir)
 Mcmlln::Tools.copyFile(pdf_tmp_html, testdir)
 
 # check xml for differences
-#vxml = prettyprintHTML(vxml, testdir, "V")
-#nxml = prettyprintHTML(tmp_xml, testdir, "N")
+vxml = prettyprintHTML(vxml, testdir, "V")
+nxml = prettyprintHTML(tmp_xml, testdir, "N")
 
-#diff_xml = `diff '#{vxml}' '#{nxml}'`
+diff_xml = `diff '#{vxml}' '#{nxml}'`
 
-Mcmlln::Tools.copyFile(tmp_xml, verified_path)
+#Mcmlln::Tools.copyFile(tmp_xml, verified_path)
 
 # check pdf html for differences
 vpdf = prettyprintHTML(vpdf, testdir, "V")
@@ -85,8 +85,8 @@ diff_ecss = `diff '#{vecss}' '#{necss}'`
 diff_pcss = `diff '#{vpcss}' '#{npcss}'`
 
 File.open(testoutput, 'w') do |output| 
-  #output.puts "----------CHECKING XML-----------"
-  #output.puts diff_xml
+  output.puts "----------CHECKING XML-----------"
+  output.puts diff_xml
   output.puts "----------CHECKING PDF HTML-----------"
   output.puts diff_pdf
   output.puts "----------CHECKING EPUB HTML-----------"
@@ -101,7 +101,7 @@ File.open(testoutput, 'w') do |output|
   output.puts diff_pcss
 end
 
-#Mcmlln::Tools.deleteFile(vxml)
+Mcmlln::Tools.deleteFile(vxml)
 Mcmlln::Tools.deleteFile(vhtml)
 Mcmlln::Tools.deleteFile(nhtml)
 Mcmlln::Tools.deleteFile(vepub)
