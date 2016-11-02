@@ -26,15 +26,32 @@ fs.readFile(file, function editContent (err, contents) {
   // add extra paragraph to copyright page
   $('section[data-type="copyright-page"] p:last-child').removeClass( "CopyrightTextsinglespacecrtx" ).addClass( "CopyrightTextdoublespacecrtxd" );
 
-  var notice = '<p class="CopyrightTextdoublespacecrtxd">Our eBooks may be purchased in bulk for promotional, educational, or business use. Please contact the Macmillan Corporate and Premium Sales Department at 1-800-221-7945, ext. 5442, or by e-mail at <a href="mailto:MacmillanSpecialMarkets@macmillan.com">MacmillanSpecialMarkets@macmillan.com</a>.</p>';
-  
-  var printnotice = $('section[data-type="copyright-page"] p:contains("Our books may be purchased in bulk")');
+  //remove existing bulk order notice from copyright page 
+  var notice_criteria = [
+  '(?=.*MacmillanSpecialMarkets@macmillan.com)',
+  '(?=.*Macmillan Corporate and Premium Sales Department)',
+  '(?=.*[Bb]ooks may be purchased)',
+  '(?=.*promotional[^\.]*use)',
+  '(?=.*educational[^\.]*use)',
+  '(?=.*business[^\.]*use)',
+  '(?=.*800..?221.?7945.*ext.*5442)',
+  '.*'
+  ];
+  var regexpstring = notice_criteria.join('');
+  var notice_regex = new RegExp(regexpstring);
 
-  if (printnotice) {
-    printnotice.remove();
+  var notice = $('section[data-type="copyright-page"] p').filter(function () {
+    return notice_regex.test($(this).text())
+  });
+
+  if (notice.length > 0) {
+    notice.remove();
   };
 
-  $('section[data-type="copyright-page"]').append(notice);
+  //Add our own bulk purchase blurb
+  var new_notice = '<p class="CopyrightTextdoublespacecrtxd">Our eBooks may be purchased in bulk for promotional, educational, or business use. Please contact the Macmillan Corporate and Premium Sales Department at 1-800-221-7945, ext. 5442, or by e-mail at <a href="mailto:MacmillanSpecialMarkets@macmillan.com">MacmillanSpecialMarkets@macmillan.com</a>.</p>';
+
+  $('section[data-type="copyright-page"]').append(new_notice);
 
   // add extra line to about the author
   var aulink = "<!--AUTHORSIGNUPSTART <p class='BMTextbmtx'>You can sign up for email updates <a href='http://us.macmillan.com/authoralerts?authorName={{AUTHORNAMETXT}}&amp;authorRefId={{AUTHORID}}&amp;utm_source=ebook&amp;utm_medium=adcard&amp;utm_term=ebookreaders&amp;utm_content={{AUTHORNAME}}_authoralertsignup_macdotcom&amp;utm_campaign={{EISBN}}'>here</a>.</p>AUTHORSIGNUPEND-->";
