@@ -7,6 +7,8 @@ require_relative '../utilities/oraclequery.rb'
 
 # These commands should run immediately prior to epubmaker
 
+# ---------------------- VAIRABLES
+
 data_hash = Mcmlln::Tools.readjson(Metadata.configfile)
 
 project_dir = data_hash['project']
@@ -17,6 +19,10 @@ saxonpath = File.join(Bkmkr::Paths.resource_dir, "saxon", "#{Bkmkr::Tools.xslpro
 assets_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker")
 epub_img_dir = File.join(Bkmkr::Paths.project_tmp_dir, "epubimg")
 finalimagedir = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "images")
+
+# ---------------------- METHODS
+
+# ---------------------- PROCESSES
 
 unless File.exist?(epub_img_dir)
     Dir.mkdir(epub_img_dir)
@@ -234,6 +240,7 @@ end
 # add some line breaks to make the html easier to deal with
 filecontents = filecontents.gsub(/(<p)/,"\n\\1")
 
+# write epub-ready html to file
 File.open(epub_tmp_html, 'w') do |output| 
   output.write filecontents
 end
