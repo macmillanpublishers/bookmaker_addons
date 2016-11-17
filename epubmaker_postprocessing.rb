@@ -36,6 +36,7 @@ end
 def listSpacebreakImages(file)
   # An array of all the image files referenced in the source html file
   imgarr = File.read(file).scan(/(figure class="Illustrationholderill customimage"><img src="images\/)(\S*)(")/)
+  imgnames = []
   imgarr.each do |o|
     imgnames << o[1]
   end
