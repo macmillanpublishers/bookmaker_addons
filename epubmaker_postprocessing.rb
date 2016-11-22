@@ -33,6 +33,28 @@ def checkErrorFile(file)
   end
 end
 
+def listSpacebreakImages(file)
+  # An array of all the image files referenced in the source html file
+  imgarr = File.read(file).scan(/(figure class="Illustrationholderill customimage"><img src="images\/)(\S*)(")/)
+  imgnames = []
+  imgarr.each do |o|
+    imgnames << o[1]
+  end
+  # remove duplicate image names from source array
+  imgnames = imgnames.uniq
+  imgnames
+end
+
+def convertSpacebreakImg(file, dir)
+  path_to_i = File.join(dir, file)
+  myres = `identify -format "%y" "#{path_to_i}"`
+  myres = myres.to_f
+  if File.file?(path_to_i)
+    puts "RESIZING #{path_to_i} for EPUB"
+    `convert "#{path_to_i}" -colorspace RGB -density #{myres} -resize "200x200>" -quality 100 "#{path_to_i}"`
+  end
+end
+
 # ---------------------- PROCESSES
 
 checkErrorFile(epubcheck_errfile)
@@ -94,6 +116,16 @@ File.open("#{OEBPS_dir}/content.opf", "w") {|file| file.puts replace}
 podtitlepagetmp = File.join(OEBPS_dir, "titlepage.jpg")
 if File.file?(podtitlepagetmp)
 	FileUtils.rm(podtitlepagetmp)
+end
+
+# adjust size of custom space break images
+# run method: listImages
+imgarr = listSpacebreakImages(Bkmkr::Paths.outputtmp_html)
+
+if imgarr.any?
+  imgarr.each do |i|
+    convertSpacebreakImg(i, OEBPS_dir)
+  end
 end
 
 csfilename = "#{Metadata.eisbn}_EPUB"
