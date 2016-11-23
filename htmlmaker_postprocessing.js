@@ -67,6 +67,18 @@ fs.readFile(file, function editContent (err, contents) {
     }
   });
 
+  // add any required auto-numbering (e.g. for numbered paragraphs)
+  var n = 1;
+
+  $('p.autonumber').each(function () {
+    if ($(this).hasClass('liststart')) {
+      n = 1;
+    };
+    var num = n.toString() + ". ";
+    $(this).prepend(num);
+    n = n+1;
+  });
+
   // remove design notes
   $('.DesignNotedn').remove();
 
