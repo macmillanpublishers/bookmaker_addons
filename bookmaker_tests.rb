@@ -9,7 +9,8 @@ pdf_tmp_html = File.join(Bkmkr::Paths.project_tmp_dir, "pdf_tmp.html")
 tmp_xml = File.join(Bkmkr::Paths.project_tmp_dir, "#{Bkmkr::Project.filename}.xml")
 
 new_path = Bkmkr::Project.working_dir
-verified_path = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_tests", "verified_files")
+project_path = Bkmkr::Project.working_dir.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
+verified_path = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_tests", "verified_files", project_path)
 holding_path = File.join(Bkmkr::Project.working_dir, "verified_files")
 testdir = File.join(new_path, "test_tmpdir")
 
