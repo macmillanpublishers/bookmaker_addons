@@ -21,6 +21,7 @@ vepub = File.join(verified_path, "epub_tmp.html")
 holding_epub = File.join(holding_path, "epub_tmp.html")
 vhtml = File.join(verified_path, "#{Metadata.pisbn}.html")
 nhtml = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "layout", "#{Metadata.pisbn}.html")
+final_html = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "layout", "#{Metadata.pisbn}.html")
 holding_html = File.join(holding_path, "#{Metadata.pisbn}.html")
 vjson = File.join(verified_path, "config.json")
 njson = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "layout", "config.json")
@@ -110,10 +111,10 @@ File.open(testoutput, 'w') do |output|
 end
 
 # Copy all new verified files to holding folder
-Mcmlln::Tools.copyFile(nhtml, holding_html)
-Mcmlln::Tools.copyFile(nepub, holding_epub)
+Mcmlln::Tools.copyFile(final_html, holding_html)
+Mcmlln::Tools.copyFile(epub_tmp_html, holding_epub)
 Mcmlln::Tools.copyFile(njson, holding_json)
-Mcmlln::Tools.copyFile(npdf, holding_pdf)
+Mcmlln::Tools.copyFile(pdf_tmp_html, holding_pdf)
 Mcmlln::Tools.copyFile(final_pdffile, holding_pdffile)
 Mcmlln::Tools.copyFile(final_epubfile, holding_epubfile)
 Mcmlln::Tools.copyFile(npcss, holding_pcss)
