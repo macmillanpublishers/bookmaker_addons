@@ -7,10 +7,9 @@ require_relative '../bookmaker/core/header.rb'
 require_relative '../bookmaker/core/metadata.rb'
 
 # ---------------------- VARIABLES
-data_hash = Mcmlln::Tools.readjson(Metadata.configfile)
-
-project_dir = data_hash['project']
-stage_dir = data_hash['stage']
+json_log_hash = Bkmkr::Paths.jsonlog_hash
+json_log_hash[Bkmkr::Paths.thisscript] = {}
+@log_hash = json_log_hash[Bkmkr::Paths.thisscript]
 
 # full path to the image error file
 image_error = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "IMAGE_ERROR.txt")
@@ -21,8 +20,8 @@ maxwidth = 3.5
 grid = 16.0
 
 # ftp url
-ftpdirext = "http://www.macmillan.tools.vhost.zerolag.com/bookmaker/bookmakerimg/#{project_dir}_#{stage_dir}/#{Metadata.pisbn}"
-ftpdirint = "/files/html/bookmaker/bookmakerimg/#{project_dir}_#{stage_dir}/#{Metadata.pisbn}"
+ftpdirext = "http://www.macmillan.tools.vhost.zerolag.com/bookmaker/bookmakerimg/#{Metadata.project_dir}_#{Metadata.stage_dir}/#{Metadata.pisbn}"
+ftpdirint = "/files/html/bookmaker/bookmakerimg/#{Metadata.project_dir}_#{Metadata.stage_dir}/#{Metadata.pisbn}"
 
 pdftmp_dir = File.join(Bkmkr::Paths.project_tmp_dir_img, "pdftmp")
 pdfmaker_dir = File.join(Bkmkr::Paths.core_dir, "pdfmaker")
@@ -53,7 +52,7 @@ def calcImgSizes(res, file, maxheight, maxwidth, grid)
   mymultiple = ((myheight / myres) * 72.0) / grid
   if mymultiple <= 1
     resizecmd = ""
-  else 
+  else
     newheight = ((mymultiple.floor * grid) / 72.0) * myres
     resizecmd = "-resize \"x#{newheight}\" "
   end
@@ -171,7 +170,7 @@ if image_count > 0
   end
 end
 
-File.open(pdf_tmp_html, 'w') do |output| 
+File.open(pdf_tmp_html, 'w') do |output|
   output.write filecontents
 end
 
@@ -179,11 +178,11 @@ end
 writeImageErrors(corrupt, image_error)
 
 # copy assets to tmp upload dir and upload to ftp
-FileUtils.cp Dir["#{assets_dir}/images/#{project_dir}/*"].select {|f| test ?f, f}, pdftmp_dir
+FileUtils.cp Dir["#{assets_dir}/images/#{Metadata.project_dir}/*"].select {|f| test ?f, f}, pdftmp_dir
 
 ftplist = Dir.entries(pdftmp_dir).select { |f| !File.directory? f }
 
-ftpsetup = Ftpfunctions.createDirs("#{project_dir}_#{stage_dir}", Metadata.pisbn)
+ftpsetup = Ftpfunctions.createDirs("#{Metadata.project_dir}_#{Metadata.stage_dir}", Metadata.pisbn)
 ftpstatus = Ftpfunctions.uploadImg(ftpdirint, pdftmp_dir, ftplist)
 
 # run node.js content conversions
@@ -197,7 +196,7 @@ filecontents = File.read(pdf_tmp_html).gsub(/src="images\//,"src=\"#{ftpdirext}/
                                       .gsub(/([a-zA-Z0-9]?[a-zA-Z0-9]?[a-zA-Z0-9]?\s\. \. \.)/,"<span class=\"bookmakerkeeptogetherkt\">\\0</span>")
                                       .gsub(/(\s)(\w\w\w*?\.)(<\/p>)/,"\\1<span class=\"bookmakerkeeptogetherkt\">\\2</span>\\3")
 
-File.open(pdf_tmp_html, 'w') do |output| 
+File.open(pdf_tmp_html, 'w') do |output|
   output.write filecontents
 end
 
@@ -205,7 +204,7 @@ end
 filecontents = File.read(pdf_tmp_html, :encoding=>"UTF-8").gsub(/(.)?(—\??\.?!?”?’?)(.)?/,"\\1\\2&\#8203;\\3")
                                                           .gsub(/(<p class="FrontSalesQuotefsq">“)(A)/,"\\1&\#8202;\\2")
 
-File.open(pdf_tmp_html, 'w') do |output| 
+File.open(pdf_tmp_html, 'w') do |output|
   output.write filecontents
 end
 
@@ -224,3 +223,9 @@ File.open(Bkmkr::Paths.log_file, 'a+') do |f|
   f.puts "Uploaded the following images to the ftp:"
   f.puts ftpstatus
 end
+
+# ---------------------- LOGGING
+
+# Write json log:
+@log_hash['completed'] = Time.now
+Mcmlln::Tools.write_json(json_log_hash, Bkmkr::Paths.json_log)

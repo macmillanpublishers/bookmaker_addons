@@ -4,6 +4,10 @@ require_relative '../bookmaker/core/header.rb'
 require_relative '../bookmaker/core/metadata.rb'
 
 # ---------------------- VARIABLES
+json_log_hash = Bkmkr::Paths.jsonlog_hash
+json_log_hash[Bkmkr::Paths.thisscript] = {}
+@log_hash = json_log_hash[Bkmkr::Paths.thisscript]
+
 # The locations to check for images
 imagedir = Bkmkr::Paths.submitted_images
 
@@ -18,24 +22,54 @@ image_error = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "IMAGE_ERROR.txt"
 missing_jpg = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "images", "generic", "missing.jpg")
 
 # ---------------------- METHODS
-# If an image_error file exists, delete it
-def checkErrorFile(file)
-  if File.file?(file)
-    Mcmlln::Tools.deleteFile(file)
-  end
+
+## wrapping a Mcmlln::Tools method in a new method for this script; to return a result for json_logfile
+def getFilesinDir(path, logkey, logstring=true)
+	files = Mcmlln::Tools.dirListFiles(path)
+	return files
+rescue => logstring
+	return []
+ensure
+  @log_hash[logkey] = logstring
 end
 
-def listImages(html)
+## wrapping a Mcmlln::Tools method in a new method for this script; to return a result for json_logfile
+def readOutputHtml(logkey, logstring=true)
+	filecontents = File.read(Bkmkr::Paths.outputtmp_html)
+	return filecontents
+rescue => logstring
+	return ''
+ensure
+  @log_hash[logkey] = logstring
+end
+
+# If an image_error file exists, delete it
+def checkErrorFile(file, logkey, logstring=true)
+  if File.file?(file)
+    Mcmlln::Tools.deleteFile(file)
+  else
+    logstring = 'n-a'
+  end
+rescue => logstring
+ensure
+  @log_hash[logkey] = logstring
+end
+
+def listImages(html, logkey, logstring=true)
   # An array of all the image files referenced in the source html file
   imgarr = html.scan(/img src=".*?"/)
   # remove duplicate image names from source array
   imgarr = imgarr.uniq
   imgarr
+rescue => logstring
+  return []
+ensure
+  @log_hash[logkey] = logstring
 end
 
-def checkImages(imglist, inputdirlist, finaldirlist, inputdir)
+def checkImages(imglist, inputdirlist, finaldirlist, inputdir, logkey, logstring=true)
   # An empty array to store the list of any missing images
-  missing = []  
+  missing = []
   # An empty array to store filenames with bad types
   format = []
   supported = []
@@ -53,12 +87,16 @@ def checkImages(imglist, inputdirlist, finaldirlist, inputdir)
     end
     if !inputdirlist.include?("#{match}") and match != Metadata.frontcover and !finaldirlist.include?("#{match}")
       missing << match
-    end       
+    end
   end
   return format, supported, missing
+rescue => logstring
+  return [],[],[]
+ensure
+  @log_hash[logkey] = logstring
 end
 
-def convertImages(arr, dir)
+def convertImages(arr, dir, logkey, logstring=true)
   corrupt = []
   converted = []
   if arr.any?
@@ -86,33 +124,49 @@ def convertImages(arr, dir)
     end
   end
   return corrupt, converted
+rescue => logstring
+  return [],[]
+ensure
+  @log_hash[logkey] = logstring
 end
 
 # replace bad images with placeholder
-def insertPlaceholders(arr, html, placeholder, dest)
+def insertPlaceholders(arr, html, placeholder, dest, logkey, logstring=true)
   filecontents = html
   if arr.any?
     arr.each do |r|
       filecontents = filecontents.gsub(/#{r}/,"missing.jpg")
     end
     Mcmlln::Tools.copyFile(placeholder, dest)
+  else
+    logstring = 'n-a'
   end
   return filecontents
+rescue => logstring
+  return ''
+ensure
+  @log_hash[logkey] = logstring
 end
 
 # replace image references with jpg file format
-def replaceFormats(arr, html)
+def replaceFormats(arr, html, logkey, logstring=true)
   filecontents = html
   if arr.any?
     arr.each do |r|
       imgfilename = r.split(".").shift
       filecontents = filecontents.gsub(/#{r}/,"#{imgfilename}.jpg\"")
     end
+  else
+    'n-a'
   end
   return filecontents
+rescue => logstring
+  return ''
+ensure
+  @log_hash[logkey] = logstring
 end
 
-def writeTypeErrors(arr, file)
+def writeTypeErrors(arr, file, logkey, logstring=true)
   # Writes an error text file in the done\pisbn\ folder that lists all low res image files as stored in the resolution array
   if arr.any?
     File.open(file, 'a+') do |output|
@@ -123,49 +177,72 @@ def writeTypeErrors(arr, file)
         output.puts r
       end
     end
+  else
+    logstring = 'n-a'
   end
+rescue => logstring
+ensure
+  @log_hash[logkey] = logstring
 end
+
+## wrapping a Mcmlln::Tools method in a new method for this script; to return a result for json_logfile
+def overwriteFile(path, filecontents, logkey, logstring=true)
+	Mcmlln::Tools.overwriteFile(path, filecontents)
+rescue => logstring
+ensure
+  @log_hash[logkey] = logstring
+end
+
 
 # ---------------------- PROCESSES
 
-filecontents = File.read(Bkmkr::Paths.outputtmp_html)
+filecontents = readOutputHtml('read_outputtmp-html')
 
-images = Mcmlln::Tools.dirListFiles(Bkmkr::Paths.project_tmp_dir_img)
+images = getFilesinDir(Bkmkr::Paths.project_tmp_dir_img, 'get_files_in_tmpImgDir')
 
-finalimages = Mcmlln::Tools.dirList(final_dir_images)
+finalimages = getFilesinDir(final_dir_images, 'get_files_in_finalImgDir')
 
-checkErrorFile(image_error)
+checkErrorFile(image_error, 'delete_image_error_file')
 
-# run method: listImages
-imgarr = listImages(filecontents)
+# run method: list unique images referenced in html
+imgarr = listImages(filecontents, 'list_images')
 
 # run method: checkImages
-format, supported, missing = checkImages(imgarr, images, finalimages, Bkmkr::Paths.project_tmp_dir_img)
+format, supported, missing = checkImages(imgarr, images, finalimages, Bkmkr::Paths.project_tmp_dir_img, 'check_images')
 
-# print a list of any unsupported image types
+# print a list of any unsupported image types to std log & json log
 unless format.nil? or format.empty? or !format
   puts "UNSUPPORTED IMAGE TYPES:"
   puts format
+  @loghash['unsupported_image_types'] = format
 end
 
 # run method: convertImages
-corrupt, converted = convertImages(supported, Bkmkr::Paths.project_tmp_dir_img)
+corrupt, converted = convertImages(supported, Bkmkr::Paths.project_tmp_dir_img, 'convert_images')
+
+# log any corrupt &/or converted images to json_logfile
+unless corrupt.nil? or corrupt.empty? or !corrupt
+  @loghash['corrupt_images'] = corrupt
+end
+unless converted.nil? or converted.empty? or !converted
+  @loghash['converted_images'] = converted
+end
 
 # run method: insertPlaceholders for format
-filecontents = insertPlaceholders(format, filecontents, missing_jpg, Bkmkr::Paths.project_tmp_dir_img)
+filecontents = insertPlaceholders(format, filecontents, missing_jpg, Bkmkr::Paths.project_tmp_dir_img, 'insert_placeholders_for_bad_formats')
 
 # run method: insertPlaceholders for missing
-filecontents = insertPlaceholders(missing, filecontents, missing_jpg, Bkmkr::Paths.project_tmp_dir_img)
+filecontents = insertPlaceholders(missing, filecontents, missing_jpg, Bkmkr::Paths.project_tmp_dir_img, 'insert_placeholders_for_missing')
 
 # run method: writeTypeErrors
-writeTypeErrors(format, image_error)
+writeTypeErrors(format, image_error, 'write_img_err_file')
 
 # run method: replaceFormats
-filecontents = replaceFormats(imgarr, filecontents)
+filecontents = replaceFormats(imgarr, filecontents, 'replace_img-refs_with_jpg-format_refs')
 
-File.open(Bkmkr::Paths.outputtmp_html, 'w') do |output| 
-  output.write filecontents
-end
+# overwrite outputtmp_html
+overwriteFile(Bkmkr::Paths.outputtmp_html, filecontents, 'overwrite_output_html')
+
 
 # ---------------------- LOGGING
 
@@ -174,3 +251,7 @@ File.open(Bkmkr::Paths.log_file, 'a+') do |f|
   f.puts "----- IMAGECHECKER_POSTPROCESSING PROCESSES"
   f.puts ""
 end
+
+# Write json log:
+@log_hash['completed'] = Time.now
+Mcmlln::Tools.write_json(json_log_hash, Bkmkr::Paths.json_log)

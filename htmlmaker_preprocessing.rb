@@ -1,12 +1,13 @@
 require 'fileutils'
-require 'json'
 
 require_relative '../bookmaker/core/header.rb'
+
+# These commands should run immediately prior to htmlmaker
 
 # ---------------------- VARIABLES
 json_log_hash = Bkmkr::Paths.jsonlog_hash
 json_log_hash[Bkmkr::Paths.thisscript] = {}
-log_hash = json_log_hash[Bkmkr::Paths.thisscript]
+@log_hash = json_log_hash[Bkmkr::Paths.thisscript]
 
 filetype = Bkmkr::Project.filename_split.split(".").pop
 
@@ -14,32 +15,29 @@ configfile = File.join(Bkmkr::Paths.project_tmp_dir, "config.json")
 
 # ---------------------- METHODS
 
-def convertDocToDocxPSscript(filetype, log_hash)
+def convertDocToDocxPSscript(filetype, logkey, logstring=true)
   unless filetype == "html"
     doctodocx = "S:\\resources\\bookmaker_scripts\\bookmaker_addons\\htmlmaker_preprocessing.ps1"
     `PowerShell -NoProfile -ExecutionPolicy Bypass -Command "#{doctodocx} '#{Bkmkr::Paths.project_tmp_file}'"`
-		logstring = true
   else
 		logstring = 'input file is html, skipping'
 	end
 rescue => logstring
 ensure
-  log_hash['convert_doc_to_docx'] = logstring
+  @log_hash[logkey] = logstring
 end
 
-def writeConfigJson(hash, json, log_hash)
+def writeConfigJson(hash, json, logkey, logstring=true)
   Mcmlln::Tools.write_json(hash, json)
-  logstring = true
 rescue => logstring
 ensure
-  log_hash['write_config_jsonfile'] = logstring
+  @log_hash[logkey] = logstring
 end
 
 # ---------------------- PROCESSES
-# These commands should run immediately prior to htmlmaker
 
 #convert .doc to .docx via powershell script, ignore html files
-convertDocToDocxPSscript(filetype, log_hash)
+convertDocToDocxPSscript(filetype, 'convert_doc_to_docx')
 
 # Create a temp JSON file
 datahash = {}
@@ -62,9 +60,9 @@ datahash.merge!(epubtitlepage: "TK")
 datahash.merge!(podtitlepage: "TK")
 
 # Printing the final JSON object
-writeConfigJson(datahash, configfile, log_hash)
+writeConfigJson(datahash, configfile, 'write_config_jsonfile')
 
 # ---------------------- LOGGING
 # Write json log:
-log_hash['completed'] = Time.now
+@log_hash['completed'] = Time.now
 Mcmlln::Tools.write_json(json_log_hash, Bkmkr::Paths.json_log)
