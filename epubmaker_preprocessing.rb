@@ -186,7 +186,7 @@ if linkauthorarr.count > 1
   # insert new author links in newsletter
   # fix author links in ABA sections
   newslinkarr = []
-  linkauthorarr.each do |a|
+  linkauthorarr.each_with_index do |a, i|
     linkauthorname = a
     linkauthorfirst = a.split(" ").shift
     linkauthorlast = a.split(" ").pop
