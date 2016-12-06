@@ -192,7 +192,7 @@ if linkauthorarr.count > 1
     linkauthorlast = a.split(" ").pop
     linkauthornametxt = a.downcase.gsub(/\s/,"").gsub(/\W/,"").to_ascii
     linkauthornameall = a.downcase.gsub(/\s/,"").to_ascii
-    thisauthorid - linkauthorid[i]
+    thisauthorid = linkauthorid[i]
     filecontents = filecontents.gsub(/(<section data-type="appendix" class="abouttheauthor".*?#{linkauthorfirst}.*?#{linkauthorlast}.*?)(\{\{AUTHORNAMETXT\}\})(.*?)(\{\{AUTHORID\}\})(.*?)(\{\{AUTHORNAME\}\})(.*?>here<\/a>)/,"\\1#{linkauthornametxt}\\3#{thisauthorid}\\5#{linkauthornameall}\\7")
   end
   # another loop to fix the first ABA
@@ -203,7 +203,7 @@ if linkauthorarr.count > 1
     linkauthorlast = a.split(" ").pop
     linkauthornametxt = a.downcase.gsub(/\s/,"").gsub(/\W/,"").to_ascii
     linkauthornameall = a.downcase.gsub(/\s/,"").to_ascii
-    thisauthorid - linkauthorid[i]
+    thisauthorid = linkauthorid[i]
     filecontents = filecontents.gsub(/(<section data-type="appendix" class="abouttheauthor".*?#{linkauthorfirst}.*?#{linkauthorlast}.*?)(\{\{AUTHORNAMETXT\}\})(.*?)(\{\{AUTHORID\}\})(.*?)(\{\{AUTHORNAME\}\})(.*?>here<\/a>)/,"\\1#{linkauthornametxt}\\3#{thisauthorid}\\5#{linkauthornameall}\\7")
     thislink = "<p style=\"text-align: center; text-indent: 0;\">For email updates on #{a}, click <a href=\"http:\/\/us.macmillan.com\/authoralerts?authorName=#{linkauthornametxt}&amp;authorRefId=AUTHORID&amp;utm_source=ebook&amp;utm_medium=adcard&amp;utm_term=ebookreaders&amp;utm_content=#{linkauthornameall}_authoralertsignup_macdotcom&amp;utm_campaign=\{\{EISBN\}\}\">here.<\/a><\/p>"
     newslinkarr << thislink
