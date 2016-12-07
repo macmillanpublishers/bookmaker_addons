@@ -7,12 +7,8 @@ require_relative '../utilities/oraclequery.rb'
 
 # These commands should run immediately prior to epubmaker
 
-# ---------------------- VAIRABLES
-
-data_hash = Mcmlln::Tools.readjson(Metadata.configfile)
-
-project_dir = data_hash['project']
-resource_dir = data_hash['resourcedir']
+# ---------------------- VARIABLES
+local_log_hash, @log_hash = Bkmkr::Paths.setLocalLoghash
 
 epub_tmp_html = File.join(Bkmkr::Paths.project_tmp_dir, "epub_tmp.html")
 saxonpath = File.join(Bkmkr::Paths.resource_dir, "saxon", "#{Bkmkr::Tools.xslprocessor}.jar")
@@ -20,25 +16,95 @@ assets_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker"
 epub_img_dir = File.join(Bkmkr::Paths.project_tmp_dir, "epubimg")
 finalimagedir = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "images")
 
+strip_span_xsl = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "strip-spans.xsl")
+
+# the path for xsl conversion log file
+convert_log_txt = File.join(Bkmkr::Paths.log_dir, "#{Bkmkr::Project.filename}.txt")
+
+#set logo image based on project directory
+logo_img = File.join(assets_dir, "images", Metadata.resource_dir, "logo.jpg")
+
+epubmakerpreprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "epubmaker_preprocessing.js")
+
+sectionjson = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "sections.json")
+addonjson = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker", "addons", "addons.json")
+
 # ---------------------- METHODS
+
+## wrapping a Mcmlln::Tools method in a new method for this script; to return a result for json_logfile
+def makeFolder(path, logkey='')
+  unless File.exist?(path)
+    Dir.mkdir(path)
+  else
+	 logstring = 'n-a'
+	end
+rescue => logstring
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
+def readFile(file, logkey='')
+	filecontents = File.read(file)
+	return filecontents
+rescue => logstring
+  return ''
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
+# get copyright page
+def getCopyrightPage(logkey='')
+	# an array of all occurances of chapters in the manuscript
+  copyrightpage = File.read(Bkmkr::Paths.outputtmp_html).match(/(<section data-type=\"copyright-page\" .*?\">)((.|\n)*?)(<\/section>)/)
+	return copyrightpage
+rescue => logstring
+	return []
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
+# collect chapterheads
+def getChapters(logkey='')
+	# an array of all occurances of chapters in the manuscript
+	chapterheads = File.read(Bkmkr::Paths.outputtmp_html).scan(/section data-type="chapter"/)
+	return chapterheads
+rescue => logstring
+	return []
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
+## wrapping Bkmkr::Tools.processxsl in a new method for this script; to return a result for json_logfile
+def localProcessxsl(html_file, xsl_file, epub_file, convert_log_txt, logkey='')
+	Bkmkr::Tools.processxsl(epub_tmp_html, epub_xsl, tmp_epub, convert_log_txt)
+rescue => logstring
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
+## wrapping Bkmkr::Tools.runnode in a new method for this script; to return a result for json_logfile
+def localRunNode(jsfile, args, logkey='')
+	Bkmkr::Tools.runnode(jsfile, args)
+rescue => logstring
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
 
 # ---------------------- PROCESSES
 
-unless File.exist?(epub_img_dir)
-    Dir.mkdir(epub_img_dir)
-end
+makeFolder(epub_img_dir, 'make_epub_img_dir')
 
-# Adding imprint logo to title page
-# Removing images subdir from src attr
-# inserting imprint backad, if it exists
-# remove links from illo sources
-
+# get copyrightpage html
 copyrightpage = File.read(Bkmkr::Paths.outputtmp_html).match(/(<section data-type=\"copyright-page\" .*?\">)((.|\n)*?)(<\/section>)/)
 
+# Removing images subdir from src attr
+# remove links from illo sources
 filecontents = File.read(Bkmkr::Paths.outputtmp_html).gsub(/src="images\//,"src=\"").gsub(/(<p class="IllustrationSourceis">)(<a class="fig-link">)(.*?)(<\/a>)(<\/p>)/, "\\1\\3\\5")
 
-chapterheads = File.read(Bkmkr::Paths.outputtmp_html).scan(/section data-type="chapter"/)
-
+# an array of all occurances of chapters in the manuscript
+chapterheads = getChapters('get_chapters_from_html')
+# insert 'Begin Reading' link for books with only 1 chapter
 unless chapterheads.count > 1
   filecontents = filecontents.gsub(/(<section data-type="chapter" .*?><h1 class=".*?">)(.*?)(<\/h1>)/,"\\1Begin Reading\\3")
 end
@@ -64,14 +130,13 @@ if filecontents.include?('data-type="copyright-page"')
   filecontents = filecontents.gsub(/(^(.|\n)*?<section data-type="copyright-page" id=".*?">)((.|\n)*?)(<\/section>(.|\n)*$)/, "\\1#{new_copyright}\\5")
 end
 
-File.open(epub_tmp_html, 'w') do |output| 
+File.open(epub_tmp_html, 'w') do |output|
   output.write filecontents
 end
 
 # prep for titlepage image if needed
 # convert image to jpg
 # copy to image dir
-
 unless Metadata.epubtitlepage == "Unknown"
   puts "found an epub titlepage image"
   etpfilename = Metadata.epubtitlepage.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
@@ -85,23 +150,23 @@ unless Metadata.epubtitlepage == "Unknown"
   end
   # insert titlepage image
   filecontents = File.read(epub_tmp_html).gsub(/(<section data-type="titlepage")/,"\\1 data-titlepage=\"yes\"")
-  File.open(epub_tmp_html, 'w') do |output| 
+  File.open(epub_tmp_html, 'w') do |output|
     output.write filecontents
   end
 end
-
-#set logo image based on project directory
-logo_img = File.join(assets_dir, "images", resource_dir, "logo.jpg")
 
 #copy logo image file to epub folder if no epubtitlepage found
 if Metadata.epubtitlepage == "Unknown" and File.file?(logo_img)
   FileUtils.cp(logo_img, epub_img_dir)
 end
 
-# Make EBK hyperlinks
-strip_span_xsl = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "strip-spans.xsl")
+# Add new section to log file for xsl
+File.open(convert_log_txt, 'a+') do |f|
+	f.puts "----- EPUBMAKER PREPROCESSING"
+end
 
-`java -jar "#{saxonpath}" -s:"#{epub_tmp_html}" -xsl:"#{strip_span_xsl}" -o:"#{epub_tmp_html}"`
+# Make EBK hyperlinks
+localProcessxsl(epub_tmp_html, strip_span_xsl, epub_tmp_html, convert_log_txt, 'xsl-make_ebk_hyperlinks')
 
 # and strip manual breaks
 filecontents = File.read(epub_tmp_html).gsub(/(<p class="EBKLinkSourceLa">)(.*?)(<\/p>)(<p class="EBKLinkDestinationLb">)(.*?)(<\/p>)/,"\\1<a href=\"\\5\">\\2</a>\\3").gsub(/<br\/>/," ")
@@ -109,13 +174,12 @@ filecontents = File.read(epub_tmp_html).gsub(/(<p class="EBKLinkSourceLa">)(.*?)
 # and combine contiguous span urls
 filecontents = filecontents.gsub(/(<span class="spanhyperlinkurl">)([^<|^>]*)(<\/span><span class="spanhyperlinkurl">)/,"\\1\\2")
 
-File.open(epub_tmp_html, 'w') do |output| 
+File.open(epub_tmp_html, 'w') do |output|
   output.write filecontents
 end
 
 # do content conversions
-epubmakerpreprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "epubmaker_preprocessing.js")
-Bkmkr::Tools.runnode(epubmakerpreprocessingjs, epub_tmp_html)
+localRunNode(epubmakerpreprocessingjs, epub_tmp_html, 'epubmaker_preprocessing_js')
 
 # replace titlepage info with image IF image exists in submission dir
 # js: replace titlepage innerhtml, prepend h1 w class nonprinting
@@ -124,9 +188,6 @@ Bkmkr::Tools.runnode(epubmakerpreprocessingjs, epub_tmp_html)
 # if File.file?(backad_file)
 #   FileUtils.cp(backad_file, epub_img_dir)
 # end
-
-sectionjson = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "sections.json")
-addonjson = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker", "addons", "addons.json")
 
 # move about the author to back
 Bkmkr::Tools.movesection(epub_tmp_html, sectionjson, "abouttheauthor", "", "endofbook", "1")
@@ -241,6 +302,10 @@ end
 filecontents = filecontents.gsub(/(<p)/,"\n\\1")
 
 # write epub-ready html to file
-File.open(epub_tmp_html, 'w') do |output| 
+File.open(epub_tmp_html, 'w') do |output|
   output.write filecontents
 end
+
+# Write json log:
+Mcmlln::Tools.logtoJson(@log_hash, 'completed', Time.now)
+Mcmlln::Tools.write_json(local_log_hash, Bkmkr::Paths.json_log)

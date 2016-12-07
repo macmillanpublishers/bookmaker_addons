@@ -4,9 +4,7 @@ require_relative '../bookmaker/core/header.rb'
 require_relative '../bookmaker/core/metadata.rb'
 
 # ---------------------- VARIABLES
-json_log_hash = Bkmkr::Paths.jsonlog_hash
-json_log_hash[Bkmkr::Paths.thisscript] = {}
-@log_hash = json_log_hash[Bkmkr::Paths.thisscript]
+local_log_hash, @log_hash = Bkmkr::Paths.setLocalLoghash
 
 # The locations to check for images
 imagedir = Bkmkr::Paths.submitted_images
@@ -24,27 +22,27 @@ missing_jpg = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker"
 # ---------------------- METHODS
 
 ## wrapping a Mcmlln::Tools method in a new method for this script; to return a result for json_logfile
-def getFilesinDir(path, logkey, logstring=true)
+def getFilesinDir(path, logkey='')
 	files = Mcmlln::Tools.dirListFiles(path)
 	return files
 rescue => logstring
 	return []
 ensure
-  @log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
 ## wrapping a Mcmlln::Tools method in a new method for this script; to return a result for json_logfile
-def readOutputHtml(logkey, logstring=true)
+def readOutputHtml(logkey='')
 	filecontents = File.read(Bkmkr::Paths.outputtmp_html)
 	return filecontents
 rescue => logstring
 	return ''
 ensure
-  @log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
 # If an image_error file exists, delete it
-def checkErrorFile(file, logkey, logstring=true)
+def checkErrorFile(file, logkey='')
   if File.file?(file)
     Mcmlln::Tools.deleteFile(file)
   else
@@ -52,10 +50,10 @@ def checkErrorFile(file, logkey, logstring=true)
   end
 rescue => logstring
 ensure
-  @log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def listImages(html, logkey, logstring=true)
+def listImages(html, logkey='')
   # An array of all the image files referenced in the source html file
   imgarr = html.scan(/img src=".*?"/)
   # remove duplicate image names from source array
@@ -64,10 +62,10 @@ def listImages(html, logkey, logstring=true)
 rescue => logstring
   return []
 ensure
-  @log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def checkImages(imglist, inputdirlist, finaldirlist, inputdir, logkey, logstring=true)
+def checkImages(imglist, inputdirlist, finaldirlist, inputdir, logkey='')
   # An empty array to store the list of any missing images
   missing = []
   # An empty array to store filenames with bad types
@@ -93,10 +91,10 @@ def checkImages(imglist, inputdirlist, finaldirlist, inputdir, logkey, logstring
 rescue => logstring
   return [],[],[]
 ensure
-  @log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def convertImages(arr, dir, logkey, logstring=true)
+def convertImages(arr, dir, logkey='')
   corrupt = []
   converted = []
   if arr.any?
@@ -127,11 +125,11 @@ def convertImages(arr, dir, logkey, logstring=true)
 rescue => logstring
   return [],[]
 ensure
-  @log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
 # replace bad images with placeholder
-def insertPlaceholders(arr, html, placeholder, dest, logkey, logstring=true)
+def insertPlaceholders(arr, html, placeholder, dest, logkey='')
   filecontents = html
   if arr.any?
     arr.each do |r|
@@ -145,11 +143,11 @@ def insertPlaceholders(arr, html, placeholder, dest, logkey, logstring=true)
 rescue => logstring
   return ''
 ensure
-  @log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
 # replace image references with jpg file format
-def replaceFormats(arr, html, logkey, logstring=true)
+def replaceFormats(arr, html, logkey='')
   filecontents = html
   if arr.any?
     arr.each do |r|
@@ -163,10 +161,10 @@ def replaceFormats(arr, html, logkey, logstring=true)
 rescue => logstring
   return ''
 ensure
-  @log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def writeTypeErrors(arr, file, logkey, logstring=true)
+def writeTypeErrors(arr, file, logkey='')
   # Writes an error text file in the done\pisbn\ folder that lists all low res image files as stored in the resolution array
   if arr.any?
     File.open(file, 'a+') do |output|
@@ -182,15 +180,15 @@ def writeTypeErrors(arr, file, logkey, logstring=true)
   end
 rescue => logstring
 ensure
-  @log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
 ## wrapping a Mcmlln::Tools method in a new method for this script; to return a result for json_logfile
-def overwriteFile(path, filecontents, logkey, logstring=true)
+def overwriteFile(path, filecontents, logkey='')
 	Mcmlln::Tools.overwriteFile(path, filecontents)
 rescue => logstring
 ensure
-  @log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
 
@@ -253,5 +251,5 @@ File.open(Bkmkr::Paths.log_file, 'a+') do |f|
 end
 
 # Write json log:
-@log_hash['completed'] = Time.now
-Mcmlln::Tools.write_json(json_log_hash, Bkmkr::Paths.json_log)
+Mcmlln::Tools.logtoJson(@log_hash, 'completed', Time.now)
+Mcmlln::Tools.write_json(local_log_hash, Bkmkr::Paths.json_log)

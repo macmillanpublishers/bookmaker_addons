@@ -6,9 +6,7 @@ require_relative '../utilities/oraclequery.rb'
 require_relative '../utilities/isbn_finder.rb'
 
 # ---------------------- VARIABLES
-json_log_hash = Bkmkr::Paths.jsonlog_hash
-json_log_hash[Bkmkr::Paths.thisscript] = {}
-@log_hash = json_log_hash[Bkmkr::Paths.thisscript]
+local_log_hash, @log_hash = Bkmkr::Paths.setLocalLoghash
 
 project_dir = Bkmkr::Project.input_file.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact))[0...-2].pop.to_s.split("_").shift
 
@@ -24,16 +22,16 @@ title_js = File.join(Bkmkr::Paths.core_dir, "htmlmaker", "title.js")
 
 # ---------------------- METHODS
 
-def findBookISBNs_metadataPreprocessing(logkey, logstring=true)
+def findBookISBNs_metadataPreprocessing(logkey='')
   pisbn, eisbn, allworks = findBookISBNs(Bkmkr::Paths.outputtmp_html, Bkmkr::Project.filename)
   return pisbn, eisbn, allworks
 rescue => logstring
   return '','',''
 ensure
-  @log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def findTitlepageImages(allimg, finalimg, logkey, logstring=true)
+def findTitlepageImages(allimg, finalimg, logkey='')
   #get images matching name from dir
   etparr1 = Dir[allimg].select { |f| f.include?('epubtitlepage.')}
   ptparr1 = Dir[allimg].select { |f| f.include?('titlepage.')}
@@ -67,10 +65,10 @@ def findTitlepageImages(allimg, finalimg, logkey, logstring=true)
 rescue => logstring
   return '',''
 ensure
-  @log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def findFrontCover(pisbn, allimg, allworks, logkey, logstring=true)
+def findFrontCover(pisbn, allimg, allworks, logkey='')
   coverdir = File.join(Bkmkr::Paths.done_dir, pisbn, "cover")
   allcover = File.join(coverdir, "*")
   # first find any cover files in the submitted images dir
@@ -109,10 +107,10 @@ def findFrontCover(pisbn, allimg, allworks, logkey, logstring=true)
 rescue => logstring
   return ''
 ensure
-  @log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def getBiblioMetadata(pisbn, eisbn, logkey, logstring=true)
+def getBiblioMetadata(pisbn, eisbn, logkey='')
   # validate 13 digit isbn
   test_pisbn_chars = pisbn.scan(/\d\d\d\d\d\d\d\d\d\d\d\d\d/)
   test_pisbn_length = pisbn.split(%r{\s*})
@@ -146,10 +144,10 @@ def getBiblioMetadata(pisbn, eisbn, logkey, logstring=true)
 rescue => logstring
   return {}
 ensure
-  @log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setAuthorInfo(myhash, logkey, logstring=true)
+def setAuthorInfo(myhash, logkey='')
   # get meta info from html if it exists
   metabookauthor = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="author" content=")(.*?)("\/>)/i)
   # Finding author name(s)
@@ -166,10 +164,10 @@ def setAuthorInfo(myhash, logkey, logstring=true)
 rescue => logstring
   return ''
 ensure
-  @log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setBookTitle(myhash, logkey, logstring=true)
+def setBookTitle(myhash, logkey='')
   # get meta info from html if it exists
   metabooktitle = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="title" content=")(.*?)("\/>)/i)
   # Finding book title
@@ -186,10 +184,10 @@ def setBookTitle(myhash, logkey, logstring=true)
 rescue => logstring
   return ''
 ensure
-  @log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setBookSubtitle(myhash, logkey, logstring=true)
+def setBookSubtitle(myhash, logkey='')
   # get meta info from html if it exists
   metabooksubtitle = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="subtitle" content=")(.*?)("\/>)/i)
   # Finding book subtitle
@@ -206,12 +204,12 @@ def setBookSubtitle(myhash, logkey, logstring=true)
 rescue => logstring
   return ''
 ensure
-  @log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
 # find the publisher imprint based on the imprints.json database
 # only called (by the following method) if biblio data & html metadata unavailable
-def getImprint(projectdir, json, logkey, logstring=true)
+def getImprint(projectdir, json, logkey='')
   data_hash = Mcmlln::Tools.readjson(json)
   arr = []
   # loop through each json record to see if imprint name matches formalname
@@ -230,10 +228,10 @@ def getImprint(projectdir, json, logkey, logstring=true)
 rescue => logstring
   return ''
 ensure
-  @log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setImprint(myhash, project_dir, imprint_json, logkey, logstring=true)
+def setImprint(myhash, project_dir, imprint_json, logkey='')
   # get meta info from html if it exists
   metaimprint = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="imprint" content=")(.*?)("\/>)/i)
   # Finding imprint name
@@ -251,10 +249,10 @@ def setImprint(myhash, project_dir, imprint_json, logkey, logstring=true)
 rescue => logstring
   return ''
 ensure
-  @log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setPublisher(myhash, imprint, logkey, logstring=true)
+def setPublisher(myhash, imprint, logkey='')
   # get meta info from html if it exists
   metapublisher = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="publisher" content=")(.*?)("\/>)/i)
   # Finding publisher
@@ -267,10 +265,10 @@ def setPublisher(myhash, imprint, logkey, logstring=true)
 rescue => logstring
   return ''
 ensure
-  @log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setTemplate(myhash, logkey, logstring=true)
+def setTemplate(myhash, logkey='')
   # get meta info from html if it exists
   metatemplate = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="template" content=")(.*?)("\/>)/i)
   if !metatemplate.nil?
@@ -285,11 +283,11 @@ def setTemplate(myhash, logkey, logstring=true)
 rescue => logstring
   return '',''
 ensure
-  @log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
 # determine directory name for assets e.g. css, js, logo images
-def getResourceDir(imprint, json, logkey, logstring=true)
+def getResourceDir(imprint, json, logkey='')
   data_hash = Mcmlln::Tools.readjson(json)
   arr = []
   # loop through each json record to see if imprint name matches formalname
@@ -308,10 +306,10 @@ def getResourceDir(imprint, json, logkey, logstring=true)
 rescue => logstring
   return ''
 ensure
-  @log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setPdfCssFile(metatemplate, template, pdf_css_dir, stage_dir, resource_dir, logkey, logstring=true)
+def setPdfCssFile(metatemplate, template, pdf_css_dir, stage_dir, resource_dir, logkey='')
   if !metatemplate.nil? and File.file?("#{pdf_css_dir}/#{resource_dir}/#{template}.css")
     pdf_css_file = "#{pdf_css_dir}/#{resource_dir}/#{template}.css"
   elsif File.file?("#{pdf_css_dir}/#{resource_dir}/#{stage_dir}.css")
@@ -325,10 +323,10 @@ def setPdfCssFile(metatemplate, template, pdf_css_dir, stage_dir, resource_dir, 
 rescue => logstring
   return ''
 ensure
-  @log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setEpubCssFile(metatemplate, template, epub_css_dir, stage_dir, resource_dir, logkey, logstring=true)
+def setEpubCssFile(metatemplate, template, epub_css_dir, stage_dir, resource_dir, logkey='')
   if !metatemplate.nil? and File.file?("#{epub_css_dir}/#{resource_dir}/#{template}.css")
     epub_css_file = "#{epub_css_dir}/#{resource_dir}/#{template}.css"
   elsif File.file?("#{epub_css_dir}/#{resource_dir}/#{stage_dir}.css")
@@ -342,11 +340,11 @@ def setEpubCssFile(metatemplate, template, epub_css_dir, stage_dir, resource_dir
 rescue => logstring
   return ''
 ensure
-  @log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
 # get JS file for pdf and edit title info to match our book
-def setupPdfJSfile(proj_js_file, fallback_js_file, pdf_js_file, booktitle, authorname, logkey, logstring=true)
+def setupPdfJSfile(proj_js_file, fallback_js_file, pdf_js_file, booktitle, authorname, logkey='')
   if File.file?(proj_js_file)
     js_file = proj_js_file
   elsif File.file?(fallback_js_file)
@@ -365,10 +363,10 @@ def setupPdfJSfile(proj_js_file, fallback_js_file, pdf_js_file, booktitle, autho
   end
 rescue => logstring
 ensure
-  @log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setTOCvalFromXml(xml_file, logkey, logstring=true)
+def setTOCvalFromXml(xml_file, logkey='')
   if Mcmlln::Tools.checkFileExist(xml_file)
     check_tocbody = File.read(xml_file).scan(/w:pStyle w:val\="TOC/)
     check_tochead = File.read(Bkmkr::Paths.outputtmp_html).scan(/class="texttoc"/)
@@ -384,22 +382,22 @@ def setTOCvalFromXml(xml_file, logkey, logstring=true)
 rescue => logstring
   return ''
 ensure
-  @log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def writeConfigJson(hash, json, logkey, logstring=true)
+def writeConfigJson(hash, json, logkey='')
   Mcmlln::Tools.write_json(hash, json)
 rescue => logstring
 ensure
-  @log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
 ## wrapping Bkmkr::Tools.runnode in a new method for this script; to return a result for json_logfile
-def metadataPP_runNode(jsfile, args, logkey, logstring=true)
+def metadataPP_runNode(jsfile, args, logkey='')
 	Bkmkr::Tools.runnode(jsfile, args)
 rescue => logstring
 ensure
-  @log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
 # ---------------------- PROCESSES
@@ -516,5 +514,5 @@ metadataPP_runNode(title_js, "#{Bkmkr::Paths.outputtmp_html} \"#{booktitle}\"", 
 # ---------------------- LOGGING
 
 # Write json log:
-@log_hash['completed'] = Time.now
-Mcmlln::Tools.write_json(json_log_hash, Bkmkr::Paths.json_log)
+Mcmlln::Tools.logtoJson(@log_hash, 'completed', Time.now)
+Mcmlln::Tools.write_json(local_log_hash, Bkmkr::Paths.json_log)

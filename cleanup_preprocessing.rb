@@ -1,54 +1,55 @@
-require 'net/ftp'
-
 require_relative '../bookmaker/core/header.rb'
 require_relative '../bookmaker/core/metadata.rb'
 
-data_hash = Mcmlln::Tools.readjson(Metadata.configfile)
-project_dir = data_hash['project']
-stage_dir = data_hash['stage']
 
-# clean up the ftp site if files were uploaded
+# ---------------------- VARIABLES
+local_log_hash, @log_hash = Bkmkr::Paths.setLocalLoghash
+
 uploaded_image_log = "#{Bkmkr::Paths.project_tmp_dir_img}/uploaded_image_log.txt"
-fileexist = Mcmlln::Tools.checkFileExist(uploaded_image_log)
-fileempty = Mcmlln::Tools.checkFileEmpty(uploaded_image_log)
 
-class Ftpfunctions
-  @@ftp_username = Mcmlln::Tools.readFile("#{$scripts_dir}/bookmaker_authkeys/ftp_username.txt")
-  @@ftp_password = Mcmlln::Tools.readFile("#{$scripts_dir}/bookmaker_authkeys/ftp_pass.txt")
-  @@ftp_url = "142.54.232.104"
 
-  def self.loginFTP(url, uname, pwd)
-    ftp = Net::FTP.new("#{url}")
-    ftp.login(user = "#{uname}", passwd = "#{pwd}")
-    return ftp
-  end
+# ---------------------- METHODS
+## wrapping a Mcmlln::Tools method in a new method for this script; to return a result for json_logfile
 
-  def self.checkFTP(parentfolder, childfolder)
-    ftp = Ftpfunctions.loginFTP(@@ftp_url, @@ftp_username, @@ftp_password)
-    files = ftp.chdir("/files/html/bookmaker/bookmakerimg/#{parentfolder}/#{childfolder}")
-    filenames = ftp.nlst()
-    filenames
-  end
-
-  def self.deleteFTP(parentfolder, childfolder)
-    ftp = Ftpfunctions.loginFTP(@@ftp_url, @@ftp_username, @@ftp_password)
-    files = ftp.chdir("/files/html/bookmaker/bookmakerimg/")
-    ls = ftp.nlst()
-    if ls.include?(parentfolder)
-      files = ftp.chdir(parentfolder)
-      ls = ftp.nlst()
-      if ls.include?(childfolder)
-        files = ftp.chdir(childfolder)
-        filenames = ftp.nlst()
-        filenames.each do |d|
-          file = ftp.delete(d)
-        end
-      end
-    end
-    files = ftp.nlst()
-    ftp.close
-    return files
-  end
+def localCheckFileExist(file, logkey='')
+  fileexist = Mcmlln::Tools.checkFileExist(file)
+  logstring = fileexist
+  return fileexist
+rescue => logstring
+  return ''
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-Ftpfunctions.deleteFTP("#{project_dir}_#{stage_dir}", Metadata.pisbn)
+def localCheckFileEmpty(file, logkey='')
+  fileempty = Mcmlln::Tools.checkFileEmpty(file)
+  logstring = fileempty
+  return fileempty
+rescue => logstring
+  return ''
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
+#wrapping ftp class method in its own separate method: to write to jsonlog here and leave class methods more general.
+def ftpDeleteDir(parentfolder, childfolder, logkey='')
+  Ftpfunctions.deleteFTP("#{Metadata.project_dir}_#{Metadata.stage_dir}", Metadata.pisbn)
+rescue => logstring
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
+
+# ---------------------- PROCESSES
+# clean up the ftp site if files were uploaded
+fileexist = localCheckFileExist(uploaded_image_log, 'ftp_upload_image_log_exist?')
+fileempty = localCheckFileEmpty(uploaded_image_log, 'ftp_upload_image_log_empty?')
+
+ftpDeleteDir("#{Metadata.project_dir}_#{Metadata.stage_dir}", Metadata.pisbn, 'delete_images_off_ftp')
+
+
+# ---------------------- LOGGING
+
+# Write json log:
+Mcmlln::Tools.logtoJson(@log_hash, 'completed', Time.now)
+Mcmlln::Tools.write_json(local_log_hash, Bkmkr::Paths.json_log)

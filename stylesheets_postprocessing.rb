@@ -5,9 +5,7 @@ require_relative '../bookmaker/core/header.rb'
 require_relative '../bookmaker/core/metadata.rb'
 
 # ---------------------- VARIABLES
-json_log_hash = Bkmkr::Paths.jsonlog_hash
-json_log_hash[Bkmkr::Paths.thisscript] = {}
-@log_hash = json_log_hash[Bkmkr::Paths.thisscript]
+local_log_hash, @log_hash = Bkmkr::Paths.setLocalLoghash
 
 # Local path vars, css files
 tmp_layout_dir = File.join(Bkmkr::Project.working_dir, "done", Metadata.pisbn, "layout")
@@ -22,18 +20,18 @@ oneoff_45x7_sans = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfm
 # ---------------------- METHODS
 
 # collect chapterheads
-def getChapters(logkey, logstring=true)
+def getChapters(logkey='')
 	# an array of all occurances of chapters in the manuscript
 	chapterheads = File.read(Bkmkr::Paths.outputtmp_html).scan(/section data-type="chapter"/)
 	return chapterheads
 rescue => logstring
 	return []
 ensure
-	@log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
 # check for processing instructions for trim
-def getTrimPIs(logkey, logstring=true)
+def getTrimPIs(logkey='')
 	size = File.read(Bkmkr::Paths.outputtmp_html).scan(/<meta name="size"/)
 	unless size.nil? or size.empty? or !size
 		size = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="size" content=")(\d*\.*\d*in \d*\.*\d*in)("\/>)/)[2].gsub(/\s/,"")
@@ -54,11 +52,11 @@ def getTrimPIs(logkey, logstring=true)
 rescue => logstring
 	return '',''
 ensure
-	@log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
 # check for processing instructions for toc
-def getTOCpis(logkey, logstring=true)
+def getTOCpis(logkey='')
 	tocpicheck = File.read(Bkmkr::Paths.outputtmp_html).scan(/<meta name="toc" content="(auto|manual|none)"\/>/)
 	if tocpicheck.nil? or tocpicheck.empty? or !tocpicheck
 		toc_override = false
@@ -70,10 +68,10 @@ def getTOCpis(logkey, logstring=true)
 rescue => logstring
 	return ''
 ensure
-	@log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def evalOneoffs(file, path, logkey, logstring=true)
+def evalOneoffs(file, path, logkey='')
 	tmp_layout_dir = File.join(Bkmkr::Project.working_dir, "done", Metadata.pisbn, "layout")
 	oneoffcss_new = File.join(Bkmkr::Paths.submitted_images, file)
 	oneoffcss_pickup = File.join(tmp_layout_dir, file)
@@ -96,10 +94,10 @@ def evalOneoffs(file, path, logkey, logstring=true)
 	end
 rescue => logstring
 ensure
-	@log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def appendPdfCss(pdf_css_file, chapterheads, toc_override, trimcss, logkey, logstring=true)
+def appendPdfCss(pdf_css_file, chapterheads, toc_override, trimcss, logkey='')
 	if File.file?(pdf_css_file)
 		# hide chaptertitle for books with only 1 chapter
 		if chapterheads.count > 1
@@ -125,10 +123,10 @@ def appendPdfCss(pdf_css_file, chapterheads, toc_override, trimcss, logkey, logs
 	end
 rescue => logstring
 ensure
-	@log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def appendEpubCss(epub_css_file, chapterheads, logkey, logstring=true)
+def appendEpubCss(epub_css_file, chapterheads, logkey='')
 	if File.file?(epub_css_file)
 		unless chapterheads.count > 1
 			File.open(epub_css_file, 'a+') do |e|
@@ -141,7 +139,7 @@ def appendEpubCss(epub_css_file, chapterheads, logkey, logstring=true)
 	end
 rescue => logstring
 ensure
-	@log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
 
@@ -174,5 +172,5 @@ File.open(Bkmkr::Paths.log_file, 'a+') do |f|
 end
 
 # Write json log:
-@log_hash['completed'] = Time.now
-Mcmlln::Tools.write_json(json_log_hash, Bkmkr::Paths.json_log)
+Mcmlln::Tools.logtoJson(@log_hash, 'completed', Time.now)
+Mcmlln::Tools.write_json(local_log_hash, Bkmkr::Paths.json_log)

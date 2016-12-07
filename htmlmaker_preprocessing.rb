@@ -5,9 +5,7 @@ require_relative '../bookmaker/core/header.rb'
 # These commands should run immediately prior to htmlmaker
 
 # ---------------------- VARIABLES
-json_log_hash = Bkmkr::Paths.jsonlog_hash
-json_log_hash[Bkmkr::Paths.thisscript] = {}
-@log_hash = json_log_hash[Bkmkr::Paths.thisscript]
+local_log_hash, @log_hash = Bkmkr::Paths.setLocalLoghash
 
 filetype = Bkmkr::Project.filename_split.split(".").pop
 
@@ -15,7 +13,7 @@ configfile = File.join(Bkmkr::Paths.project_tmp_dir, "config.json")
 
 # ---------------------- METHODS
 
-def convertDocToDocxPSscript(filetype, logkey, logstring=true)
+def convertDocToDocxPSscript(filetype, logkey='')
   unless filetype == "html"
     doctodocx = "S:\\resources\\bookmaker_scripts\\bookmaker_addons\\htmlmaker_preprocessing.ps1"
     `PowerShell -NoProfile -ExecutionPolicy Bypass -Command "#{doctodocx} '#{Bkmkr::Paths.project_tmp_file}'"`
@@ -24,14 +22,14 @@ def convertDocToDocxPSscript(filetype, logkey, logstring=true)
 	end
 rescue => logstring
 ensure
-  @log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def writeConfigJson(hash, json, logkey, logstring=true)
+def writeConfigJson(hash, json, logkey='')
   Mcmlln::Tools.write_json(hash, json)
 rescue => logstring
 ensure
-  @log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
 # ---------------------- PROCESSES
@@ -64,5 +62,5 @@ writeConfigJson(datahash, configfile, 'write_config_jsonfile')
 
 # ---------------------- LOGGING
 # Write json log:
-@log_hash['completed'] = Time.now
-Mcmlln::Tools.write_json(json_log_hash, Bkmkr::Paths.json_log)
+Mcmlln::Tools.logtoJson(@log_hash, 'completed', Time.now)
+Mcmlln::Tools.write_json(local_log_hash, Bkmkr::Paths.json_log)

@@ -6,16 +6,14 @@ require_relative '../bookmaker/core/metadata.rb'
 # These commands should run immediately prior to filearchive
 
 # ---------------------- VARIABLES
-json_log_hash = Bkmkr::Paths.jsonlog_hash
-json_log_hash[Bkmkr::Paths.thisscript] = {}
-@log_hash = json_log_hash[Bkmkr::Paths.thisscript]
+local_log_hash, @log_hash = Bkmkr::Paths.setLocalLoghash
 
 # Find supplemental titlepages
 finalimagedir = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "images")
 
 
 # ---------------------- METHODS
-def archiveTitlepageImg(titlepage, finalimagedir, logkey, logstring=true)
+def archiveTitlepageImg(titlepage, finalimagedir, logkey='')
 	if File.file?(titlepage)
 		tpfilename = titlepage.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
 		titlepagearc = File.join(finalimagedir, tpfilename)
@@ -29,7 +27,7 @@ def archiveTitlepageImg(titlepage, finalimagedir, logkey, logstring=true)
 	end
 rescue => logstring
 ensure
-	@log_hash[logkey] = logstring
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
 
@@ -45,5 +43,5 @@ archiveTitlepageImg(Metadata.epubtitlepage, finalimagedir, 'archive_epubtitlepag
 # ---------------------- LOGGING
 
 # Write json log:
-@log_hash['completed'] = Time.now
-Mcmlln::Tools.write_json(json_log_hash, Bkmkr::Paths.json_log)
+Mcmlln::Tools.logtoJson(@log_hash, 'completed', Time.now)
+Mcmlln::Tools.write_json(local_log_hash, Bkmkr::Paths.json_log)
