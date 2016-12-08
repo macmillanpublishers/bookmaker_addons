@@ -76,9 +76,9 @@ def checkImages(imglist, inputdirlist, finaldirlist, inputdir, logkey='')
   imglist.each do |m|
     match = m.split("/").pop.gsub(/"/,'')
     matched_file = File.join(inputdir, match)
-    imgformat = match.split(".").pop.downcase
+  	imgformat = match.split(".").pop.downcase
     unless imgformat == "jpg" or imgformat == "jpeg" or imgformat == "png" or imgformat == "pdf" or imgformat == "ai"
-      format << match
+			format << match
       Mcmlln::Tools.deleteFile(matched_file)
     else
       supported << match
@@ -212,7 +212,7 @@ format, supported, missing = checkImages(imgarr, images, finalimages, Bkmkr::Pat
 unless format.nil? or format.empty? or !format
   puts "UNSUPPORTED IMAGE TYPES:"
   puts format
-  @loghash['unsupported_image_types'] = format
+  # @loghash['unsupported_image_types'] = format
 end
 
 # run method: convertImages

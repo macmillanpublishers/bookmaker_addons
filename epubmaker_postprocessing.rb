@@ -30,6 +30,16 @@ testing_value_file = File.join(Bkmkr::Paths.resource_dir, "staging.txt")
 epubcheck_errfile = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "EPUBCHECK_ERROR.txt")
 
 # ---------------------- METHODS
+
+def readConfigJson(logkey='')
+  data_hash = Mcmlln::Tools.readjson(Metadata.configfile)
+  return data_hash
+rescue => logstring
+  return {}
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
 def deleteFileIfPresent(file, logkey='')
   if File.file?(file)
     Mcmlln::Tools.deleteFile(file)
@@ -167,7 +177,7 @@ ensure
 end
 
 def renameFinalEpub(csfilename, logkey='')
-  if Metadata.stage_dir.include? "egalley" or Metadata.stage_dir.include? "galley" or Metadata.stage_dir.include? "firstpass"
+  if stage_dir.include? "egalley" or stage_dir.include? "galley" or stage_dir.include? "firstpass"
     Mcmlln::Tools.moveFile("#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{Metadata.eisbn}_EPUB.epub", "#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{Metadata.eisbn}_EPUBfirstpass.epub")
     csfilename = "#{Metadata.eisbn}_EPUBfirstpass"
   end
@@ -221,6 +231,10 @@ end
 
 
 # ---------------------- PROCESSES
+
+data_hash = readConfigJson('read_config_json')
+#local definition(s) based on config.json
+stage_dir = data_hash['stage']
 
 # If an epubcheck_errfile exists, delete it
 deleteFileIfPresent(epubcheck_errfile, 'delete_epubcheck_errfile')

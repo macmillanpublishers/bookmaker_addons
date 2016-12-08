@@ -19,6 +19,15 @@ oneoff_45x7_sans = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfm
 
 # ---------------------- METHODS
 
+def readConfigJson(logkey='')
+  data_hash = Mcmlln::Tools.readjson(Metadata.configfile)
+  return data_hash
+rescue => logstring
+  return {}
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
 # collect chapterheads
 def getChapters(logkey='')
 	# an array of all occurances of chapters in the manuscript
@@ -37,10 +46,10 @@ def getTrimPIs(logkey='')
 		size = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="size" content=")(\d*\.*\d*in \d*\.*\d*in)("\/>)/)[2].gsub(/\s/,"")
 	end
 
-	if size == "4.5in7.125in" and Metadata.stage_dir == "arc-sans"
+	if size == "4.5in7.125in" and stage_dir == "arc-sans"
 		trimcss = File.read(oneoff_45x7_sans)
 		trimmessage = "Adding further css customizations: #{oneoff_45x7_sans}"
-	elsif size == "4.5in7.125in" and Metadata.stage_dir != "arc-sans"
+	elsif size == "4.5in7.125in" and stage_dir != "arc-sans"
 		trimcss = File.read(oneoff_45x7)
 		trimmessage = "Adding further css customizations: #{oneoff_45x7}"
 	else
@@ -97,7 +106,7 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def appendPdfCss(pdf_css_file, chapterheads, toc_override, trimcss, logkey='')
+def appendPdfCss(pdf_css_file, chapterheads, pod_toc, toc_override, trimcss, logkey='')
 	if File.file?(pdf_css_file)
 		# hide chaptertitle for books with only 1 chapter
 		if chapterheads.count > 1
@@ -106,7 +115,7 @@ def appendPdfCss(pdf_css_file, chapterheads, toc_override, trimcss, logkey='')
 			suppress_titles = "section[data-type='chapter']>h1{display:none;}"
 		end
 		# suppress auto-toc via CSS based on tocpicheck (above) & xml check (from metadatapreprocessing)
-		if Metadata.pod_toc == "true" or toc_override == true
+		if pod_toc == "true" or toc_override == true
 			suppress_toc = ''
 		else
 			suppress_toc = 'nav[data-type="toc"]{display:none;}'
@@ -144,6 +153,11 @@ end
 
 
 # ---------------------- PROCESSES
+data_hash = readConfigJson('read_config_json')
+#local definition(s) based on config.json
+stage_dir = data_hash['stage']
+pod_toc = data_hash['pod_toc']
+
 
 # an array of all occurances of chapters in the manuscript
 chapterheads = getChapters('get_chapters_from_html')
@@ -157,7 +171,7 @@ toc_override = getTOCpis('get_toc_pis')
 
 # for pdf, apply processing instructions results for trim, chapter titles, toc
 # also eval any one-off-css files for pdf
-appendPdfCss(pdf_css_file, chapterheads, toc_override, trimcss, 'append_pdf_css')
+appendPdfCss(pdf_css_file, chapterheads, pod_toc, toc_override, trimcss, 'append_pdf_css')
 
 # hide chaptertitle for epubs with only 1 chapter
 # also eval any one-off-css files for epub

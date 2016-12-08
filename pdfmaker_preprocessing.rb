@@ -17,10 +17,6 @@ maxheight = 5.5
 maxwidth = 3.5
 grid = 16.0
 
-# ftp url
-ftpdirext = "http://www.macmillan.tools.vhost.zerolag.com/bookmaker/bookmakerimg/#{Metadata.project_dir}_#{Metadata.stage_dir}/#{Metadata.pisbn}"
-ftpdirint = "/files/html/bookmaker/bookmakerimg/#{Metadata.project_dir}_#{Metadata.stage_dir}/#{Metadata.pisbn}"
-
 pdftmp_dir = File.join(Bkmkr::Paths.project_tmp_dir_img, "pdftmp")
 pdfmaker_dir = File.join(Bkmkr::Paths.core_dir, "pdfmaker")
 pdf_tmp_html = File.join(Bkmkr::Paths.project_tmp_dir, "pdf_tmp.html")
@@ -31,6 +27,16 @@ pdfmakerpreprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons"
 
 
 # ---------------------- METHODS
+
+def readConfigJson(logkey='')
+  data_hash = Mcmlln::Tools.readjson(Metadata.configfile)
+  return data_hash
+rescue => logstring
+  return {}
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
 ## wrapping a Mcmlln::Tools method in a new method for this script; to return a result for json_logfile
 def makeFolder(path, logkey='')
   unless File.exist?(path)
@@ -246,6 +252,13 @@ end
 
 
 # ---------------------- PROCESSES
+data_hash = readConfigJson('read_config_json')
+#local definition(s) based on config.json
+project_dir = data_hash['project']
+stage_dir = data_hash['stage']
+# including: ftp url
+ftpdirext = "http://www.macmillan.tools.vhost.zerolag.com/bookmaker/bookmakerimg/#{project_dir}_#{stage_dir}/#{Metadata.pisbn}"
+ftpdirint = "/files/html/bookmaker/bookmakerimg/#{project_dir}_#{stage_dir}/#{Metadata.pisbn}"
 
 # create pdf tmp directory
 makeFolder(pdftmp_dir, 'mkdir_pdftmp_dir')
@@ -279,11 +292,11 @@ image_count, corrupt, processed = prepDoneDirImages(pdftmp_dir, maxheight, maxwi
 writeImageErrors(corrupt, image_error, 'write_image_errfiles')
 
 # copy assets to tmp upload dir and upload to ftp
-copyFilesinDir("#{assets_dir}/images/#{Metadata.project_dir}", pdftmp_dir, 'copy_assets_to_pdftmp_dir')
+copyFilesinDir("#{assets_dir}/images/#{project_dir}", pdftmp_dir, 'copy_assets_to_pdftmp_dir')
 
 ftplist = getFilesinDir(pdftmp_dir, 'get_file_list_for_ftp')
 
-ftpsetup = ftpSetupMethod("#{Metadata.project_dir}_#{Metadata.stage_dir}", Metadata.pisbn, 'mkdirs_on_ftp_site')
+ftpsetup = ftpSetupMethod("#{project_dir}_#{stage_dir}", Metadata.pisbn, 'mkdirs_on_ftp_site')
 ftpstatus = ftpUpload(ftpdirint, pdftmp_dir, ftplist, 'upload_imgs_to_ftp')
 
 # run node.js content conversions
