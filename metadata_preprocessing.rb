@@ -132,14 +132,6 @@ def getBiblioMetadata(pisbn, eisbn, logkey='')
     myhash = {}
   end
 
-  #feedback for plaintext & json log
-  unless myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book']
-    logstring = "DB Connection SUCCESS: Found a book record"
-  else
-    logstring = "No DB record found; falling back to manuscript fields"
-  end
-  puts logstring
-
   return myhash
 rescue => logstring
   return {}
@@ -418,14 +410,18 @@ epubtitlepage, podtitlepage = findTitlepageImages(allimg, finalimg, 'find_titlep
 frontcover = findFrontCover(pisbn, allimg, allworks, 'find_frontcover')
 @log_hash['frontcover'] = frontcover
 
-if stage_dir == "firstpass" or stage_dir == "egalley" or stage_dir == "galley" or stage_dir == "arc-sans" or stage_dir == "arc-serif" or stage_dir == "RBM" or stage_dir == "test" and frontcover.empty?
-  frontcoverval = "#{pisbn}_FC.jpg"
-else
-  frontcoverval = frontcover
-end
-
 # connect to DB for all other metadata
 myhash = getBiblioMetadata(pisbn, eisbn, 'get_Biblio_metadata')
+
+#feedback for plaintext & json log
+unless myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book']
+  logstring = "DB Connection SUCCESS: Found a book record"
+else
+  logstring = "No DB record found; falling back to manuscript fields"
+end
+puts logstring
+@log_hash['query_status'] = logstring
+
 
 # Setting metadata vars for config.json:
 # Prioritize metainfo from html, then edition info from biblio, then scan html for tagged data
@@ -474,8 +470,14 @@ setupPdfJSfile(proj_js_file, fallback_js_file, pdf_js_file, booktitle, authornam
 #check the xml in tmp for toc_value
 toc_value = setTOCvalFromXml(xml_file, 'set_TOC_value_From_xml')
 
-
 # Generating the json metadata
+
+if stage_dir == "firstpass" or stage_dir == "egalley" or stage_dir == "galley" or stage_dir == "arc-sans" or stage_dir == "arc-serif" or stage_dir == "RBM" or stage_dir == "test" and frontcover.empty?
+  frontcoverval = "#{pisbn}_FC.jpg"
+else
+  frontcoverval = frontcover
+end
+
 datahash = {}
 datahash.merge!(title: booktitle)
 datahash.merge!(subtitle: booksubtitle)

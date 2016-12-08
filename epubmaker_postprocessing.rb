@@ -10,10 +10,6 @@ local_log_hash, @log_hash = Bkmkr::Paths.setLocalLoghash
 
 oebps_dir = File.join(Bkmkr::Paths.project_tmp_dir, "OEBPS")
 
-podtitlepagetmp = File.join(oebps_dir, "titlepage.jpg")
-
-csfilename = "#{Metadata.eisbn}_EPUB"
-
 zipepub_py = File.join(Bkmkr::Paths.core_dir, "epubmaker", "zipepub.py")
 
 # path to fallback font file
@@ -176,7 +172,7 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def renameFinalEpub(csfilename, logkey='')
+def renameFinalEpub(csfilename, stage_dir, logkey='')
   if stage_dir.include? "egalley" or stage_dir.include? "galley" or stage_dir.include? "firstpass"
     Mcmlln::Tools.moveFile("#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{Metadata.eisbn}_EPUB.epub", "#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{Metadata.eisbn}_EPUBfirstpass.epub")
     csfilename = "#{Metadata.eisbn}_EPUBfirstpass"
@@ -269,12 +265,15 @@ replace = addTOCtoTextFlow(opfcontents, 'add_toc_to_text_flow')
 overwriteFile("#{oebps_dir}/toc01.html", replace, 'write_new_opfcontents')
 
 # remove titlepage.jpg if exists
+podtitlepagetmp = File.join(oebps_dir, "titlepage.jpg")
 deleteFileIfPresent(podtitlepagetmp, 'delete_podtitlepagetmp')
 
 # run method: listImages
 imgarr = listSpacebreakImages(Bkmkr::Paths.outputtmp_html, 'list_spacebreak_images')
 # adjust size of custom space break images
 convertSpacebreakImgs(imgarr, oebps_dir, 'convert_spacebreak_imgs')
+
+csfilename = "#{Metadata.eisbn}_EPUB"
 
 # copy fallback font to package
 copyFile(font, oebps_dir, 'copy_fallback_font_to_pkg')
@@ -286,7 +285,7 @@ localRunPython(zipepub_py, "#{csfilename}.epub #{Bkmkr::Paths.project_tmp_dir}",
 copyFile("#{Bkmkr::Paths.project_tmp_dir}/#{csfilename}.epub", "#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}", 'copy_epub_to_Done_dir')
 
 # Renames final epub for firstpass
-csfilename = renameFinalEpub(csfilename, 'rename_final_epub_for_firstpass')
+csfilename = renameFinalEpub(csfilename, stage_dir, 'rename_final_epub_for_firstpass')
 
 # validate epub file
 epubcheck_output = localRunJar(epubcheck, "#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{csfilename}.epub")

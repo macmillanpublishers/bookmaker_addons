@@ -23,8 +23,6 @@ pdf_tmp_html = File.join(Bkmkr::Paths.project_tmp_dir, "pdf_tmp.html")
 assets_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker")
 finalimagedir = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "images")
 
-pdfmakerpreprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "pdfmaker_preprocessing.js")
-
 
 # ---------------------- METHODS
 
@@ -77,6 +75,30 @@ def convertTitlepage(podfiletype, podtitlepagearc, podtitlepagetmp, logkey='')
     logstring = "moved and converted (file was #{podfiletype})"
   end
 rescue => logstring
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
+def prepareTitlepage(finalimagedir, filecontents, logkey='')
+  unless Metadata.podtitlepage == "Unknown"
+    puts "found a pod titlepage image"
+    tpfilename = Metadata.podtitlepage.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
+    podfiletype = tpfilename.split(".").pop
+    podtitlepagearc = File.join(finalimagedir, tpfilename)
+    podtitlepagetmp = File.join(Bkmkr::Paths.project_tmp_dir_img, "titlepage_fullpage.jpg")
+    if podfiletype == "jpg"
+      FileUtils.cp(podtitlepagearc, podtitlepagetmp)
+    else
+      `convert "#{podtitlepagearc}" "#{podtitlepagetmp}"`
+    end
+    # insert titlepage image
+    filecontents = filecontents.gsub(/(<section data-type="titlepage")/,"\\1 data-titlepage=\"yes\"")
+  else
+    logstring = 'n-a: no podtitlepage found'
+  end
+  return filecontents
+rescue => logstring
+  return ''
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
@@ -228,6 +250,7 @@ end
 
 # fixes images in html, keep final words and ellipses from breaking
 def fixHtmlImageSrcAndKTs(pdf_tmp_html, ftpdirext, logkey='')
+  # .gsub(/([a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9]\s\. \. \.)/,"<span class=\"bookmakerkeeptogetherkt\">\\0</span>")
   filecontents = File.read(pdf_tmp_html).gsub(/src="images\//,"src=\"#{ftpdirext}/")
                                         .gsub(/([a-zA-Z0-9]?[a-zA-Z0-9]?[a-zA-Z0-9]?\s\. \. \.)/,"<span class=\"bookmakerkeeptogetherkt\">\\0</span>")
                                         .gsub(/(\s)(\w\w\w*?\.)(<\/p>)/,"\\1<span class=\"bookmakerkeeptogetherkt\">\\2</span>\\3")
@@ -265,28 +288,15 @@ makeFolder(pdftmp_dir, 'mkdir_pdftmp_dir')
 
 copyFile(Bkmkr::Paths.outputtmp_html, pdf_tmp_html, 'cp_html_to_pdftmp')
 
-readHtml(pdf_tmp_html, 'read_pdfhtml')
+filecontents = readHtml(pdf_tmp_html, 'read_pdfhtml')
 
 # get and prepare titlepage
-unless Metadata.podtitlepage == "Unknown"
-  puts "found a pod titlepage image"
-  @log_hash['get_titlepage'] = "found a pod titlepage image"
-  tpfilename = Metadata.podtitlepage.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
-  podfiletype = tpfilename.split(".").pop
-  podtitlepagearc = File.join(finalimagedir, tpfilename)
-  podtitlepagetmp = File.join(Bkmkr::Paths.project_tmp_dir_img, "titlepage_fullpage.jpg")
-  # move or (if necessary) convert titlepage
-  convertTitlepage(podfiletype, podtitlepagearc, podtitlepagetmp, 'convert_titlepage')
-  # insert titlepage image
-  filecontents = filecontents.gsub(/(<section data-type="titlepage")/,"\\1 data-titlepage=\"yes\"")
-else
-  @log_hash['get_titlepage'] = 'n-a: no podtitlepage found'
-end
-
-overwriteHtml(pdf_tmp_html, filecontents, 'overwrite_pdfhtml_1')
+filecontents = prepareTitlepage(finalimagedir, filecontents, 'prepare_titlepage')
 
 #if any images are in 'done' dir, grayscale and upload them to macmillan.tools site
 image_count, corrupt, processed = prepDoneDirImages(pdftmp_dir, maxheight, maxwidth, grid, 'prep_images_in_done_dir')
+
+overwriteHtml(pdf_tmp_html, filecontents, 'overwrite_pdfhtml_1')
 
 # run method: writeMissingErrors
 writeImageErrors(corrupt, image_error, 'write_image_errfiles')
@@ -300,16 +310,17 @@ ftpsetup = ftpSetupMethod("#{project_dir}_#{stage_dir}", Metadata.pisbn, 'mkdirs
 ftpstatus = ftpUpload(ftpdirint, pdftmp_dir, ftplist, 'upload_imgs_to_ftp')
 
 # run node.js content conversions
+pdfmakerpreprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "pdfmaker_preprocessing.js")
 args = "\"#{pdf_tmp_html}\" \"#{Metadata.booktitle}\" \"#{Metadata.bookauthor}\" \"#{Metadata.pisbn}\" \"#{Metadata.imprint}\" \"#{Metadata.publisher}\""
 localRunNode(pdfmakerpreprocessingjs, args, 'run_pdfmaker-pre_js')
 
 # fixes images in html, keep final words and ellipses from breaking
-fixHtmlImageSrcAndKTs(pdf_tmp_html, ftpdirext, 'fix_html_image_src_and_keeptogethers')
+filecontents = fixHtmlImageSrcAndKTs(pdf_tmp_html, ftpdirext, 'fix_html_image_src_and_keeptogethers')
 
 overwriteHtml(pdf_tmp_html, filecontents, 'overwrite_pdfhtml_2')
 
 # fixes em dash breaks (requires UTF 8 encoding)
-fixEmdashes(pdf_tmp_html, 'fix_emdashes_in_html')
+filecontents = fixEmdashes(pdf_tmp_html, 'fix_emdashes_in_html')
 
 overwriteHtml(pdf_tmp_html, filecontents, 'overwrite_pdfhtml_3')
 

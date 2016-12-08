@@ -42,7 +42,7 @@ end
 
 #wrapping ftp class method in its own separate method: to write to jsonlog here and leave class methods more general.
 def ftpDeleteDir(parentfolder, childfolder, logkey='')
-  Ftpfunctions.deleteFTP("#{project_dir}_#{stage_dir}", Metadata.pisbn)
+  Ftpfunctions.deleteFTP(parentfolder, childfolder)
 rescue => logstring
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)

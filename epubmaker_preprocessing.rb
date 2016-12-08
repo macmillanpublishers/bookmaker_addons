@@ -228,9 +228,9 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-## wrapping Utilities/runpeoplequery in a new method for this script; to return a result for json_logfile
-def localrunPeopleQuery(sql, logkey='')
-  myhash = runPeopleQuery(sql)
+def biblioLookup(logkey='')
+  thissql = personSearchSingleKey(Metadata.eisbn, "EDITION_EAN", "Author")
+  myhash = runPeopleQuery(thissql)
   return myhash
 rescue => logstring
   return {}
@@ -375,7 +375,7 @@ copyLogofile(logo_img, epub_img_dir, 'copy_logo_file_if_no_epubtitlepage')
 
 # Make EBK hyperlinks
 strip_span_xsl = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "strip-spans.xsl")
-localProcessxsl(saxonpath, epub_tmp_html, strip_span_xsl, 'xsl-make_ebk_hyperlinks')
+addEBKhyperlinks(saxonpath, epub_tmp_html, strip_span_xsl, 'xsl-make_ebk_hyperlinks')
 
 filecontents = readHtml(epub_tmp_html, 'read-in_epub_tmp_html_1')
 
@@ -434,8 +434,7 @@ filecontents = readHtml(epub_tmp_html, 'read-in_epub_tmp_html_2')
 # filecontents = filecontents.gsub(Metadata.bookauthor,"<!--AUTHORSIGNUPSTART<a href=\"#{aulink}\">AUTHORSIGNUPEND-->\\0<!--AUTHORSIGNUPSTART</a>AUTHORSIGNUPEND-->").gsub(auupcase,"<!--AUTHORSIGNUPSTART<a href=\"#{aulink}\">AUTHORSIGNUPEND-->\\0<!--AUTHORSIGNUPSTART</a>AUTHORSIGNUPEND-->")
 
 # find the author ID
-thissql = personSearchSingleKey(Metadata.eisbn, "EDITION_EAN", "Author")
-myhash = localrunPeopleQuery(thissql, 'biblio_sql_query')
+myhash = biblioLookup('biblio_sql_queries')
 
 unless myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book']
   logstring = "DB Connection SUCCESS: Found an author record"
