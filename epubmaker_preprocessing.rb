@@ -127,7 +127,7 @@ end
 # prep for titlepage image if needed
 # convert image to jpg
 # copy to image dir
-def prepTitlePageImage(epub_tmp_html, finalimagedir, logkey='')
+def prepTitlePageImage(epub_tmp_html, finalimagedir, epub_img_dir, logkey='')
   unless Metadata.epubtitlepage == "Unknown"
     puts "found an epub titlepage image"
     etpfilename = Metadata.epubtitlepage.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
@@ -366,7 +366,7 @@ overwriteFile(epub_tmp_html, filecontents, 'overwrite_epubhtml_1')
 # prep for titlepage image if needed
 # convert image to jpg
 # copy to image dir
-prepTitlePageImage(epub_tmp_html, finalimagedir, 'prep_titlepage_image')
+prepTitlePageImage(epub_tmp_html, finalimagedir, epub_img_dir, 'prep_titlepage_image')
 
 #set logo image based on project directory
 logo_img = File.join(assets_dir, "images", resource_dir, "logo.jpg")

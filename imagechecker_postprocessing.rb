@@ -212,18 +212,18 @@ format, supported, missing = checkImages(imgarr, images, finalimages, Bkmkr::Pat
 unless format.nil? or format.empty? or !format
   puts "UNSUPPORTED IMAGE TYPES:"
   puts format
-  # @loghash['unsupported_image_types'] = format
+  @log_hash['unsupported_image_types'] = format
 end
 
 # run method: convertImages
 corrupt, converted = convertImages(supported, Bkmkr::Paths.project_tmp_dir_img, 'convert_images')
 
-# log any corrupt &/or converted images to json_logfile
+# print a list of converted and or corrupt images to json_logfile
 unless corrupt.nil? or corrupt.empty? or !corrupt
-  @loghash['corrupt_images'] = corrupt
+  @log_hash['corrupt_images'] = corrupt
 end
 unless converted.nil? or converted.empty? or !converted
-  @loghash['converted_images'] = converted
+  @log_hash['converted_images'] = converted
 end
 
 # run method: insertPlaceholders for format

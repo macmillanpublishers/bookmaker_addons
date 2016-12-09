@@ -251,7 +251,7 @@ addLinkstoTOC(oebps_dir, "part[0-9][0-9]*.html", epubmakerpostprocessingjs, 'add
 # fix title page text in ncx
 ncxcontents = readFile("#{oebps_dir}/toc.ncx", 'read_ncxcontents')
 replace = fixTOCandTPtextinNCX(ncxcontents, 'fix_toc_and_tptext_in_NCX')
-overwriteFile("#{oebps_dir}/toc01.html", replace, 'write_new_ncxcontents')
+overwriteFile("#{oebps_dir}/toc.ncx", replace, 'write_new_ncxcontents')
 
 # hide toc entry in html toc
 # fix title page text in html toc
@@ -262,7 +262,7 @@ overwriteFile("#{oebps_dir}/toc01.html", replace, 'write_new_htmlcontents')
 # add toc to text flow
 opfcontents = readFile("#{oebps_dir}/content.opf", 'read_opfcontents')
 replace = addTOCtoTextFlow(opfcontents, 'add_toc_to_text_flow')
-overwriteFile("#{oebps_dir}/toc01.html", replace, 'write_new_opfcontents')
+overwriteFile("#{oebps_dir}/content.opf", replace, 'write_new_opfcontents')
 
 # remove titlepage.jpg if exists
 podtitlepagetmp = File.join(oebps_dir, "titlepage.jpg")
