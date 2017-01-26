@@ -32,8 +32,8 @@ def makeFolder(path, logkey='')
   unless File.exist?(path)
     Dir.mkdir(path)
   else
-	 logstring = 'n-a'
-	end
+    logstring = 'n-a'
+  end
 rescue => logstring
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
@@ -41,11 +41,11 @@ end
 
 # get copyright page
 def getCopyrightPage(logkey='')
-	# an array of all occurances of chapters in the manuscript
+  # an array of all occurances of chapters in the manuscript
   copyrightpage = File.read(Bkmkr::Paths.outputtmp_html).match(/(<section data-type=\"copyright-page\" .*?\">)((.|\n)*?)(<\/section>)/)
-	return copyrightpage
+  return copyrightpage
 rescue => logstring
-	return []
+  return []
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
@@ -63,8 +63,8 @@ end
 
 # insert 'Begin Reading' link for books with only 1 chapter
 def addBeginReading(filecontents, logkey='')
-	# an array of all occurances of chapters in the manuscript
-	chapterheads = File.read(Bkmkr::Paths.outputtmp_html).scan(/section data-type="chapter"/)
+  # an array of all occurances of chapters in the manuscript
+  chapterheads = File.read(Bkmkr::Paths.outputtmp_html).scan(/section data-type="chapter"/)
   # insert 'Begin Reading' link for books with only 1 chapter
   unless chapterheads.count > 1
     filecontents = filecontents.gsub(/(<section data-type="chapter" .*?><h1 class=".*?">)(.*?)(<\/h1>)/,"\\1Begin Reading\\3")
@@ -72,9 +72,9 @@ def addBeginReading(filecontents, logkey='')
   else
     logstring = "n-a (#{chapterheads.count} chapters found)"
   end
-	return filecontents
+  return filecontents
 rescue => logstring
-	return ''
+  return ''
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
@@ -170,10 +170,10 @@ end
 
 ## wrapping a Mcmlln::Tools method in a new method for this script; to return a result for json_logfile
 def readHtml(file, logkey='')
-	filecontents = File.read(file)
-	return filecontents
+  filecontents = File.read(file)
+  return filecontents
 rescue => logstring
-	return ''
+  return ''
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
@@ -198,7 +198,7 @@ end
 
 ## wrapping Bkmkr::Tools.runnode in a new method for this script; to return a result for json_logfile
 def localRunNode(jsfile, args, logkey='')
-	Bkmkr::Tools.runnode(jsfile, args)
+  Bkmkr::Tools.runnode(jsfile, args)
 rescue => logstring
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
@@ -206,7 +206,7 @@ end
 
 ## wrapping Bkmkr::Tools.movesection in a new method for this script; to return a result for json_logfile
 def localMoveSection(inputfile, sectionparams, src, srcseq, dest, destseq, logkey='')
-	Bkmkr::Tools.movesection(inputfile, sectionparams, src, srcseq, dest, destseq)
+  Bkmkr::Tools.movesection(inputfile, sectionparams, src, srcseq, dest, destseq)
 rescue => logstring
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
@@ -214,7 +214,7 @@ end
 
 ## wrapping Bkmkr::Tools.insertaddons in a new method for this script; to return a result for json_logfile
 def localInsertAddons(inputfile, sectionparams, addonparams, logkey='')
-	Bkmkr::Tools.insertaddons(inputfile, sectionparams, addonparams)
+  Bkmkr::Tools.insertaddons(inputfile, sectionparams, addonparams)
 rescue => logstring
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
@@ -222,13 +222,13 @@ end
 
 ## wrapping Bkmkr::Tools.compileJS in a new method for this script; to return a result for json_logfile
 def localCompileJS(file, logkey='')
-	Bkmkr::Tools.compileJS(file)
+  Bkmkr::Tools.compileJS(file)
 rescue => logstring
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def biblioLookup(logkey='')
+def databaseLookup(logkey='')
   thissql = personSearchSingleKey(Metadata.eisbn, "EDITION_EAN", "Author")
   myhash = runPeopleQuery(thissql)
   return myhash
@@ -434,7 +434,7 @@ filecontents = readHtml(epub_tmp_html, 'read-in_epub_tmp_html_2')
 # filecontents = filecontents.gsub(Metadata.bookauthor,"<!--AUTHORSIGNUPSTART<a href=\"#{aulink}\">AUTHORSIGNUPEND-->\\0<!--AUTHORSIGNUPSTART</a>AUTHORSIGNUPEND-->").gsub(auupcase,"<!--AUTHORSIGNUPSTART<a href=\"#{aulink}\">AUTHORSIGNUPEND-->\\0<!--AUTHORSIGNUPSTART</a>AUTHORSIGNUPEND-->")
 
 # find the author ID
-myhash = biblioLookup('biblio_sql_queries')
+myhash = databaseLookup('biblio_sql_queries')
 
 unless myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book']
   logstring = "DB Connection SUCCESS: Found an author record"

@@ -110,7 +110,7 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def getBiblioMetadata(pisbn, eisbn, logkey='')
+def databaseLookup(pisbn, eisbn, logkey='')
   # validate 13 digit isbn
   test_pisbn_chars = pisbn.scan(/\d\d\d\d\d\d\d\d\d\d\d\d\d/)
   test_pisbn_length = pisbn.split(%r{\s*})
@@ -385,7 +385,7 @@ ensure
 end
 
 ## wrapping Bkmkr::Tools.runnode in a new method for this script; to return a result for json_logfile
-def metadataPP_runNode(jsfile, args, logkey='')
+def localRunNode(jsfile, args, logkey='')
 	Bkmkr::Tools.runnode(jsfile, args)
 rescue => logstring
 ensure
@@ -411,7 +411,7 @@ frontcover = findFrontCover(pisbn, allimg, allworks, 'find_frontcover')
 @log_hash['frontcover'] = frontcover
 
 # connect to DB for all other metadata
-myhash = getBiblioMetadata(pisbn, eisbn, 'get_Biblio_metadata')
+myhash = databaseLookup(pisbn, eisbn, 'get_Biblio_metadata')
 
 #feedback for plaintext & json log
 unless myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book']
@@ -511,7 +511,7 @@ if booktitle.nil? or booktitle.empty? or !booktitle
 end
 
 # replace html book title with ours
-metadataPP_runNode(title_js, "#{Bkmkr::Paths.outputtmp_html} \"#{booktitle}\"", 'run_node_title_js')
+localRunNode(title_js, "#{Bkmkr::Paths.outputtmp_html} \"#{booktitle}\"", 'run_node_title_js')
 
 # ---------------------- LOGGING
 
