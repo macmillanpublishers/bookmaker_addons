@@ -44,3 +44,7 @@ JavaScript:
 * Removes any manually-inserted toc sections
 * Removes any content tagged as "print-only" ([data-format="print"])
 * Suppress TOC entries for chapters that are the only children of a parent part section
+
+## Logging
+
+For information on logfiles for bookmaker_addons scripts, please refer to the main repo README.md section on 'Logging to json' [here](https://github.com/macmillanpublishers/bookmaker#logging-to-json).
