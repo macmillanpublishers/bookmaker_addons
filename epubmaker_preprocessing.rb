@@ -99,7 +99,7 @@ end
 # prep for titlepage image if needed
 # convert image to jpg
 # copy to image dir
-def prepTitlePageImage(jsfile, finalimagedir, epub_img_dir, logkey='')
+def prepTitlePageImage(jsfile, htmlfile, finalimagedir, epub_img_dir, logkey='')
   unless Metadata.epubtitlepage == "Unknown"
     puts "found an epub titlepage image"
     etpfilename = Metadata.epubtitlepage.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
@@ -112,7 +112,7 @@ def prepTitlePageImage(jsfile, finalimagedir, epub_img_dir, logkey='')
       `convert "#{epubtitlepagearc}" "#{epubtitlepagetmp}"`
     end
     # insert titlepage image
-    localRunNode(jsfile, epub_tmp_html, 'epubmaker_preprocessing_js')
+    localRunNode(jsfile, htmlfile, 'epubmaker_preprocessing_js')
   end
 rescue => logstring
 ensure
@@ -304,7 +304,7 @@ filecontents = fixCopyrightforEpub(filecontents, 'fix_copyright_for_epub')
 
 overwriteFile(epub_tmp_html, filecontents, 'overwrite_epubhtml_1')
 
-prepTitlePageImage(titlepagejs, finalimagedir, epub_img_dir, 'prep_titlepage_image')
+prepTitlePageImage(titlepagejs, epub_tmp_html, finalimagedir, epub_img_dir, 'prep_titlepage_image')
 
 #set logo image based on project directory
 logo_img = File.join(assets_dir, "images", resource_dir, "logo.jpg")
