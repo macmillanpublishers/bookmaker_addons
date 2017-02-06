@@ -62,26 +62,39 @@ fs.readFile(file, function editContent (err, contents) {
 
   // add chap numbers to chap titles if specified
   $("h1[data-labeltext]").each(function () {
-      var labeltext = $(this).attr('data-labeltext');
-      if (labeltext.trim()) {
-        $(this).prepend(labeltext + ": "); 
-      };   
+    var labeltext = $(this).attr('data-labeltext');
+    if (labeltext.trim()) {
+      $(this).prepend(labeltext + ": "); 
+    };   
   });
 
-$("span.spanhyperlinkurl:not(:has(a))").each(function () {
-      var newlink = "<a href='" + $( this ).text() + "'>" + $( this ).text() + "</a>";
-      var mypattern1 = new RegExp( "https?://", "g");
-      var result1 = mypattern1.test($( this ).text());
-      var mypattern2 = new RegExp( "^@", "g");
-      var result2 = mypattern2.test($( this ).text());
-      if (result1 === false && result2 === false) {
-        newlink = newlink.replace("href='", "href='http://");
-      }
-      if (result1 === false && result2 === true) {
-        newlink = newlink.replace("href='@", "href='https://twitter.com/");
-      }
-      $(this).empty();
-      $(this).prepend(newlink); 
+  // replace heading text if there is only one chapter
+  $("section[data-type='chapter']:only-of-type > h1.ChapTitleNonprintingctnp").contents().replaceWith("Begin Reading");
+
+  // turn links into real hyperlinks
+  $("span.spanhyperlinkurl:not(:has(a))").each(function () {
+    var newlink = "<a href='" + $( this ).text() + "'>" + $( this ).text() + "</a>";
+    var mypattern1 = new RegExp( "https?://", "g");
+    var result1 = mypattern1.test($( this ).text());
+    var mypattern2 = new RegExp( "^@", "g");
+    var result2 = mypattern2.test($( this ).text());
+    if (result1 === false && result2 === false) {
+      newlink = newlink.replace("href='", "href='http://");
+    }
+    if (result1 === false && result2 === true) {
+      newlink = newlink.replace("href='@", "href='https://twitter.com/");
+    }
+    $(this).empty();
+    $(this).prepend(newlink); 
+  });
+
+  // create hyperlinks from EBKLink paragraphs
+  $(".EBKLinkSourceLa").each(function () {
+    var mySibling = $(this).next(".EBKLinkDestinationLb");
+    var myHref = mySibling.text();
+    var newLink = $("<a></a>").attr("href", myHref);
+    $(this).contents().wrap(newLink);
+    mySibling.remove();
   });
 
   // convert small caps text to uppercase
@@ -93,8 +106,21 @@ $("span.spanhyperlinkurl:not(:has(a))").each(function () {
     $(this).prepend(text); 
   });
 
+  // replace content in spacebreak paras
+  $("p[class^='SpaceBreak']:not(.SpaceBreak-Internalint)").contents().replaceWith("* * *");
+
+  // remove links from illustration sources
+  $("p.IllustrationSourceis a.fig-link").each(function () {
+    var myContents = $(this).contents();
+    $(this).parent().append(myContents);
+    $(this).remove();
+  });
+
   // remove classes from span elements
   $("em.spanitaliccharactersital").removeClass().removeAttr( "class" );
+
+  // remove forced breaks
+  $("br:empty").remove();
 
   // remove textual toc for epub
   $('section.texttoc').remove();

@@ -51,37 +51,8 @@ ensure
 end
 
 # Removing images subdir from src attr
-# remove links from illo sources
 def fixImgSrcs(logkey='')
-  filecontents = File.read(Bkmkr::Paths.outputtmp_html).gsub(/src="images\//,"src=\"").gsub(/(<p class="IllustrationSourceis">)(<a class="fig-link">)(.*?)(<\/a>)(<\/p>)/, "\\1\\3\\5")
-  return filecontents
-rescue => logstring
-  return ''
-ensure
-  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
-end
-
-# insert 'Begin Reading' link for books with only 1 chapter
-def addBeginReading(filecontents, logkey='')
-  # an array of all occurances of chapters in the manuscript
-  chapterheads = File.read(Bkmkr::Paths.outputtmp_html).scan(/section data-type="chapter"/)
-  # insert 'Begin Reading' link for books with only 1 chapter
-  unless chapterheads.count > 1
-    filecontents = filecontents.gsub(/(<section data-type="chapter" .*?><h1 class=".*?">)(.*?)(<\/h1>)/,"\\1Begin Reading\\3")
-    logstring = '1 chapter only, fix applied'
-  else
-    logstring = "n-a (#{chapterheads.count} chapters found)"
-  end
-  return filecontents
-rescue => logstring
-  return ''
-ensure
-  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
-end
-
-def setSpacebreakText(filecontents, logkey='')
-  filecontents = filecontents.gsub(/(<p class=\"SpaceBreak[^\/]*?>)(.*?)(<\/p>)/,'\1* * *\3')
-  filecontents = filecontents.gsub(/(<p class=\"SpaceBreak.*?)( \/>)/,'\1>* * *</p>')
+  filecontents = File.read(Bkmkr::Paths.outputtmp_html).gsub(/src="images\//,"src=\"")
   return filecontents
 rescue => logstring
   return ''
@@ -127,7 +98,7 @@ end
 # prep for titlepage image if needed
 # convert image to jpg
 # copy to image dir
-def prepTitlePageImage(epub_tmp_html, finalimagedir, epub_img_dir, logkey='')
+def prepTitlePageImage(filecontents, finalimagedir, epub_img_dir, logkey='')
   unless Metadata.epubtitlepage == "Unknown"
     puts "found an epub titlepage image"
     etpfilename = Metadata.epubtitlepage.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
@@ -140,10 +111,9 @@ def prepTitlePageImage(epub_tmp_html, finalimagedir, epub_img_dir, logkey='')
       `convert "#{epubtitlepagearc}" "#{epubtitlepagetmp}"`
     end
     # insert titlepage image
-    filecontents = readHtml(epub_tmp_html, 'read-in_epub_tmp_html--for_tpimage')
     filecontents = filecontents.gsub(/(<section data-type="titlepage")/,"\\1 data-titlepage=\"yes\"")
-    overwriteFile(epub_tmp_html, filecontents, 'overwrite_epubhtml--for_tpimage')
   end
+  return filecontents
 rescue => logstring
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
@@ -160,35 +130,9 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-## wrapping Bkmkr::Tools.processxsl in a new method for this script; to return a result for json_logfile
-def addEBKhyperlinks(saxonpath, epub_tmp_html, strip_span_xsl, logkey='')
-  `java -jar "#{saxonpath}" -s:"#{epub_tmp_html}" -xsl:"#{strip_span_xsl}" -o:"#{epub_tmp_html}"`
-rescue => logstring
-ensure
-  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
-end
-
 ## wrapping a Mcmlln::Tools method in a new method for this script; to return a result for json_logfile
 def readHtml(file, logkey='')
   filecontents = File.read(file)
-  return filecontents
-rescue => logstring
-  return ''
-ensure
-  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
-end
-
-def stripManualBreaks(filecontents, logkey='')
-  filecontents = filecontents.gsub(/(<p class="EBKLinkSourceLa">)(.*?)(<\/p>)(<p class="EBKLinkDestinationLb">)(.*?)(<\/p>)/,"\\1<a href=\"\\5\">\\2</a>\\3").gsub(/<br\/>/," ")
-  return filecontents
-rescue => logstring
-  return ''
-ensure
-  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
-end
-
-def combineContiguousSpanUrls(filecontents, logkey='')
-  filecontents = filecontents.gsub(/(<span class="spanhyperlinkurl">)([^<|^>]*)(<\/span><span class="spanhyperlinkurl">)/,"\\1\\2")
   return filecontents
 rescue => logstring
   return ''
@@ -349,43 +293,22 @@ makeFolder(epub_img_dir, 'make_epub_img_dir')
 copyrightpage = getCopyrightPage('get_copyright_page')
 
 # Removing images subdir from src attr
-# remove links from illo sources
 filecontents = fixImgSrcs('fix_img_src_html')
-
-# insert 'Begin Reading' link for books with only 1 chapter
-filecontents = addBeginReading(filecontents, 'add_begin_reading_link')
-
-#set text node contents of all Space Break paras to "* * *"
-filecontents = setSpacebreakText(filecontents, 'set_spacebreak_para_text')
 
 # Update several copyright elements for epub
 filecontents = fixCopyrightforEpub(filecontents, 'fix_copyright_for_epub')
 
-overwriteFile(epub_tmp_html, filecontents, 'overwrite_epubhtml_1')
-
 # prep for titlepage image if needed
 # convert image to jpg
 # copy to image dir
-prepTitlePageImage(epub_tmp_html, finalimagedir, epub_img_dir, 'prep_titlepage_image')
+filecontents = prepTitlePageImage(filecontents, finalimagedir, epub_img_dir, 'prep_titlepage_image')
+
+overwriteFile(epub_tmp_html, filecontents, 'overwrite_epubhtml_1')
 
 #set logo image based on project directory
 logo_img = File.join(assets_dir, "images", resource_dir, "logo.jpg")
 #copy logo image file to epub folder if no epubtitlepage found
 copyLogofile(logo_img, epub_img_dir, 'copy_logo_file_if_no_epubtitlepage')
-
-# Make EBK hyperlinks
-strip_span_xsl = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "strip-spans.xsl")
-addEBKhyperlinks(saxonpath, epub_tmp_html, strip_span_xsl, 'xsl-make_ebk_hyperlinks')
-
-filecontents = readHtml(epub_tmp_html, 'read-in_epub_tmp_html_1')
-
-# and strip manual breaks
-filecontents = stripManualBreaks(filecontents, 'strip_manual_breaks')
-
-# and combine contiguous span urls
-filecontents = combineContiguousSpanUrls(filecontents, 'combine_contiguous_span_urls')
-
-overwriteFile(epub_tmp_html, filecontents, 'overwrite_epubhtml_2')
 
 # do content conversions
 epubmakerpreprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "epubmaker_preprocessing.js")
