@@ -176,8 +176,8 @@ end
 
 def renameFinalEpub(filename, stage_dir, logkey='')
   if stage_dir.include? "egalley" or stage_dir.include? "galley" or stage_dir.include? "firstpass"
-    Mcmlln::Tools.moveFile("#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{filename}.epub", "#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{filename}firstpass.epub")
-    filename = "#{filename}firstpass"
+    Mcmlln::Tools.moveFile("#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{filename}.epub", "#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{Metadata.pisbn}_EPUBfirstpass.epub")
+    filename = "#{Metadata.pisbn}_EPUBfirstpass"
   end
   return filename
 rescue => logstring
@@ -275,7 +275,7 @@ imgarr = listSpacebreakImages(Bkmkr::Paths.outputtmp_html, 'list_spacebreak_imag
 # adjust size of custom space break images
 convertSpacebreakImgs(imgarr, oebps_dir, 'convert_spacebreak_imgs')
 
-csfilename = "#{Metadata.pisbn}_EPUB"
+csfilename = "#{Metadata.eisbn}_EPUB"
 
 # copy fallback font to package
 copyFile(font, oebps_dir, 'copy_fallback_font_to_pkg')
