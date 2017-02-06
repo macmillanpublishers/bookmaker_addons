@@ -174,14 +174,14 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def renameFinalEpub(csfilename, stage_dir, logkey='')
+def renameFinalEpub(filename, stage_dir, logkey='')
   if stage_dir.include? "egalley" or stage_dir.include? "galley" or stage_dir.include? "firstpass"
-    Mcmlln::Tools.moveFile("#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{Metadata.eisbn}_EPUB.epub", "#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{Metadata.eisbn}_EPUBfirstpass.epub")
-    csfilename = "#{Metadata.eisbn}_EPUBfirstpass"
+    Mcmlln::Tools.moveFile("#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{filename}.epub", "#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{Metadata.pisbn}_EPUBfirstpass.epub")
+    filename = "#{Metadata.pisbn}_EPUBfirstpass"
   end
-  return csfilename
+  return filename
 rescue => logstring
-  return csfilename
+  return filename
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
