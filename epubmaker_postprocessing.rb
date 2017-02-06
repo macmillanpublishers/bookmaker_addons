@@ -174,14 +174,14 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def renameFinalEpub(csfilename, stage_dir, logkey='')
+def renameFinalEpub(filename, stage_dir, logkey='')
   if stage_dir.include? "egalley" or stage_dir.include? "galley" or stage_dir.include? "firstpass"
-    Mcmlln::Tools.moveFile("#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{Metadata.eisbn}_EPUB.epub", "#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{Metadata.eisbn}_EPUBfirstpass.epub")
-    csfilename = "#{Metadata.eisbn}_EPUBfirstpass"
+    Mcmlln::Tools.moveFile("#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{filename}.epub", "#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{filename}firstpass.epub")
+    filename = "#{filename}firstpass"
   end
-  return csfilename
+  return filename
 rescue => logstring
-  return csfilename
+  return filename
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
@@ -275,7 +275,7 @@ imgarr = listSpacebreakImages(Bkmkr::Paths.outputtmp_html, 'list_spacebreak_imag
 # adjust size of custom space break images
 convertSpacebreakImgs(imgarr, oebps_dir, 'convert_spacebreak_imgs')
 
-csfilename = "#{Metadata.eisbn}_EPUB"
+csfilename = "#{Metadata.pisbn}_EPUB"
 
 # copy fallback font to package
 copyFile(font, oebps_dir, 'copy_fallback_font_to_pkg')
