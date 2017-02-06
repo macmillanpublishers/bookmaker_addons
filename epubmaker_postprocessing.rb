@@ -25,6 +25,8 @@ testing_value_file = File.join(Bkmkr::Paths.resource_dir, "staging.txt")
 # full path of epubcheck error file
 epubcheck_errfile = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "EPUBCHECK_ERROR.txt")
 
+@smtp_address = Mcmlln::Tools.readFile("#{$scripts_dir}/bookmaker_authkeys/smtp.txt")
+
 # ---------------------- METHODS
 
 def readConfigJson(logkey='')
@@ -172,14 +174,14 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def renameFinalEpub(csfilename, stage_dir, logkey='')
+def renameFinalEpub(filename, stage_dir, logkey='')
   if stage_dir.include? "egalley" or stage_dir.include? "galley" or stage_dir.include? "firstpass"
-    Mcmlln::Tools.moveFile("#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{Metadata.eisbn}_EPUB.epub", "#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{Metadata.eisbn}_EPUBfirstpass.epub")
-    csfilename = "#{Metadata.eisbn}_EPUBfirstpass"
+    Mcmlln::Tools.moveFile("#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{filename}.epub", "#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{Metadata.pisbn}_EPUBfirstpass.epub")
+    filename = "#{Metadata.pisbn}_EPUBfirstpass"
   end
-  return csfilename
+  return filename
 rescue => logstring
-  return csfilename
+  return filename
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
@@ -210,7 +212,7 @@ end
 def sendAlertMail(epubcheck_output, testing_value_file, message, logkey='')
   if epubcheck_output =~ /ERROR/ || epubcheck_output =~ /Check finished with errors/
     unless File.file?(testing_value_file)
-      Net::SMTP.start('10.249.0.12') do |smtp|
+      Net::SMTP.start(@smtp_address) do |smtp|
         smtp.send_message message, 'workflows@macmillan.com',
                                    'workflows@macmillan.com'
       end

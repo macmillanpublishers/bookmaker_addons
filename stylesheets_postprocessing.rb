@@ -40,26 +40,26 @@ ensure
 end
 
 # check for processing instructions for trim
-def getTrimPIs(logkey='')
-	size = File.read(Bkmkr::Paths.outputtmp_html).scan(/<meta name="size"/)
-	unless size.nil? or size.empty? or !size
-		size = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="size" content=")(\d*\.*\d*in \d*\.*\d*in)("\/>)/)[2].gsub(/\s/,"")
-	end
+def getTrimPIs(stage_dir, logkey='')
+  size = File.read(Bkmkr::Paths.outputtmp_html).scan(/<meta name="size"/)
+  unless size.nil? or size.empty? or !size
+    size = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="size" content=")(\d*\.*\d*in \d*\.*\d*in)("\/>)/)[2].gsub(/\s/,"")
+  end
 
-	if size == "4.5in7.125in" and stage_dir == "arc-sans"
-		trimcss = File.read(oneoff_45x7_sans)
-		trimmessage = "Adding further css customizations: #{oneoff_45x7_sans}"
-	elsif size == "4.5in7.125in" and stage_dir != "arc-sans"
-		trimcss = File.read(oneoff_45x7)
-		trimmessage = "Adding further css customizations: #{oneoff_45x7}"
-	else
-		trimcss = ""
-		trimmessage = "No further css customizations"
-	end
+  if size == "4.5in7.125in" and stage_dir == "arc-sans"
+    trimcss = File.read(oneoff_45x7_sans)
+    trimmessage = "Adding further css customizations: #{oneoff_45x7_sans}"
+  elsif size == "4.5in7.125in" and stage_dir != "arc-sans"
+  	trimcss = File.read(oneoff_45x7)
+  	trimmessage = "Adding further css customizations: #{oneoff_45x7}"
+  else
+  	trimcss = ""
+  	trimmessage = "No further css customizations"
+  end
 
-	return trimcss, trimmessage
+  return trimcss, trimmessage
 rescue => logstring
-	return '',''
+  return '',''
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
@@ -163,7 +163,7 @@ pod_toc = data_hash['pod_toc']
 chapterheads = getChapters('get_chapters_from_html')
 
 # check for processing instructions for trim
-trimcss, trimmessage = getTrimPIs('get_trim_pis')
+trimcss, trimmessage = getTrimPIs(stage_dir, 'get_trim_pis')
 @log_hash['trim_message'] = trimmessage
 
 # check for processing instructions for toc

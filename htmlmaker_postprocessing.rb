@@ -14,7 +14,7 @@ htmlmakerpostprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addon
 # ---------------------- METHODS
 
 ## wrapping Bkmkr::Tools.runnode in a new method for this script; to return a result for json_logfile
-def htmlmakerRunNode(jsfile, args, logkey='')
+def localRunNode(jsfile, args, logkey='')
 	Bkmkr::Tools.runnode(jsfile, args)
 rescue => logstring
 ensure
@@ -64,7 +64,7 @@ end
 # ---------------------- PROCESSES
 
 # run content conversions
-htmlmakerRunNode(htmlmakerpostprocessingjs, Bkmkr::Paths.outputtmp_html, 'post-processing_js')
+localRunNode(htmlmakerpostprocessingjs, Bkmkr::Paths.outputtmp_html, 'post-processing_js')
 
 filecontents = readOutputHtml('read_output_html')
 filecontents = fixISBNSpans(filecontents, 'fix_ISBN_spans')

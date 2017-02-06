@@ -242,7 +242,7 @@ end
 
 ## wrapping Bkmkr::Tools.runnode in a new method for this script; to return a result for json_logfile
 def localRunNode(jsfile, args, logkey='')
-	Bkmkr::Tools.runnode(jsfile, args)
+  Bkmkr::Tools.runnode(jsfile, args)
 rescue => logstring
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)

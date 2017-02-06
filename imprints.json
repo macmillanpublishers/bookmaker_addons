@@ -11,6 +11,11 @@
   "searchkey": "Feiwel Friends"
   },
   {
+  "formalname": "Feiwel &amp; Friends",
+  "shortname": "feiwel",
+  "searchkey": "Feiwel Friends"
+  },
+  {
   "formalname": "Flatiron Books",
   "shortname": "flatiron",
   "searchkey": "Flatiron Books"
@@ -64,7 +69,7 @@
   "formalname": "Picador Macmillan Trade",
   "shortname": "picador",
   "searchkey": "Picador Macmillan Trade"
-  },    
+  },
   {
   "formalname": "Henry Holt and Co.",
   "shortname": "holt",
@@ -83,8 +88,8 @@
   {
   "formalname": "Farrar, Straus and Giroux (FSG Adult)",
   "shortname": "fsg",
-  "searchkey": "Farrar, Straus and Giroux (FSG Adult)"
-  }, 
+  "searchkey": "Farrar Straus and Giroux FSG Adult"
+  },
   {
   "formalname": "Forge Books",
   "shortname": "forge",

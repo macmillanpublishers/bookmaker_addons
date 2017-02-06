@@ -18,8 +18,8 @@ def convertDocToDocxPSscript(filetype, logkey='')
     doctodocx = "S:\\resources\\bookmaker_scripts\\bookmaker_addons\\htmlmaker_preprocessing.ps1"
     `PowerShell -NoProfile -ExecutionPolicy Bypass -Command "#{doctodocx} '#{Bkmkr::Paths.project_tmp_file}'"`
   else
-		logstring = 'input file is html, skipping'
-	end
+    logstring = 'input file is html, skipping'
+  end
 rescue => logstring
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)

@@ -23,20 +23,20 @@ missing_jpg = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker"
 
 ## wrapping a Mcmlln::Tools method in a new method for this script; to return a result for json_logfile
 def getFilesinDir(path, logkey='')
-	files = Mcmlln::Tools.dirListFiles(path)
-	return files
+  files = Mcmlln::Tools.dirListFiles(path)
+  return files
 rescue => logstring
-	return []
+  return []
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
 ## wrapping a Mcmlln::Tools method in a new method for this script; to return a result for json_logfile
 def readOutputHtml(logkey='')
-	filecontents = File.read(Bkmkr::Paths.outputtmp_html)
-	return filecontents
+  filecontents = File.read(Bkmkr::Paths.outputtmp_html)
+  return filecontents
 rescue => logstring
-	return ''
+  return ''
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
@@ -78,7 +78,7 @@ def checkImages(imglist, inputdirlist, finaldirlist, inputdir, logkey='')
     matched_file = File.join(inputdir, match)
   	imgformat = match.split(".").pop.downcase
     unless imgformat == "jpg" or imgformat == "jpeg" or imgformat == "png" or imgformat == "pdf" or imgformat == "ai"
-			format << match
+      format << match
       Mcmlln::Tools.deleteFile(matched_file)
     else
       supported << match
@@ -219,12 +219,8 @@ end
 corrupt, converted = convertImages(supported, Bkmkr::Paths.project_tmp_dir_img, 'convert_images')
 
 # print a list of converted and or corrupt images to json_logfile
-unless corrupt.nil? or corrupt.empty? or !corrupt
-  @log_hash['corrupt_images'] = corrupt
-end
-unless converted.nil? or converted.empty? or !converted
-  @log_hash['converted_images'] = converted
-end
+@log_hash['corrupt_images'] = corrupt
+@log_hash['converted_images'] = converted
 
 # run method: insertPlaceholders for format
 filecontents = insertPlaceholders(format, filecontents, missing_jpg, Bkmkr::Paths.project_tmp_dir_img, 'insert_placeholders_for_bad_formats')
