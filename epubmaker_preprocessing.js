@@ -69,7 +69,8 @@ fs.readFile(file, function editContent (err, contents) {
   });
 
   // replace heading text if there is only one chapter
-  $("section[data-type='chapter']:only-of-type > h1.ChapTitleNonprintingctnp").contents().replaceWith("Begin Reading");
+  // removing this for now, leaving it to users to add this heading text for single-chapter books
+  //$("section[data-type='chapter']:only-of-type > h1.ChapTitleNonprintingctnp").contents().replaceWith("Begin Reading");
 
   // turn links into real hyperlinks
   $("span.spanhyperlinkurl:not(:has(a))").each(function () {
@@ -107,7 +108,7 @@ fs.readFile(file, function editContent (err, contents) {
   });
 
   // replace content in spacebreak paras
-  $("p[class^='SpaceBreak']:not(.SpaceBreak-Internalint)").contents().replaceWith("* * *");
+  $("p[class^='SpaceBreak']:not(.SpaceBreak-Internalint)").empty().append("* * *");
 
   // remove links from illustration sources
   $("p.IllustrationSourceis a.fig-link").each(function () {
