@@ -112,7 +112,7 @@ def prepTitlePageImage(jsfile, htmlfile, finalimagedir, epub_img_dir, logkey='')
       `convert "#{epubtitlepagearc}" "#{epubtitlepagetmp}"`
     end
     # insert titlepage image
-    localRunNode(jsfile, htmlfile, 'epubmaker_preprocessing_js')
+    localRunNode(jsfile, htmlfile, 'add_titlepage_attr_to_titlepage')
   end
 rescue => logstring
 ensure
