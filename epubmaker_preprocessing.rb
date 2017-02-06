@@ -15,6 +15,7 @@ saxonpath = File.join(Bkmkr::Paths.resource_dir, "saxon", "#{Bkmkr::Tools.xslpro
 assets_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker")
 epub_img_dir = File.join(Bkmkr::Paths.project_tmp_dir, "epubimg")
 finalimagedir = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "images")
+titlepagejs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "epubmaker_preprocessing-titlepage.js")
 
 # ---------------------- METHODS
 
@@ -98,7 +99,7 @@ end
 # prep for titlepage image if needed
 # convert image to jpg
 # copy to image dir
-def prepTitlePageImage(filecontents, finalimagedir, epub_img_dir, logkey='')
+def prepTitlePageImage(jsfile, finalimagedir, epub_img_dir, logkey='')
   unless Metadata.epubtitlepage == "Unknown"
     puts "found an epub titlepage image"
     etpfilename = Metadata.epubtitlepage.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
@@ -111,9 +112,8 @@ def prepTitlePageImage(filecontents, finalimagedir, epub_img_dir, logkey='')
       `convert "#{epubtitlepagearc}" "#{epubtitlepagetmp}"`
     end
     # insert titlepage image
-    filecontents = filecontents.gsub(/(<section data-type="titlepage")/,"\\1 data-titlepage=\"yes\"")
+    localRunNode(jsfile, epub_tmp_html, 'epubmaker_preprocessing_js')
   end
-  return filecontents
 rescue => logstring
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
@@ -301,9 +301,10 @@ filecontents = fixCopyrightforEpub(filecontents, 'fix_copyright_for_epub')
 # prep for titlepage image if needed
 # convert image to jpg
 # copy to image dir
-filecontents = prepTitlePageImage(filecontents, finalimagedir, epub_img_dir, 'prep_titlepage_image')
 
 overwriteFile(epub_tmp_html, filecontents, 'overwrite_epubhtml_1')
+
+prepTitlePageImage(titlepagejs, finalimagedir, epub_img_dir, 'prep_titlepage_image')
 
 #set logo image based on project directory
 logo_img = File.join(assets_dir, "images", resource_dir, "logo.jpg")
