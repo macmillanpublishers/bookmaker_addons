@@ -68,7 +68,15 @@ fs.readFile(file, function editContent (err, contents) {
     };   
   });
 
-  // replace heading text if there is only one chapter
+  // remove any reference to printing in the copyright page
+  // and insert the correct copyright symbol on copyright page
+  $("section[data-type='copyright-page'] p").each(function () {
+    $( this ).html(function(idx,oldText){
+      return oldText.replace(/Printed in [a-zA-Z\s]+\./g, '').replace(/([C|c]opyright)( |\D|&.*?;)+/g, '$1 &#169; ')
+    });
+  });
+
+  // replace heading text if there is only one chapter;
   // removing this for now, leaving it to users to add this heading text for single-chapter books
   //$("section[data-type='chapter']:only-of-type > h1.ChapTitleNonprintingctnp").contents().replaceWith("Begin Reading");
 
@@ -79,11 +87,16 @@ fs.readFile(file, function editContent (err, contents) {
     var result1 = mypattern1.test($( this ).text());
     var mypattern2 = new RegExp( "^@", "g");
     var result2 = mypattern2.test($( this ).text());
-    if (result1 === false && result2 === false) {
+    var mypattern3 = new RegExp( ".@.", "g");
+    var result3 = mypattern3.test($( this ).text());
+    if (result1 === false && result2 === false && result3 === false) {
       newlink = newlink.replace("href='", "href='http://");
     }
     if (result1 === false && result2 === true) {
       newlink = newlink.replace("href='@", "href='https://twitter.com/");
+    }
+    if (result2 === false && result3 === true) {
+      newlink = newlink.replace("href='", "href='mailto:");
     }
     $(this).empty();
     $(this).prepend(newlink); 

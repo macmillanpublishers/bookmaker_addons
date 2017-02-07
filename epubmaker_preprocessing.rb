@@ -61,33 +61,6 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-# Update several copyright elements for epub
-def fixCopyrightforEpub(filecontents, logkey='')
-  if filecontents.include?('data-type="copyright-page"')
-    copyright_txt = filecontents.match(/(<section data-type=\"copyright-page\" .*?\">)((.|\n)*?)(<\/section>)/)[2]
-    # Note: last gsub here presumes Printer's key is the only copyright item that might be a <p>with just a number, eg <p class="xxx">13</p>
-    new_copyright = copyright_txt.to_s.gsub(/(ISBN )([0-9\-]{13,20})( \(e-book\))/, "e\\1\\2").gsub(/ Printed in the United States of America./, "").gsub(/ Copyright( |\D|&.*?;)+/, " Copyright &#169; ").gsub(/<p class="\w*?">(\d+|(\d+\s){1,9}\d)<\/p>/, "")
-    # Note: this gsub block presumes that these urls do not already have <a href> tags.
-    new_copyright = new_copyright.gsub(/([^\s>]+.(com|org|net)[^\s<]*)/) do |m|
-      url_prefix = "http:\/\/"
-      if m.match(/@/)
-        url_prefix = "mailto:"
-      elsif m.match(/http/)
-        url_prefix = ""
-      end
-      "<a href=\"#{url_prefix}#{m}\">#{m}<\/a>"
-    end
-    filecontents = filecontents.gsub(/(^(.|\n)*?<section data-type="copyright-page" id=".*?">)((.|\n)*?)(<\/section>(.|\n)*$)/, "\\1#{new_copyright}\\5")
-  else
-    logstring = 'no copyright section in html'
-  end
-  return filecontents
-rescue => logstring
-  return ''
-ensure
-  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
-end
-
 ## wrapping a Mcmlln::Tools method in a new method for this script; to return a result for json_logfile
 def overwriteFile(path, filecontents, logkey='')
 	Mcmlln::Tools.overwriteFile(path, filecontents)
@@ -186,8 +159,8 @@ def getlinkAuthorInfo(myhash, logkey='')
   linkauthorarr = []
   linkauthorid = []
   if myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['PERSON_REALNAME'].nil? or myhash['book']['PERSON_REALNAME'].empty? or !myhash['book']['PERSON_REALNAME']
-    linkauthorarr = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageAuthorNameau">.*?</)
-    linkauthorarr.map! { |x| x.gsub(/<p class="TitlepageAuthorNameau">/,"").gsub(/<\//,"") }
+    linkauthorarr = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p.+="TitlepageAuthorNameau".*>.*?</)
+    linkauthorarr.map! { |x| x.gsub(/<p.+="TitlepageAuthorNameau".*?>/,"").gsub(/<\//,"") }
   else
     linkauthorarr = myhash['book']['PERSON_REALNAME'].clone
     linkauthorid = myhash['book']['PERSON_PARTNERID'].clone
