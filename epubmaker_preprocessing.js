@@ -71,9 +71,9 @@ fs.readFile(file, function editContent (err, contents) {
   // remove any reference to printing in the copyright page
   // and insert the correct copyright symbol on copyright page
   $("section[data-type='copyright-page'] p").each(function () {
-    $( this ).html(function(idx,oldText){
-      return oldText.replace(/Printed in [a-zA-Z\s]+\./g, '').replace(/([C|c]opyright)( |\D|&.*?;)+/g, '$1 &#169; ')
-    });
+    var myHTML = $( this ).html().replace(/Printed in [a-zA-Z\s]+\./g, '').replace(/([C|c]opyright)( |\D|&.*?;)+/g, '$1 &#169; ');
+    $(this).empty();
+    $(this).append(myHTML);
   });
 
   // replace heading text if there is only one chapter;
