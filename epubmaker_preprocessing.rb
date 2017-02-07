@@ -268,9 +268,6 @@ copyrightpage = getCopyrightPage('get_copyright_page')
 # Removing images subdir from src attr
 filecontents = fixImgSrcs('fix_img_src_html')
 
-# Update several copyright elements for epub
-filecontents = fixCopyrightforEpub(filecontents, 'fix_copyright_for_epub')
-
 # prep for titlepage image if needed
 # convert image to jpg
 # copy to image dir
