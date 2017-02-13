@@ -1,5 +1,7 @@
 require 'fileutils'
 
+puts "TRAVIS_TEST is: ", TRAVIS_TEST
+
 unless defined?(TRAVIS_TEST)
   require_relative '../bookmaker/core/header.rb'
   require_relative '../bookmaker/core/metadata.rb'

@@ -1,5 +1,8 @@
 require "test/unit"
 require "fileutils"
+
+puts "TRAVIS_TEST is: ", TRAVIS_TEST
+
 require_relative "../htmlmaker_postprocessing.rb"
 
 class HtmlmakerPostProcessing_Tests < Test::Unit::TestCase
