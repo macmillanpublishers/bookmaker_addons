@@ -6,8 +6,8 @@ unless defined?(ENV['TRAVIS_TEST'])
   require_relative '../bookmaker/core/header.rb'
   require_relative '../bookmaker/core/metadata.rb'
 else
-  require_relative './bookmaker/core/header.rb'
-  require_relative './bookmaker/core/metadata.rb'
+  require_relative './unit_testing/for_travis-bookmaker_submodule/bookmaker/core/header.rb'
+  require_relative './unit_testing/for_travis-bookmaker_submodule/bookmaker/core/metadata.rb'
 end
 
 # These commands should run immediately after htmlmaker

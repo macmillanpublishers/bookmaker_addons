@@ -1,3 +1,3 @@
 [submodule "bookmaker"]
-	path = bookmaker
+	path = unit_testing/for_travis-bookmaker_submodule/bookmaker
 	url = https://github.com/macmillanpublishers/bookmaker
