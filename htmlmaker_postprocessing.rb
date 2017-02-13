@@ -1,7 +1,9 @@
 require 'fileutils'
 
-require_relative '../bookmaker/core/header.rb'
-require_relative '../bookmaker/core/metadata.rb'
+unless travis_test == true
+  require_relative '../bookmaker/core/header.rb'
+  require_relative '../bookmaker/core/metadata.rb'
+end
 
 # These commands should run immediately after htmlmaker
 

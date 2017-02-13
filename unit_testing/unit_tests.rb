@@ -19,6 +19,9 @@ class HtmlmakerPostProcessing_Tests < Test::Unit::TestCase
   HTMLfile_fixed = getHTMLfileContents(test_html_good)
   HTMLfile_broken = getHTMLfileContents(test_html_bad)
 
+
+  ########## Begin unit testing
+
   def test_fixISBNSpans
 
     bad_isbn_span1 = '<span class="spanISBNisbn">9780123456789</span><span class="spanISBNisbn"> ^9780123456789 *K</span><span class="spanISBNisbn">9780123456789</span>'
