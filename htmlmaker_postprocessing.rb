@@ -1,6 +1,6 @@
 require 'fileutils'
 
-unless travis_test == true
+unless defined?(TRAVIS_TEST)
   require_relative '../bookmaker/core/header.rb'
   require_relative '../bookmaker/core/metadata.rb'
 end
