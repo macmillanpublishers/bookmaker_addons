@@ -3,6 +3,7 @@ require "fileutils"
 
 require_relative "../htmlmaker_postprocessing.rb"
 
+
 class HtmlmakerPostProcessing_Tests < Test::Unit::TestCase
 
   ########## VARIABLES
@@ -63,7 +64,7 @@ class HtmlmakerPostProcessing_Tests < Test::Unit::TestCase
 
   def testHTMLpostprocessingJS
     # define our js file
-    htmlmakerpostprocessingjs = File.join("..", "test.js") #"htmlmaker_postprocessing.js")
+    htmlmakerpostprocessingjs = File.join(File.expand_path("..", File.dirname(__FILE__)), "test.js") #"htmlmaker_postprocessing.js")
 
     # run our js tests
     self.class.localRunNode(htmlmakerpostprocessingjs, @@test_html_bad_tmp)

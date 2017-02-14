@@ -1,13 +1,13 @@
 language: ruby
 rvm:
 - 2.0.0
-# bundler_args: --without production    #<--- this command was needed before we added our own 'install' comand
+# bundler_args: --without production    #<--- this command was needed before we added our own 'install' comand.  Moving this down as a flag for 'bundle install'
 # our branch safelist:
 branches:
   only:
   - travis
 install:
-  - bundle install --without production --jobs=3 --retry=3   #this is the default command run by Travis for ruby , but our 'install' overrides it, so adding it manually.
+  - bundle install --without production --jobs=3 --retry=3   #this is the default command run by Travis for ruby (+ 'without production'), but our 'install' overrides it, so adding it manually.
   - npm install cheerio
 script: ruby ./unit_testing/unit_tests.rb
 notifications:
