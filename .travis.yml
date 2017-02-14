@@ -7,6 +7,7 @@ branches:
   only:
   - travis
 install:
+  - bundle install --jobs=3 --retry=3   #this is the default command run by Travis for ruby , but our 'install' overrides it, so adding it manually.
   - npm install cheerio
 script: ruby ./unit_testing/unit_tests.rb
 notifications:
