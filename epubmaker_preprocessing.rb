@@ -16,6 +16,7 @@ assets_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker"
 epub_img_dir = File.join(Bkmkr::Paths.project_tmp_dir, "epubimg")
 finalimagedir = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "images")
 titlepagejs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "epubmaker_preprocessing-titlepage.js")
+newsletterjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "epubmaker_preprocessing-newsletterlinks.js")
 
 # ---------------------- METHODS
 
@@ -172,11 +173,21 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setNewsletterAuthorLinks(linkauthorarr, linkauthorid, filecontents, myhash, logkey='')
+def activateAuthorLinks(myhash, filecontents, logkey='')
+  unless myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['PERSON_PARTNERID'].nil? or myhash['book']['PERSON_PARTNERID'].empty? or !myhash['book']['PERSON_PARTNERID']
+    filecontents = filecontents.gsub(/<!--AUTHORSIGNUPSTART/,"").gsub(/AUTHORSIGNUPEND-->/,"")
+  end
+  return filecontents
+rescue => logstring
+  return ''
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
+def setNewsletterAuthorLinks(linkauthorarr, linkauthorid, filecontents, myhash, jsfile, htmlfile, logkey='')
   if linkauthorarr.count > 1
-    # make mini toc entry plural
-    filecontents = filecontents.gsub(/(<a class="spanhyperlink" id="abouttheauthor" href="\S*?">About the Author)(<\/a>)/,"\\1s\\2")
-    # insert new author links in newsletter
+    # make mini toc entry plural,
+    # insert new author links in newsletter,
     # fix author links in ABA sections
     newslinkarr = []
     linkauthorarr.each_with_index do |a, i|
@@ -186,35 +197,14 @@ def setNewsletterAuthorLinks(linkauthorarr, linkauthorid, filecontents, myhash, 
       linkauthornametxt = a.downcase.gsub(/\s/,"").gsub(/\W/,"").to_ascii
       linkauthornameall = a.downcase.gsub(/\s/,"").to_ascii
       thisauthorid = linkauthorid[i]
-      filecontents = filecontents.gsub(/(<section data-type="appendix" class="abouttheauthor".*?#{linkauthorfirst}.*?#{linkauthorlast}.*?)(\{\{AUTHORNAMETXT\}\})(.*?)(\{\{AUTHORID\}\})(.*?)(\{\{AUTHORNAME\}\})(.*?>here<\/a>)/,"\\1#{linkauthornametxt}\\3#{thisauthorid}\\5#{linkauthornameall}\\7")
+      Bkmkr::Tools.runnode(jsfile, "\"#{htmlfile}\" \"#{linkauthorname}\" \"#{linkauthorfirst}\" \"#{linkauthorlast}\" \"#{linkauthornameall}\" \"#{linkauthornametxt}\" \"#{thisauthorid}\"")
     end
-    # another loop to fix the first ABA
-    # and prepare the newsletter links
-    linkauthorarr.each_with_index do |a, i|
-      linkauthorname = a
-      linkauthorfirst = a.split(" ").shift
-      linkauthorlast = a.split(" ").pop
-      linkauthornametxt = a.downcase.gsub(/\s/,"").gsub(/\W/,"").to_ascii
-      linkauthornameall = a.downcase.gsub(/\s/,"").to_ascii
-      thisauthorid = linkauthorid[i]
-      filecontents = filecontents.gsub(/(<section data-type="appendix" class="abouttheauthor".*?#{linkauthorfirst}.*?#{linkauthorlast}.*?)(\{\{AUTHORNAMETXT\}\})(.*?)(\{\{AUTHORID\}\})(.*?)(\{\{AUTHORNAME\}\})(.*?>here<\/a>)/,"\\1#{linkauthornametxt}\\3#{thisauthorid}\\5#{linkauthornameall}\\7")
-      thislink = "<p style=\"text-align: center; text-indent: 0;\">For email updates on #{a}, click <a href=\"http:\/\/us.macmillan.com\/authoralerts?authorName=#{linkauthornametxt}&amp;authorRefId=AUTHORID&amp;utm_source=ebook&amp;utm_medium=adcard&amp;utm_term=ebookreaders&amp;utm_content=#{linkauthornameall}_authoralertsignup_macdotcom&amp;utm_campaign=\{\{EISBN\}\}\">here.<\/a><\/p>"
-      newslinkarr << thislink
-    end
-    # replace author ID in newsletter links
-    linkauthorid.each_with_index do |b, i|
-      newslinkarr.collect!.with_index { |e, n|
-        (n == i) ? e.gsub(/AUTHORID/, b) : e
-      }
-    end
-    newsletterlink = newslinkarr.join(" ")
-    # remove old link
-    filecontents = filecontents.gsub(/<p style=\"text-align: center; text-indent: 0;\">For email updates on the author, click <a href=\"\S*?\">here.<\/a><\/p>/, newsletterlink)
     # set newsletter button link to use first author
     linkauthornametxt = linkauthorarr[0].downcase.gsub(/\s/,"").gsub(/\W/,"").to_ascii
     linkauthornameall = linkauthorarr[0].downcase.gsub(/\s/,"").to_ascii
     authorid = linkauthorid[0]
     filecontents = filecontents.gsub(/\{\{AUTHORNAMETXT\}\}/,"#{linkauthornametxt}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthornameall}").gsub(/\{\{AUTHORID\}\}/,"#{authorid}")
+  # this can stay via ruby
   else
     linkauthornametxt = Metadata.bookauthor.downcase.gsub(/\s/,"").gsub(/\W/,"").to_ascii
     linkauthornameall = Metadata.bookauthor.downcase.gsub(/\s/,"").to_ascii
@@ -232,12 +222,8 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def updateImprintandEisbnPlaceholders(myhash, filecontents, logkey='')
-  if myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['PERSON_PARTNERID'].nil? or myhash['book']['PERSON_PARTNERID'].empty? or !myhash['book']['PERSON_PARTNERID']
-    filecontents = filecontents.gsub(/(data-displayheader="no")/,"class=\"ChapTitleNonprintingctnp\" \\1").gsub(/\{\{IMPRINT\}\}/,"#{Metadata.imprint}").gsub(/\{\{EISBN\}\}/,"#{Metadata.eisbn}")
-  else
-    filecontents = filecontents.gsub(/(data-displayheader="no")/,"class=\"ChapTitleNonprintingctnp\" \\1").gsub(/\{\{IMPRINT\}\}/,"#{Metadata.imprint}").gsub(/\{\{EISBN\}\}/,"#{Metadata.eisbn}").gsub(/<!--AUTHORSIGNUPSTART/,"").gsub(/AUTHORSIGNUPEND-->/,"")
-  end
+def updateImprintandEISBNPlaceholders(myhash, filecontents, logkey='')
+  filecontents = filecontents.gsub(/(data-displayheader="no")/,"class=\"ChapTitleNonprintingctnp\" \\1").gsub(/\{\{IMPRINT\}\}/,"#{Metadata.imprint}").gsub(/\{\{EISBN\}\}/,"#{Metadata.eisbn}")
   return filecontents
 rescue => logstring
   return ''
@@ -343,11 +329,17 @@ linkauthorarr, linkauthorid = getlinkAuthorInfo(myhash, 'get_link_author_info')
 @log_hash['linkauthorarr'] = linkauthorarr
 @log_hash['linkauthorid'] = linkauthorid
 
+# uncomment newsletter link placeholders
+filecontents = activateAuthorLinks(myhash, filecontents, 'uncomment_newsletter_links')
+
+# write epub-ready html to file
+overwriteFile(epub_tmp_html, filecontents, 'overwrite_epubhtml_final')
+
 # update newsletter author links, for single or multiple authors
-filecontents = setNewsletterAuthorLinks(linkauthorarr, linkauthorid, filecontents, myhash, 'set_newsletter_auth_links')
+filecontents = setNewsletterAuthorLinks(linkauthorarr, linkauthorid, filecontents, myhash, newsletterjs, epub_tmp_html, 'set_newsletter_auth_links')
 
 #replace imprint, eisbn placeholders
-filecontents = updateImprintandEisbnPlaceholders(myhash, filecontents, 'update_eisbn_&_imprint_placeholders')
+filecontents = updateImprintandEISBNPlaceholders(myhash, filecontents, 'update_eisbn_&_imprint_placeholders')
 
 # add some line breaks to make the html easier to deal with
 filecontents = addHtmlLineBreaks(filecontents, 'add_html_line_breaks')

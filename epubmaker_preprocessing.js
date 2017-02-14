@@ -54,8 +54,8 @@ fs.readFile(file, function editContent (err, contents) {
   $('section[data-type="copyright-page"]').append(new_notice);
 
   // add extra line to about the author
-  var aulink = "<!--AUTHORSIGNUPSTART <p class='BMTextbmtx'>You can sign up for email updates <a href='http://us.macmillan.com/authoralerts?authorName={{AUTHORNAMETXT}}&amp;authorRefId={{AUTHORID}}&amp;utm_source=ebook&amp;utm_medium=adcard&amp;utm_term=ebookreaders&amp;utm_content={{AUTHORNAME}}_authoralertsignup_macdotcom&amp;utm_campaign={{EISBN}}'>here</a>.</p>AUTHORSIGNUPEND-->";
-  $('section.abouttheauthor').append(aulink);
+  // var aulink = "<!--AUTHORSIGNUPSTART <p class='BMTextbmtx'>You can sign up for email updates <a href='http://us.macmillan.com/authoralerts?authorName={{AUTHORNAMETXT}}&amp;authorRefId={{AUTHORID}}&amp;utm_source=ebook&amp;utm_medium=adcard&amp;utm_term=ebookreaders&amp;utm_content={{AUTHORNAME}}_authoralertsignup_macdotcom&amp;utm_campaign={{EISBN}}'>here</a>.</p>AUTHORSIGNUPEND-->";
+  // $('section.abouttheauthor').append(aulink);
 
   // remove halftitle page sections
   $('section[data-type="halftitlepage"]').remove();
