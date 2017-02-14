@@ -324,22 +324,6 @@ filecontents = fixEmdashes(pdf_tmp_html, 'fix_emdashes_in_html')
 
 overwriteHtml(pdf_tmp_html, filecontents, 'overwrite_pdfhtml_3')
 
-# TESTING
-
-# Printing the test results to the log file
-File.open(Bkmkr::Paths.log_file, 'a+') do |f|
-  f.puts "----- PDFMAKER-PREPROCESSING PROCESSES"
-  f.puts "Processed the following images:"
-  f.puts processed
-  if corrupt.any?
-      f.puts "IMAGE PROCESSING ERRORS:"
-      f.puts "The following images encountered processing errors and may be corrupt:"
-      f.puts corrupt
-  end
-  f.puts "Uploaded the following images to the ftp:"
-  f.puts ftpstatus
-end
-
 # ---------------------- LOGGING
 
 @log_hash['image_count'] = image_count
