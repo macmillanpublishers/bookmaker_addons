@@ -1,12 +1,7 @@
 require 'fileutils'
 
-unless defined?(ENV['TRAVIS_TEST'])
-  require_relative '../bookmaker/core/header.rb'
-  require_relative '../bookmaker/core/metadata.rb'
-else
-  require_relative './unit_testing/for_travis-bookmaker_submodule/bookmaker/core/header.rb'
-  require_relative './unit_testing/for_travis-bookmaker_submodule/bookmaker/core/metadata.rb'
-end
+require_relative '../bookmaker/core/header.rb'
+require_relative '../bookmaker/core/metadata.rb'
 
 # These commands should run immediately after htmlmaker
 

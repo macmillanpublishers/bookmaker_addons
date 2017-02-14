@@ -1,8 +1,14 @@
 require 'fileutils'
 require 'net/smtp'
 
-require_relative '../bookmaker/core/header.rb'
-require_relative '../bookmaker/core/metadata.rb'
+unless defined?(ENV['TRAVIS_TEST'])
+  require_relative '../bookmaker/core/header.rb'
+  require_relative '../bookmaker/core/metadata.rb'
+else
+  require_relative './unit_testing/for_travis-bookmaker_submodule/bookmaker/core/header.rb'
+  require_relative './unit_testing/for_travis-bookmaker_submodule/bookmaker/core/metadata.rb'
+end
+
 
 # ---------------------- VARIABLES
 
@@ -25,7 +31,9 @@ testing_value_file = File.join(Bkmkr::Paths.resource_dir, "staging.txt")
 # full path of epubcheck error file
 epubcheck_errfile = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "EPUBCHECK_ERROR.txt")
 
-@smtp_address = Mcmlln::Tools.readFile("#{$scripts_dir}/bookmaker_authkeys/smtp.txt")
+unless defined?(ENV['TRAVIS_TEST'])
+  @smtp_address = Mcmlln::Tools.readFile("#{$scripts_dir}/bookmaker_authkeys/smtp.txt")
+end
 
 # ---------------------- METHODS
 
