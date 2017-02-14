@@ -6,6 +6,8 @@ bundler_args: --without production
 branches:
   only:
   - travis
+install:
+  - npm install cheerio
 script: ruby ./unit_testing/unit_tests.rb
 notifications:
   email: false

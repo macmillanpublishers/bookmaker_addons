@@ -1,7 +1,5 @@
 require 'fileutils'
 
-# puts "TRAVIS_TEST is: ", ENV['TRAVIS_TEST']
-
 unless defined?(ENV['TRAVIS_TEST'])
   require_relative '../bookmaker/core/header.rb'
   require_relative '../bookmaker/core/metadata.rb'
@@ -41,7 +39,7 @@ def fixISBNSpans(html, logkey='')
   # move any preceding non-digit content out of the isbn span tag
   filecontents = html.gsub(/(<span class="spanISBNisbn">)(\D+)(\d)/, "\\2\\1\\3")
   # move any trailing non-digit content out of the isbn span tag
-  filecontents = filecontents.gsub(/(<span class="spanISBNisbn">\s*978(\D?\d){10})((?!(<\/span>)).*?)(<\/span>)/, "\\1\\5\\3")
+  filecontents = filecontents.gsub(/(<span class="spanISBNisbn">\s*978(\D?\d){10})((?!(<\/span>)).*?)(<\/span>)/, "\\1\\3\\2")
   return filecontents
 rescue => logstring
   return ''
