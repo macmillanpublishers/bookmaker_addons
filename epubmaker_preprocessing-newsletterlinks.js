@@ -1,14 +1,3 @@
-// epubmaker_preprocessing-newsletterlinks.js
-
-// If more than one author
-// Pluralize about the authors link in newsletter
-// a.spanhyperlink.abouttheauthor
-
-// section.abouttheauthor:contains(firstname):contains(lastname);
-// For each author, run node to: 
-// find the correct ATA section (author first/last will be args)
-// replace placeholders with auhtor info
-
 var fs = require('fs');
 var cheerio = require('cheerio');
 var file = process.argv[2];
