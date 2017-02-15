@@ -349,6 +349,10 @@ filecontents = addHtmlLineBreaks(filecontents, 'add_html_line_breaks')
 # write epub-ready html to file
 overwriteFile(epub_tmp_html, filecontents, 'overwrite_epubhtml_final')
 
+# FOR TESTING ONLY; DELETE WHEN DONE
+savetmp = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn)
+FileUtils.cp(epub_tmp_html, savetmp)
+
 # Write json log:
 Mcmlln::Tools.logtoJson(@log_hash, 'completed', Time.now)
 Mcmlln::Tools.write_json(local_log_hash, Bkmkr::Paths.json_log)
