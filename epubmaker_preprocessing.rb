@@ -184,7 +184,8 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setNewsletterAuthorLinks(linkauthorarr, linkauthorid, filecontents, myhash, jsfile, htmlfile, logkey='')
+def setNewsletterAuthorLinks(linkauthorarr, linkauthorid, myhash, jsfile, htmlfile, logkey='')
+  filecontents = File.read(htmlfile)
   if linkauthorarr.count > 1
     # make mini toc entry plural,
     # insert new author links in newsletter,
@@ -203,7 +204,8 @@ def setNewsletterAuthorLinks(linkauthorarr, linkauthorid, filecontents, myhash, 
     linkauthornametxt = linkauthorarr[0].downcase.gsub(/\s/,"").gsub(/\W/,"").to_ascii
     linkauthornameall = linkauthorarr[0].downcase.gsub(/\s/,"").to_ascii
     authorid = linkauthorid[0]
-    filecontents = filecontents.gsub(/\{\{AUTHORNAMETXT\}\}/,"#{linkauthornametxt}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthornameall}").gsub(/\{\{AUTHORID\}\}/,"#{authorid}")
+    # we have to read the html file again to get the post-js updates
+    filecontents = File.read(htmlfile).gsub(/\{\{AUTHORNAMETXT\}\}/,"#{linkauthornametxt}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthornameall}").gsub(/\{\{AUTHORID\}\}/,"#{authorid}")
   # this can stay via ruby
   else
     linkauthornametxt = Metadata.bookauthor.downcase.gsub(/\s/,"").gsub(/\W/,"").to_ascii
