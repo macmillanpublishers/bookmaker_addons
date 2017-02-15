@@ -351,7 +351,7 @@ overwriteFile(epub_tmp_html, filecontents, 'overwrite_epubhtml_final')
 if linkauthorarr.count > 1
   filecontents = setNewsletterAuthorLinksMultiple(linkauthorarr, linkauthorid, myhash, newsletterjs, epub_tmp_html, 'set_newsletter_auth_links_multiple')
 else
-  filecontents = setNewsletterAuthorLinksSingle(linkauthorarr, linkauthorid, myhash, newsletterjssingle, epub_tmp_html, 'set_newsletter_auth_links_single')
+  filecontents = setNewsletterAuthorLinksSingle(linkauthorarr, linkauthorid, myhash, newslettersinglejs, epub_tmp_html, 'set_newsletter_auth_links_single')
 end
 
 #replace imprint, eisbn placeholders
