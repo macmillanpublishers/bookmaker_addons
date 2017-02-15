@@ -191,7 +191,7 @@ def setNewsletterAuthorLinksSingle(linkauthorarr, linkauthorid, myhash, jsfile, 
   filecontents = File.read(htmlfile)
   linkauthornametxt = Metadata.bookauthor.downcase.gsub(/\s/,"").gsub(/\W/,"").to_ascii
   linkauthornameall = Metadata.bookauthor.downcase.gsub(/\s/,"").to_ascii
-  Bkmkr::Tools.runnode(jsfile, "\"#{htmlfile}\" \"#{linkauthornameall}\" \"#{linkauthornametxt}\" \"#{thisauthorid}\"")
+  Bkmkr::Tools.runnode(jsfile, htmlfile)
   if myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['PERSON_PARTNERID'].nil? or myhash['book']['PERSON_PARTNERID'].empty? or !myhash['book']['PERSON_PARTNERID']
     filecontents = File.read(htmlfile).gsub(/\{\{AUTHORNAMETXT\}\}/,"#{linkauthornametxt}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthornameall}")
   else
