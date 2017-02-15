@@ -191,12 +191,12 @@ def setNewsletterAuthorLinksSingle(linkauthorarr, linkauthorid, myhash, jsfile, 
   filecontents = File.read(htmlfile)
   linkauthornametxt = Metadata.bookauthor.downcase.gsub(/\s/,"").gsub(/\W/,"").to_ascii
   linkauthornameall = Metadata.bookauthor.downcase.gsub(/\s/,"").to_ascii
-  Bkmkr::Tools.runnode(jsfilesingle, "\"#{htmlfile}\" \"#{linkauthornameall}\" \"#{linkauthornametxt}\" \"#{thisauthorid}\"")
+  Bkmkr::Tools.runnode(jsfile, "\"#{htmlfile}\" \"#{linkauthornameall}\" \"#{linkauthornametxt}\" \"#{thisauthorid}\"")
   if myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['PERSON_PARTNERID'].nil? or myhash['book']['PERSON_PARTNERID'].empty? or !myhash['book']['PERSON_PARTNERID']
-    filecontents = filecontents = File.read(htmlfile).gsub(/\{\{AUTHORNAMETXT\}\}/,"#{linkauthornametxt}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthornameall}")
+    filecontents = File.read(htmlfile).gsub(/\{\{AUTHORNAMETXT\}\}/,"#{linkauthornametxt}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthornameall}")
   else
     authorid = linkauthorid.pop
-    filecontents = filecontents = File.read(htmlfile).gsub(/\{\{AUTHORNAMETXT\}\}/,"#{linkauthornametxt}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthornameall}").gsub(/\{\{AUTHORID\}\}/,"#{authorid}")
+    filecontents = File.read(htmlfile).gsub(/\{\{AUTHORNAMETXT\}\}/,"#{linkauthornametxt}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthornameall}").gsub(/\{\{AUTHORID\}\}/,"#{authorid}")
   end
   return filecontents
 rescue => logstring
@@ -351,7 +351,7 @@ overwriteFile(epub_tmp_html, filecontents, 'overwrite_epubhtml_final')
 if linkauthorarr.count > 1
   filecontents = setNewsletterAuthorLinksMultiple(linkauthorarr, linkauthorid, myhash, newsletterjs, epub_tmp_html, 'set_newsletter_auth_links_multiple')
 else
-  filecontents = setNewsletterAuthorLinksSingle(linkauthorarr, linkauthorid, myhash, newsletterjs, epub_tmp_html, 'set_newsletter_auth_links_single')
+  filecontents = setNewsletterAuthorLinksSingle(linkauthorarr, linkauthorid, myhash, newsletterjssingle, epub_tmp_html, 'set_newsletter_auth_links_single')
 end
 
 #replace imprint, eisbn placeholders
