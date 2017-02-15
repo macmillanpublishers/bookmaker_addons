@@ -28,7 +28,7 @@ fs.readFile(file, function editContent (err, contents) {
   $("a#abouttheauthor").empty().append(newString);
 
   var aulink = "<p class='BMTextbmtx'>You can sign up for email updates <a href='http://us.macmillan.com/authoralerts?authorName=" + linkauthornametxt + "&amp;authorRefId=" + thisauthorid + "&amp;utm_source=ebook&amp;utm_medium=adcard&amp;utm_term=ebookreaders&amp;utm_content=" + linkauthornameall + "_authoralertsignup_macdotcom&amp;utm_campaign={{EISBN}}'>here</a>.</p>";
-  $("section.abouttheauthor p:contains(" + linkauthorfirst + "):contains(" + linkauthorlast + ")").append(aulink);
+  $("section.abouttheauthor:contains(" + linkauthorfirst + "):contains(" + linkauthorlast + ")").append(aulink);
 
   var newslink = "<p style='text-align: center; text-indent: 0;'>For email updates on " + linkauthorname + ", click <a href='http://us.macmillan.com/authoralerts?authorName=" + linkauthornametxt + "&amp;authorRefId=" + thisauthorid + "&amp;utm_source=ebook&amp;utm_medium=adcard&amp;utm_term=ebookreaders&amp;utm_content=" + linkauthornameall + "_authoralertsignup_macdotcom&amp;utm_campaign={{EISBN}}'>here.</a></p>"
   $("div.newsletterlink").empty().append(newslink);
