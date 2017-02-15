@@ -31,7 +31,8 @@ fs.readFile(file, function editContent (err, contents) {
   $("section.abouttheauthor:contains(" + linkauthorfirst + "):contains(" + linkauthorlast + ")").append(aulink);
 
   var newslink = "<p style='text-align: center; text-indent: 0;'>For email updates on " + linkauthorname + ", click <a href='http://us.macmillan.com/authoralerts?authorName=" + linkauthornametxt + "&amp;authorRefId=" + thisauthorid + "&amp;utm_source=ebook&amp;utm_medium=adcard&amp;utm_term=ebookreaders&amp;utm_content=" + linkauthornameall + "_authoralertsignup_macdotcom&amp;utm_campaign={{EISBN}}'>here.</a></p>"
-  $("div.newsletterlink").empty().append(newslink);
+  $("div.newsletterlink").append(newslink);
+  $("p.originallink").remove();
 
 var output = $.html();
     fs.writeFile(file, output, function(err) {
