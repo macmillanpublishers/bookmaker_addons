@@ -338,7 +338,7 @@ filecontents = activateAuthorLinks(myhash, filecontents, 'uncomment_newsletter_l
 overwriteFile(epub_tmp_html, filecontents, 'overwrite_epubhtml_final')
 
 # update newsletter author links, for single or multiple authors
-filecontents = setNewsletterAuthorLinks(linkauthorarr, linkauthorid, filecontents, myhash, newsletterjs, epub_tmp_html, 'set_newsletter_auth_links')
+filecontents = setNewsletterAuthorLinks(linkauthorarr, linkauthorid, myhash, newsletterjs, epub_tmp_html, 'set_newsletter_auth_links')
 
 #replace imprint, eisbn placeholders
 filecontents = updateImprintandEISBNPlaceholders(myhash, filecontents, 'update_eisbn_&_imprint_placeholders')
