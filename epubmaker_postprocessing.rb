@@ -96,16 +96,6 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-# def hideTOC_fixTPtext(htmlcontents, logkey='')
-#   copyright_li = htmlcontents.match(/<li data-type="copyright-page".*?<\/li>/)
-#   replace = htmlcontents.gsub(/(titlepage01.html#.*?">)(.*?)(<\/a>)/,"\\1Title Page\\3").gsub(/(<li data-type="copyright-page">)/,"<li data-type=\"toc\" class=\"Nonprinting\"><a href=\"toc01.html\">Contents</a></li>\\1").gsub(/(<li data-type="preface")(><a href=".*">Newsletter Sign-up)/,"\\1 class=\"Nonprinting\"\\2").gsub(/<li data-type="cover"><a href="\#bookcover01"\/>/,"<li data-type=\"cover\" class=\"Nonprinting\"><a href=\"cover.html\">Cover</a>")
-#   return replace
-# rescue => logstring
-#   return ''
-# ensure
-#   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
-# end
-
 def addTOCtoTextFlow(opfcontents, logkey='')
   copyright_tag = opfcontents.scan(/<itemref idref="copyright-page/)
   tocid = opfcontents.match(/(id=")(toc-.*?)(")/)[2]
@@ -268,9 +258,6 @@ overwriteFile("#{oebps_dir}/toc.ncx", replace, 'write_new_ncxcontents')
 # hide toc entry in html toc
 # fix title page text in html toc
 localRunNode(epubmakerpostprocessingTOCjs, "#{oebps_dir}/toc01.html", 'epubmaker_postprocessing_TOC_js')
-# htmlcontents = readFile("#{oebps_dir}/toc01.html", 'read_htmlcontents')
-# replace = hideTOC_fixTPtext(htmlcontents, 'hide_toc-entry_in_toc__fix_tptext_in_toc')
-# overwriteFile("#{oebps_dir}/toc01.html", replace, 'write_new_htmlcontents')
 
 # add toc to text flow
 opfcontents = readFile("#{oebps_dir}/content.opf", 'read_opfcontents')
