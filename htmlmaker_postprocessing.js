@@ -1,7 +1,7 @@
 var fs = require('fs');
 var cheerio = require('cheerio');
 var file = process.argv[2];
-var booktitle = process.argv[3]; 
+var booktitle = process.argv[3];
 var bookauthor = process.argv[4];
 var pisbn = process.argv[5];
 var imprint = process.argv[6];
@@ -85,6 +85,15 @@ fs.readFile(file, function editContent (err, contents) {
   // remove empty section
   $('section h1[class*="Nonprinting"]:only-child').parent().remove();
 
+  // move non-ISBN text out of isbn spans
+  $("span[class='spanISBNisbn']").each(function (){
+    var span_txt = $(this).text();
+    var myRegexp = /(\D*)(978(\D?\d){10})(.*)/;
+    var match = myRegexp.exec(span_txt);
+    $(this).text(match[2]);
+    $(this).before(match[1]);
+    $(this).after(match[4]);
+  });
 
   var output = $.html();
     fs.writeFile(file, output, function(err) {
