@@ -30,18 +30,6 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def fixISBNSpans(html, logkey='')
-  # move any preceding non-digit content out of the isbn span tag
-  filecontents = html.gsub(/(<span class="spanISBNisbn">)(\D+)(\d)/, "\\2\\1\\3")
-  # move any trailing non-digit content out of the isbn span tag
-  filecontents = filecontents.gsub(/(<span class="spanISBNisbn">\s*978(\D?\d){10})((?!(<\/span>)).*?)(<\/span>)/, "\\1\\3\\2")
-  return filecontents
-rescue => logstring
-  return ''
-ensure
-  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
-end
-
 def fixNoteCallouts(html, logkey='')
   # retag Note Callout as superscript spans
   filecontents = html.gsub(/(&lt;NoteCallout&gt;)(\w*)(&lt;\/NoteCallout&gt;)/, "<sup class=\"spansuperscriptcharacterssup\">\\2</sup>")
@@ -67,7 +55,6 @@ end
 localRunNode(htmlmakerpostprocessingjs, Bkmkr::Paths.outputtmp_html, 'post-processing_js')
 
 filecontents = readOutputHtml('read_output_html')
-filecontents = fixISBNSpans(filecontents, 'fix_ISBN_spans')
 filecontents = fixNoteCallouts(filecontents, 'fix_note_callouts')
 
 overwriteFile(Bkmkr::Paths.outputtmp_html, filecontents, 'overwrite_html')
