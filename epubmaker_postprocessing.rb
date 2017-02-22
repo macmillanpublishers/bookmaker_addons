@@ -10,6 +10,8 @@ local_log_hash, @log_hash = Bkmkr::Paths.setLocalLoghash
 
 oebps_dir = File.join(Bkmkr::Paths.project_tmp_dir, "OEBPS")
 
+toc01_html = File.join(oebps_dir, "toc01.html")
+
 zipepub_py = File.join(Bkmkr::Paths.core_dir, "epubmaker", "zipepub.py")
 
 # path to fallback font file
@@ -19,6 +21,8 @@ font = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker", "fon
 epubcheck = File.join(Bkmkr::Paths.core_dir, "epubmaker", "epubcheck", "epubcheck.jar")
 
 epubmakerpostprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "epubmaker_postprocessing.js")
+
+epubmakerpostprocessingTOCjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "epubmaker_postprocessing-TOC.js")
 
 testing_value_file = File.join(Bkmkr::Paths.resource_dir, "staging.txt")
 
@@ -86,12 +90,10 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def hideTOC_fixTPtext(htmlcontents, logkey='')
-  copyright_li = htmlcontents.match(/<li data-type="copyright-page".*?<\/li>/)
-  replace = htmlcontents.gsub(/(titlepage01.html#.*?">)(.*?)(<\/a>)/,"\\1Title Page\\3").gsub(/(<li data-type="copyright-page">)/,"<li data-type=\"toc\" class=\"Nonprinting\"><a href=\"toc01.html\">Contents</a></li>\\1").gsub(/(<li data-type="preface")(><a href=".*">Newsletter Sign-up)/,"\\1 class=\"Nonprinting\"\\2").gsub(/<li data-type="cover"><a href="\#bookcover01"\/>/,"<li data-type=\"cover\" class=\"Nonprinting\"><a href=\"cover.html\">Cover</a>")
-  return replace
+## wrapping Bkmkr::Tools.runnode in a new method for this script; to return a result for json_logfile
+def localRunNode(jsfile, args, logkey='')
+  Bkmkr::Tools.runnode(jsfile, args)
 rescue => logstring
-  return ''
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
@@ -257,9 +259,7 @@ overwriteFile("#{oebps_dir}/toc.ncx", replace, 'write_new_ncxcontents')
 
 # hide toc entry in html toc
 # fix title page text in html toc
-htmlcontents = readFile("#{oebps_dir}/toc01.html", 'read_htmlcontents')
-replace = hideTOC_fixTPtext(htmlcontents, 'hide_toc-entry_in_toc__fix_tptext_in_toc')
-overwriteFile("#{oebps_dir}/toc01.html", replace, 'write_new_htmlcontents')
+localRunNode(epubmakerpostprocessingTOCjs, toc01_html, 'epubmaker_postprocessing_TOC_js')
 
 # add toc to text flow
 opfcontents = readFile("#{oebps_dir}/content.opf", 'read_opfcontents')
