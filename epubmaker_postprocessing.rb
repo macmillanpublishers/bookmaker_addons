@@ -10,6 +10,8 @@ local_log_hash, @log_hash = Bkmkr::Paths.setLocalLoghash
 
 oebps_dir = File.join(Bkmkr::Paths.project_tmp_dir, "OEBPS")
 
+toc01_html = File.join(oebps_dir, "toc01.html")
+
 zipepub_py = File.join(Bkmkr::Paths.core_dir, "epubmaker", "zipepub.py")
 
 # path to fallback font file
@@ -257,7 +259,7 @@ overwriteFile("#{oebps_dir}/toc.ncx", replace, 'write_new_ncxcontents')
 
 # hide toc entry in html toc
 # fix title page text in html toc
-localRunNode(epubmakerpostprocessingTOCjs, "#{oebps_dir}/toc01.html", 'epubmaker_postprocessing_TOC_js')
+localRunNode(epubmakerpostprocessingTOCjs, toc01_html, 'epubmaker_postprocessing_TOC_js')
 
 # add toc to text flow
 opfcontents = readFile("#{oebps_dir}/content.opf", 'read_opfcontents')
