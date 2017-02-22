@@ -51,19 +51,7 @@ class AddonsTests < Test::Unit::TestCase
 
 
   #################### BEGIN Unit Testing!!
-
-  # def test_fixISBNSpans
-  #   bad_isbn_span1 = '<span class="spanISBNisbn">9780123456789</span><span class="spanISBNisbn">ISBN 9780123456789 (hardcover)</span><span class="spanISBNisbn">9780123456789</span>'
-  #   bad_isbn_span2 = '<span class="spanISBNisbn">9780123456789</span>ISBN <span class="spanISBNisbn">9780123456789 (hardcover)</span><span class="spanISBNisbn">9780123456789</span>'
-  #   bad_isbn_span3 = '<span class="spanISBNisbn">9780123456789</span><span class="spanISBNisbn">ISBN 9780123456789</span> (hardcover)<span class="spanISBNisbn">9780123456789</span>'
-  #   fixed_isbn_span = '<span class="spanISBNisbn">9780123456789</span>ISBN <span class="spanISBNisbn">9780123456789</span> (hardcover)<span class="spanISBNisbn">9780123456789</span>'
-  #
-  #   assert_equal(fixISBNSpans(bad_isbn_span1), fixed_isbn_span)
-  #   assert_equal(fixISBNSpans(bad_isbn_span2), fixed_isbn_span)
-  #   assert_equal(fixISBNSpans(bad_isbn_span3), fixed_isbn_span)
-  # end
-
-
+  
   def testEpubmakerPostprocessingJS
     # define our js file (path relative to this script)
     epubmaker_postprocessing_js = File.join(File.expand_path("..", File.dirname(__FILE__)), "epubmaker_postprocessing.js")
