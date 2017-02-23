@@ -1,25 +1,7 @@
 require 'fileutils'
 require 'net/smtp'
 
-if (ENV['TRAVIS']) == true
-  puts "case 1"
-elsif (ENV['TRAVIS_TEST']) == true
-  puts "case 2"
-elsif (ENV['TRAVIS']) == 'true'
-  puts "case 3"
-elsif (ENV['TRAVIS_TEST']) == 'true'
-  puts "case 4"
-else
-  puts "case 5"
-end
-
-puts "travis var:", (ENV['TRAVIS'])
-puts "travis test var:", (ENV['TRAVIS_TEST'])
-puts "travis var2:", TRAVIS
-puts "travis test var2:", TRAVIS_TEST
-
-
-unless (ENV['TRAVIS']) == true
+unless (ENV['TRAVIS']) == 'true'
   require_relative '../bookmaker/core/header.rb'
   require_relative '../bookmaker/core/metadata.rb'
 else
