@@ -10,6 +10,8 @@ else
   require_relative './unit_testing/for_travis-bookmaker_submodule/bookmaker/core/metadata.rb'
 end
 
+puts "travis var:", (ENV['TRAVIS'])
+puts "travis test var:", (ENV['TRAVIS_TEST'])
 
 # ---------------------- VARIABLES
 
