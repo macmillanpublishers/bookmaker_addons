@@ -1,6 +1,9 @@
 require 'fileutils'
 require 'net/smtp'
 
+puts "travis var:", (ENV['TRAVIS'])
+puts "travis test var:", (ENV['TRAVIS_TEST'])
+
 unless (ENV['TRAVIS']) == true
   require_relative '../bookmaker/core/header.rb'
   require_relative '../bookmaker/core/metadata.rb'
@@ -10,8 +13,6 @@ else
   require_relative './unit_testing/for_travis-bookmaker_submodule/bookmaker/core/metadata.rb'
 end
 
-puts "travis var:", (ENV['TRAVIS'])
-puts "travis test var:", (ENV['TRAVIS_TEST'])
 
 # ---------------------- VARIABLES
 
