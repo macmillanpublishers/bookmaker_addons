@@ -1,7 +1,7 @@
 require 'fileutils'
 require 'net/smtp'
 
-unless (ENV['TRAVIS']) == 'true'
+unless (ENV['TRAVIS_TEST']) == 'true'
   require_relative '../bookmaker/core/header.rb'
   require_relative '../bookmaker/core/metadata.rb'
 else
