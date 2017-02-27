@@ -1,10 +1,11 @@
 require 'fileutils'
 require 'net/smtp'
 
-unless defined?(ENV['TRAVIS_TEST'])
+unless (ENV['TRAVIS_TEST']) == 'true'
   require_relative '../bookmaker/core/header.rb'
   require_relative '../bookmaker/core/metadata.rb'
 else
+  puts " --- testing mode:  running travis build"
   require_relative './unit_testing/for_travis-bookmaker_submodule/bookmaker/core/header.rb'
   require_relative './unit_testing/for_travis-bookmaker_submodule/bookmaker/core/metadata.rb'
 end
