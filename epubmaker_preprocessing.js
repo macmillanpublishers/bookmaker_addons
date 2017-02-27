@@ -81,7 +81,7 @@ fs.readFile(file, function editContent (err, contents) {
   //$("section[data-type='chapter']:only-of-type > h1.ChapTitleNonprintingctnp").contents().replaceWith("Begin Reading");
 
   // create hyperlinks from EBKLink paragraphs;
-  // keep this before the real-hyperlinks function
+  // keep this before the link destinations function
   $(".EBKLinkSourceLa").each(function () {
     var mySibling = $(this).next(".EBKLinkDestinationLb");
     var myHref = mySibling.text();
@@ -110,6 +110,17 @@ fs.readFile(file, function editContent (err, contents) {
     }
     $(this).empty();
     $(this).prepend(newlink); 
+  });
+
+  // fix link destinations
+  $("a").each(function () {
+    var linkdest = $( this ).attr("href");
+    var mypattern1 = new RegExp( "https?://", "g");
+    var result1 = mypattern1.test(linkdest);
+    if (result1 === false) {
+      linkdest = "http://" + linkdest;
+    }
+    $(this).attr("href", linkdest);
   });
 
   // convert small caps text to uppercase
