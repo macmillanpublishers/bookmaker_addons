@@ -80,15 +80,25 @@ fs.readFile(file, function editContent (err, contents) {
   // removing this for now, leaving it to users to add this heading text for single-chapter books
   //$("section[data-type='chapter']:only-of-type > h1.ChapTitleNonprintingctnp").contents().replaceWith("Begin Reading");
 
+  // create hyperlinks from EBKLink paragraphs;
+  // keep this before the link destinations function
+  $(".EBKLinkSourceLa").each(function () {
+    var mySibling = $(this).next(".EBKLinkDestinationLb");
+    var myHref = mySibling.text();
+    var newLink = $("<a></a>").attr("href", myHref);
+    $(this).contents().wrap(newLink);
+    mySibling.remove();
+  });
+
   // turn links into real hyperlinks
   $("span.spanhyperlinkurl:not(:has(a))").each(function () {
-    var newlink = "<a href='" + $( this ).text() + "'>" + $( this ).text() + "</a>";
+    var newlink = "<a href='" + $(this).text() + "'>" + $(this).text() + "</a>";
     var mypattern1 = new RegExp( "https?://", "g");
-    var result1 = mypattern1.test($( this ).text());
+    var result1 = mypattern1.test($(this).text());
     var mypattern2 = new RegExp( "^@", "g");
-    var result2 = mypattern2.test($( this ).text());
+    var result2 = mypattern2.test($(this).text());
     var mypattern3 = new RegExp( ".@.", "g");
-    var result3 = mypattern3.test($( this ).text());
+    var result3 = mypattern3.test($(this).text());
     if (result1 === false && result2 === false && result3 === false) {
       newlink = newlink.replace("href='", "href='http://");
     }
@@ -102,13 +112,17 @@ fs.readFile(file, function editContent (err, contents) {
     $(this).prepend(newlink); 
   });
 
-  // create hyperlinks from EBKLink paragraphs
-  $(".EBKLinkSourceLa").each(function () {
-    var mySibling = $(this).next(".EBKLinkDestinationLb");
-    var myHref = mySibling.text();
-    var newLink = $("<a></a>").attr("href", myHref);
-    $(this).contents().wrap(newLink);
-    mySibling.remove();
+  // fix link destinations
+  $("a").each(function () {
+    var linkdest = $(this).attr("href");
+    var mypattern1 = new RegExp( "https?://", "g");
+    var result1 = mypattern1.test(linkdest);
+    var mypattern2 = new RegExp( "^mailto:", "g");
+    var result2 = mypattern2.test(linkdest);
+    if (result1 === false && result2 == false) {
+      linkdest = "http://" + linkdest;
+    }
+    $(this).attr("href", linkdest);
   });
 
   // convert small caps text to uppercase
