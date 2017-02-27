@@ -80,6 +80,16 @@ fs.readFile(file, function editContent (err, contents) {
   // removing this for now, leaving it to users to add this heading text for single-chapter books
   //$("section[data-type='chapter']:only-of-type > h1.ChapTitleNonprintingctnp").contents().replaceWith("Begin Reading");
 
+  // create hyperlinks from EBKLink paragraphs;
+  // keep this before the real-hyperlinks function
+  $(".EBKLinkSourceLa").each(function () {
+    var mySibling = $(this).next(".EBKLinkDestinationLb");
+    var myHref = mySibling.text();
+    var newLink = $("<a></a>").attr("href", myHref);
+    $(this).contents().wrap(newLink);
+    mySibling.remove();
+  });
+
   // turn links into real hyperlinks
   $("span.spanhyperlinkurl:not(:has(a))").each(function () {
     var newlink = "<a href='" + $( this ).text() + "'>" + $( this ).text() + "</a>";
@@ -100,15 +110,6 @@ fs.readFile(file, function editContent (err, contents) {
     }
     $(this).empty();
     $(this).prepend(newlink); 
-  });
-
-  // create hyperlinks from EBKLink paragraphs
-  $(".EBKLinkSourceLa").each(function () {
-    var mySibling = $(this).next(".EBKLinkDestinationLb");
-    var myHref = mySibling.text();
-    var newLink = $("<a></a>").attr("href", myHref);
-    $(this).contents().wrap(newLink);
-    mySibling.remove();
   });
 
   // convert small caps text to uppercase
