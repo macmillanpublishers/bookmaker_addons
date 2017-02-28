@@ -36,7 +36,7 @@ testing_value_file = File.join(Bkmkr::Paths.resource_dir, "staging.txt")
 # full path of epubcheck error file
 epubcheck_errfile = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "EPUBCHECK_ERROR.txt")
 
-unless defined?(ENV['TRAVIS_TEST'])
+unless (ENV['TRAVIS_TEST']) == 'true'
   @smtp_address = Mcmlln::Tools.readFile("#{$scripts_dir}/bookmaker_authkeys/smtp.txt")
 end
 
