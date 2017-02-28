@@ -119,7 +119,9 @@ fs.readFile(file, function editContent (err, contents) {
     var result1 = mypattern1.test(linkdest);
     var mypattern2 = new RegExp( "^mailto:", "g");
     var result2 = mypattern2.test(linkdest);
-    if (result1 === false && result2 == false) {
+    var mypattern3 = new RegExp( "^#", "g");
+    var result3 = mypattern3.test(linkdest);
+    if (result1 === false && result2 == false && result3 == false) {
       linkdest = "http://" + linkdest;
     }
     $(this).attr("href", linkdest);
