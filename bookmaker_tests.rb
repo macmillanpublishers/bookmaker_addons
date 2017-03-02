@@ -105,7 +105,7 @@ jsonlog_hash.delete('cleanup.rb')
 Mcmlln::Tools.write_json(jsonlog_hash, vjsonlog_tmp)
 
 # check json log for differences - excluding timestamp lines (with "begun" or "completed" strings as specified)
-diff_jsonlog = `diff --ignore-matching-lines='"begun": "2' --ignore-matching-lines='"completed": "2' '#{vjsonlog_tmp}' '#{njsonlog}'`  #| sed -e '/'^#{stop_diff_line}',.*'#{stop_diff_line}'/,$d`
+diff_jsonlog = `diff -I '"begun": "2' -I '"completed": "2' '#{vjsonlog_tmp}' '#{njsonlog}'`
 
 File.open(testoutput, 'w') do |output|
   output.puts "----------CHECKING XML-----------"
