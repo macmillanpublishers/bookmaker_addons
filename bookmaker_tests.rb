@@ -97,8 +97,8 @@ diff_ecss = `diff '#{vecss}' '#{necss}'`
 # check pdf css for differences
 diff_pcss = `diff '#{vpcss}' '#{npcss}'`
 
-# check json log for differences
-diff_jsonlog = `diff '#{vjsonlog}' '#{njsonlog}'`
+# check json log for differences - excluding timestamp lines (with "begun" or "completed" strings as specified)
+diff_jsonlog = `diff --ignore-matching-lines='"begun": "2' --ignore-matching-lines='"completed": "2' '#{vjsonlog}' '#{njsonlog}'`
 
 File.open(testoutput, 'w') do |output|
   output.puts "----------CHECKING XML-----------"
