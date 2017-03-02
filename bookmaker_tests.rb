@@ -39,8 +39,12 @@ holding_epubfile = File.join(holding_path, "#{Metadata.eisbn}_EPUB.epub")
 final_pdffile = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "#{Metadata.pisbn}_POD.pdf")
 holding_pdffile = File.join(holding_path, "#{Metadata.pisbn}_POD.pdf")
 vjsonlog = File.join(verified_path, "#{Bkmkr::Project.filename}.json")
+vjsonlog_tmp = File.join(testdir, "#{Bkmkr::Project.filename}_tmp.json")
 njsonlog = Bkmkr::Paths.json_log
 holding_jsonlog = File.join(holding_path, "#{Bkmkr::Project.filename}.json")
+vstdouterr_log = File.join(verified_path, "#{Bkmkr::Project.filename}-stdout-and-err.txt")
+nstdouterr_log = File.join(Bkmkr::Paths.log_dir, "#{Bkmkr::Project.filename}-stdout-and-err.txt")
+holding_stdouterr_log = File.join(holding_path, "#{Bkmkr::Project.filename}-stdout-and-err.txt")
 
 def prettyprintHTML(file, dir, prefix)
   contents = File.read(file)
@@ -97,8 +101,21 @@ diff_ecss = `diff '#{vecss}' '#{necss}'`
 # check pdf css for differences
 diff_pcss = `diff '#{vpcss}' '#{npcss}'`
 
+# strip the cleanup scripts outputs from jsonlog for a clean diff
+jsonlog_hash = Mcmlln::Tools.readjson(vjsonlog)
+jsonlog_hash.delete('cleanup_preprocessing.rb')
+jsonlog_hash.delete('cleanup.rb')
+Mcmlln::Tools.write_json(jsonlog_hash, vjsonlog_tmp)
+
+# # get the line index # at which we should begin ignoring the diff:
+# # (we need to exclude the cleanup scripts from diff)
+# stop_diff_line = `grep -n "cleanup_preprocessing.rb" '#{vjsonlog}'`.split[0].to_i - 2
+
 # check json log for differences - excluding timestamp lines (with "begun" or "completed" strings as specified)
-diff_jsonlog = `diff --ignore-matching-lines='"begun": "2' --ignore-matching-lines='"completed": "2' '#{vjsonlog}' '#{njsonlog}'`
+diff_jsonlog = `diff --ignore-matching-lines='"begun": "2' --ignore-matching-lines='"completed": "2' '#{vjsonlog_tmp}' '#{njsonlog}'`  #| sed -e '/'^#{stop_diff_line}',.*'#{stop_diff_line}'/,$d`
+
+# check stdout-and-err log for differences
+diff_stdouterr_log = `diff '#{vstdouterr_log}' '#{nstdouterr_log}'`
 
 File.open(testoutput, 'w') do |output|
   output.puts "----------CHECKING XML-----------"
@@ -115,8 +132,10 @@ File.open(testoutput, 'w') do |output|
   output.puts diff_ecss
   output.puts "----------CHECKING PDF CSS-----------"
   output.puts diff_pcss
-  output.puts "----------CHECKING JSON_LOGFILE-----------"
+  output.puts "----------CHECKING JSON LOGFILE-----------"
   output.puts diff_jsonlog
+  output.puts "----------CHECKING STDOUTERR LOGFILE-----------"
+  output.puts diff_stdouterr_log
 end
 
 # Copy all new verified files to holding folder
@@ -130,6 +149,7 @@ Mcmlln::Tools.copyFile(npcss, holding_pcss)
 Mcmlln::Tools.copyFile(necss, holding_ecss)
 Mcmlln::Tools.copyFile(nxml, holding_xml)
 Mcmlln::Tools.copyFile(njsonlog, holding_jsonlog)
+Mcmlln::Tools.copyFile(nstdouterr_log, holding_stdouterr_log)
 
 Mcmlln::Tools.deleteFile(nxml)
 Mcmlln::Tools.deleteFile(vhtml)
@@ -140,3 +160,4 @@ Mcmlln::Tools.deleteFile(vjson)
 Mcmlln::Tools.deleteFile(njson)
 Mcmlln::Tools.deleteFile(vpdf)
 Mcmlln::Tools.deleteFile(npdf)
+Mcmlln::Tools.deleteFile(vjsonlog_tmp)
