@@ -42,9 +42,6 @@ vjsonlog = File.join(verified_path, "#{Bkmkr::Project.filename}.json")
 vjsonlog_tmp = File.join(testdir, "#{Bkmkr::Project.filename}_tmp.json")
 njsonlog = Bkmkr::Paths.json_log
 holding_jsonlog = File.join(holding_path, "#{Bkmkr::Project.filename}.json")
-vstdouterr_log = File.join(verified_path, "#{Bkmkr::Project.filename}-stdout-and-err.txt")
-nstdouterr_log = File.join(Bkmkr::Paths.log_dir, "#{Bkmkr::Project.filename}-stdout-and-err.txt")
-holding_stdouterr_log = File.join(holding_path, "#{Bkmkr::Project.filename}-stdout-and-err.txt")
 
 def prettyprintHTML(file, dir, prefix)
   contents = File.read(file)
@@ -110,9 +107,6 @@ Mcmlln::Tools.write_json(jsonlog_hash, vjsonlog_tmp)
 # check json log for differences - excluding timestamp lines (with "begun" or "completed" strings as specified)
 diff_jsonlog = `diff --ignore-matching-lines='"begun": "2' --ignore-matching-lines='"completed": "2' '#{vjsonlog_tmp}' '#{njsonlog}'`  #| sed -e '/'^#{stop_diff_line}',.*'#{stop_diff_line}'/,$d`
 
-# check stdout-and-err log for differences
-diff_stdouterr_log = `diff '#{vstdouterr_log}' '#{nstdouterr_log}'`
-
 File.open(testoutput, 'w') do |output|
   output.puts "----------CHECKING XML-----------"
   output.puts diff_xml
@@ -130,8 +124,6 @@ File.open(testoutput, 'w') do |output|
   output.puts diff_pcss
   output.puts "----------CHECKING JSON LOGFILE-----------"
   output.puts diff_jsonlog
-  output.puts "----------CHECKING STDOUTERR LOGFILE-----------"
-  output.puts diff_stdouterr_log
 end
 
 # Copy all new verified files to holding folder
@@ -145,7 +137,6 @@ Mcmlln::Tools.copyFile(npcss, holding_pcss)
 Mcmlln::Tools.copyFile(necss, holding_ecss)
 Mcmlln::Tools.copyFile(nxml, holding_xml)
 Mcmlln::Tools.copyFile(njsonlog, holding_jsonlog)
-Mcmlln::Tools.copyFile(nstdouterr_log, holding_stdouterr_log)
 
 Mcmlln::Tools.deleteFile(nxml)
 Mcmlln::Tools.deleteFile(vhtml)
