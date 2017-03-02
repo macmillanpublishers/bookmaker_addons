@@ -107,10 +107,6 @@ jsonlog_hash.delete('cleanup_preprocessing.rb')
 jsonlog_hash.delete('cleanup.rb')
 Mcmlln::Tools.write_json(jsonlog_hash, vjsonlog_tmp)
 
-# # get the line index # at which we should begin ignoring the diff:
-# # (we need to exclude the cleanup scripts from diff)
-# stop_diff_line = `grep -n "cleanup_preprocessing.rb" '#{vjsonlog}'`.split[0].to_i - 2
-
 # check json log for differences - excluding timestamp lines (with "begun" or "completed" strings as specified)
 diff_jsonlog = `diff --ignore-matching-lines='"begun": "2' --ignore-matching-lines='"completed": "2' '#{vjsonlog_tmp}' '#{njsonlog}'`  #| sed -e '/'^#{stop_diff_line}',.*'#{stop_diff_line}'/,$d`
 
