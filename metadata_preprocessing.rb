@@ -146,7 +146,7 @@ def setAuthorInfo(myhash, logkey='')
   if !metabookauthor.nil?
     authorname = HTMLEntities.new.decode(metabookauthor[2]).encode('utf-8')
   elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['WORK_COVERAUTHOR'].nil? or myhash['book']['WORK_COVERAUTHOR'].empty? or !myhash['book']['WORK_COVERAUTHOR']
-    authorname = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageAuthorNameau">.*?</).join(", ").gsub(/<p class="TitlepageAuthorNameau">/,"").gsub(/</,"").gsub(/\[\]/,"")
+    authorname = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p[^>]*?class="TitlepageAuthorNameau".*?>(.*?)<.*?>/).join(", ")
     authorname = HTMLEntities.new.decode(authorname).encode('utf-8')
   else
     authorname = myhash['book']['WORK_COVERAUTHOR']
@@ -166,7 +166,7 @@ def setBookTitle(myhash, logkey='')
   if !metabooktitle.nil?
     booktitle = HTMLEntities.new.decode(metabooktitle[2]).encode('utf-8')
   elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_COVERTITLE"].nil? or myhash["book"]["WORK_COVERTITLE"].empty? or !myhash["book"]["WORK_COVERTITLE"]
-    booktitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<h1 class="TitlepageBookTitletit">.*?</).join(", ").gsub(/<h1 class="TitlepageBookTitletit">/,"").gsub(/</,"")
+    booktitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<h1[^<]*?class="TitlepageBookTitletit".*?>(.*?)<.*?>/).join(", ")
     booktitle = HTMLEntities.new.decode(booktitle).encode('utf-8')
   else
     booktitle = myhash["book"]["WORK_COVERTITLE"]
@@ -186,7 +186,7 @@ def setBookSubtitle(myhash, logkey='')
   if !metabooksubtitle.nil?
     booksubtitle = HTMLEntities.new.decode(metabooksubtitle[2]).encode('utf-8')
   elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_SUBTITLE"].nil? or myhash["book"]["WORK_SUBTITLE"].empty? or !myhash["book"]["WORK_SUBTITLE"]
-    booksubtitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageBookSubtitlestit">.*?</).join(", ").gsub(/<p class="TitlepageBookSubtitlestit">/,"").gsub(/</,"")
+    booksubtitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p[^<]*?class="TitlepageBookSubtitlestit".*?>(.*?)<.*?>/).join(", ")
     booksubtitle = HTMLEntities.new.decode(booksubtitle).encode('utf-8')
   else
     booksubtitle = myhash["book"]["WORK_SUBTITLE"]
