@@ -1,9 +1,15 @@
 require 'fileutils'
 require 'htmlentities'
 
-require_relative '../bookmaker/core/header.rb'
-require_relative '../utilities/oraclequery.rb'
-require_relative '../utilities/isbn_finder.rb'
+unless (ENV['TRAVIS_TEST']) == 'true'
+  require_relative '../bookmaker/core/header.rb'
+  require_relative '../utilities/oraclequery.rb'
+  require_relative '../utilities/isbn_finder.rb'
+else
+  puts " --- testing mode:  running travis build"
+  require_relative './unit_testing/for_travis-bookmaker_submodule/bookmaker/core/header.rb'
+end
+
 
 # ---------------------- VARIABLES
 local_log_hash, @log_hash = Bkmkr::Paths.setLocalLoghash
