@@ -4,7 +4,7 @@ require "fileutils"
 # in this case this file does not to be included, since we are not directly referencing its methods for the js test.
 # however generally we'll want to require files that we're testing, and this can serve as a reminder to do it next time.
 require_relative "../epubmaker_postprocessing.rb"
-
+require_relative "../metadata_preprocessing.rb"
 
 class AddonsTests < Test::Unit::TestCase
 
@@ -23,7 +23,9 @@ class AddonsTests < Test::Unit::TestCase
   end
 
   def self.overwriteFile(path,filecontents)
-  	Mcmlln::Tools.overwriteFile(path, filecontents)
+    File.open(path, 'w') do |output|
+      output.write filecontents
+    end
   rescue => e
     return e.inspect
   end
@@ -45,13 +47,15 @@ class AddonsTests < Test::Unit::TestCase
   @@html_contents_fixed = getHTMLfileContents(@@test_html_good)
   @@html_contents_broken = getHTMLfileContents(@@test_html_bad)
 
+puts @@html_contents_fixed
+
   # reset node_html
   overwriteFile(@@test_html_bad_tmp, @@html_contents_broken)
-  overwriteFile(@@test_html_good_tmp, @@html_contents_broken)
+  overwriteFile(@@test_html_good_tmp, @@html_contents_fixed)
 
 
-  #################### BEGIN Unit Testing!!
-  
+  ################### BEGIN Unit Testing!!
+
   def testEpubmakerPostprocessingJS
     # define our js file (path relative to this script)
     epubmaker_postprocessing_js = File.join(File.expand_path("..", File.dirname(__FILE__)), "epubmaker_postprocessing.js")
@@ -67,6 +71,32 @@ class AddonsTests < Test::Unit::TestCase
     # assertions
     assert_equal(html_contents_bad_tmp, @@html_contents_fixed)
     assert_equal(html_contents_good_tmp, @@html_contents_fixed)
+  end
+
+  # reset node_html
+  overwriteFile(@@test_html_bad_tmp, @@html_contents_broken)
+  overwriteFile(@@test_html_good_tmp, @@html_contents_broken)
+
+
+  def testMetadataPreprocessing
+    # read the updated html
+    html_contents_bad_tmp = self.class.getHTMLfileContents(@@test_html_bad_tmp)
+    html_contents_good_tmp = self.class.getHTMLfileContents(@@test_html_good_tmp)
+
+    ### Assertions:
+    # method: setAuthorInfo
+    assert_equal(setAuthorInfo({}, html_contents_bad_tmp), "Alva Noë, Keenan Tester, Linda Tester")
+    assert_equal(setAuthorInfo({}, html_contents_good_tmp), "Alva Noë, Keenan Tester, Linda Tester")
+    assert_equal(setAuthorInfo({}, ''), "")
+    # method: setBookSubtitle
+    assert_equal(setBookSubtitle({}, html_contents_bad_tmp), "Art and Human Nature, Or, How I Became an Artist")
+    assert_equal(setBookSubtitle({}, html_contents_good_tmp), "Art and Human Nature, Or, How I Became an Artist")
+    assert_equal(setBookSubtitle({}, ''), "")
+    # method: setBookTitle
+    assert_equal(setBookTitle({}, html_contents_bad_tmp), "Strange Tools")
+    assert_equal(setBookTitle({}, html_contents_good_tmp), "Strange Tools")
+    assert_equal(setBookTitle({}, ''), "")
+
   end
 
 end
