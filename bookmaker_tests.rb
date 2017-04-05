@@ -45,7 +45,7 @@ holding_jsonlog = File.join(holding_path, "#{Bkmkr::Project.filename}.json")
 
 def prettyprintHTML(file, dir, prefix)
   contents = File.read(file)
-  contents = contents.gsub(/(<[a-z])/, "\n\\0").gsub(/id="\w*"/, "").gsub(/href="#\w*"/, "")
+  contents = contents.gsub(/(<[a-z])/, "\n\\0").gsub(/\sid="[\w-]*"/, "\s").gsub(/href="#[\w-]*"/, "")
   filename = file.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
   newfile = File.join(dir, "#{prefix}_#{filename}")
   Mcmlln::Tools.overwriteFile(newfile, contents)
