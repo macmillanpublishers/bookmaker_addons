@@ -1,9 +1,15 @@
 require 'fileutils'
 require 'htmlentities'
 
-require_relative '../bookmaker/core/header.rb'
-require_relative '../utilities/oraclequery.rb'
-require_relative '../utilities/isbn_finder.rb'
+unless (ENV['TRAVIS_TEST']) == 'true'
+  require_relative '../bookmaker/core/header.rb'
+  require_relative '../utilities/oraclequery.rb'
+  require_relative '../utilities/isbn_finder.rb'
+else
+  puts " --- testing mode:  running travis build"
+  require_relative './unit_testing/for_travis-bookmaker_submodule/bookmaker/core/header.rb'
+end
+
 
 # ---------------------- VARIABLES
 local_log_hash, @log_hash = Bkmkr::Paths.setLocalLoghash
@@ -21,6 +27,15 @@ xml_file = File.join(Bkmkr::Paths.project_tmp_dir, "#{Bkmkr::Project.filename}.x
 title_js = File.join(Bkmkr::Paths.core_dir, "htmlmaker", "title.js")
 
 # ---------------------- METHODS
+
+def readFile(file, logkey='')
+	filecontents = File.read(file)
+	return filecontents
+rescue => logstring
+  return ''
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
 
 def findBookISBNs_metadataPreprocessing(logkey='')
   pisbn, eisbn, allworks = findBookISBNs(Bkmkr::Paths.outputtmp_html, Bkmkr::Project.filename)
@@ -139,14 +154,14 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setAuthorInfo(myhash, logkey='')
+def setAuthorInfo(myhash, html_contents, logkey='')
   # get meta info from html if it exists
-  metabookauthor = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="author" content=")(.*?)("\/>)/i)
+  metabookauthor = html_contents.match(/(<meta name="author" content=")(.*?)("\/>)/i)
   # Finding author name(s)
   if !metabookauthor.nil?
     authorname = HTMLEntities.new.decode(metabookauthor[2]).encode('utf-8')
   elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['WORK_COVERAUTHOR'].nil? or myhash['book']['WORK_COVERAUTHOR'].empty? or !myhash['book']['WORK_COVERAUTHOR']
-    authorname = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageAuthorNameau">.*?</).join(", ").gsub(/<p class="TitlepageAuthorNameau">/,"").gsub(/</,"").gsub(/\[\]/,"")
+    authorname = html_contents.scan(/<p[^>]*?class="TitlepageAuthorNameau".*?>(.*?)<.*?>/).join(", ")
     authorname = HTMLEntities.new.decode(authorname).encode('utf-8')
   else
     authorname = myhash['book']['WORK_COVERAUTHOR']
@@ -159,14 +174,14 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setBookTitle(myhash, logkey='')
+def setBookTitle(myhash, html_contents, logkey='')
   # get meta info from html if it exists
-  metabooktitle = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="title" content=")(.*?)("\/>)/i)
+  metabooktitle = html_contents.match(/(<meta name="title" content=")(.*?)("\/>)/i)
   # Finding book title
   if !metabooktitle.nil?
     booktitle = HTMLEntities.new.decode(metabooktitle[2]).encode('utf-8')
   elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_COVERTITLE"].nil? or myhash["book"]["WORK_COVERTITLE"].empty? or !myhash["book"]["WORK_COVERTITLE"]
-    booktitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<h1 class="TitlepageBookTitletit">.*?</).join(", ").gsub(/<h1 class="TitlepageBookTitletit">/,"").gsub(/</,"")
+    booktitle = html_contents.scan(/<h1[^<]*?class="TitlepageBookTitletit".*?>(.*?)<.*?>/).join(", ")
     booktitle = HTMLEntities.new.decode(booktitle).encode('utf-8')
   else
     booktitle = myhash["book"]["WORK_COVERTITLE"]
@@ -179,14 +194,14 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setBookSubtitle(myhash, logkey='')
+def setBookSubtitle(myhash, html_contents, logkey='')
   # get meta info from html if it exists
-  metabooksubtitle = File.read(Bkmkr::Paths.outputtmp_html).match(/(<meta name="subtitle" content=")(.*?)("\/>)/i)
+  metabooksubtitle = html_contents.match(/(<meta name="subtitle" content=")(.*?)("\/>)/i)
   # Finding book subtitle
   if !metabooksubtitle.nil?
     booksubtitle = HTMLEntities.new.decode(metabooksubtitle[2]).encode('utf-8')
   elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_SUBTITLE"].nil? or myhash["book"]["WORK_SUBTITLE"].empty? or !myhash["book"]["WORK_SUBTITLE"]
-    booksubtitle = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p class="TitlepageBookSubtitlestit">.*?</).join(", ").gsub(/<p class="TitlepageBookSubtitlestit">/,"").gsub(/</,"")
+    booksubtitle = html_contents.scan(/<p[^<]*?class="TitlepageBookSubtitlestit".*?>(.*?)<.*?>/).join(", ")
     booksubtitle = HTMLEntities.new.decode(booksubtitle).encode('utf-8')
   else
     booksubtitle = myhash["book"]["WORK_SUBTITLE"]
@@ -422,16 +437,18 @@ end
 puts logstring
 @log_hash['query_status'] = logstring
 
+# read in html for use getting title metadata
+html_contents = readFile(Bkmkr::Paths.outputtmp_html, 'get_outputtmp_html_contents')
 
 # Setting metadata vars for config.json:
 # Prioritize metainfo from html, then edition info from biblio, then scan html for tagged data
-authorname = setAuthorInfo(myhash, 'set_author_info')
+authorname = setAuthorInfo(myhash, html_contents, 'set_author_info')
 @log_hash['author_name'] = authorname
 
-booktitle = setBookTitle(myhash, 'set_book_title')
+booktitle = setBookTitle(myhash, html_contents, 'set_book_title')
 @log_hash['book_title'] = booktitle
 
-booksubtitle = setBookSubtitle(myhash, 'set_book_subtitle')
+booksubtitle = setBookSubtitle(myhash, html_contents, 'set_book_subtitle')
 @log_hash['book_subtitle'] = booksubtitle
 
 imprint = setImprint(myhash, project_dir, imprint_json, 'set_imprint')

@@ -1,0 +1,17 @@
+language: ruby
+rvm:
+- 2.0.0
+branches:
+  only:
+  - master
+  - travis
+install:
+- bundle install --without production --jobs=3 --retry=3
+- npm install cheerio
+script: ruby ./unit_testing/unit_tests.rb
+notifications:
+  email: false
+  slack:
+    secure: Mg6jFl4cFDdCT2L/1gWBUnyAgwxC6FKWK2/3Po05CsLV/BaV3jI8daou1AJUB0yzSRzMRZK8eW1IT/d1G05wyVOMWogpnbFHUo8BU0hoBt15ISx3ZgEcv3nAIMqRvNVv7BETdK2uM2cbx7twmZ1y8lJB/87BPJA+jO2x2FEqADU86vVfapNKxmPMBi33k6G3rIfBK41hhlwa8sOsuFzCbEvclh4tKBxbThheNKr+8hLutkwZ99SZGjpqp6TeW4SO4DcE/oR7exLA2Thc1CW/Uy44Vj+9OMi+6wqrpuiXus5P7xde4gt1X2tGcdYL1UId04tLLSUmxgL+PmC+kUp3azcLysFjEQEiA6vgwW5i1uS9MDMA+s7+N9ezLz5Q2463kGzl1AX1s7Nh+NcVIInp2+hWIFY2BWyGHZOcRClwfeQpTeG/JdOUBnTYsmOefdYFk/0Gc2q2faeNsg70uQSFBQdNbuyhxBcWFdcB8QJKmR9pvrf2AawpBpgRcrAqMoq9YqJVa/883aVAwLF8y7u9oH9q2YrFafmrNIMTXKLvRk+WmeXhR9fViECu7FNINjMnUTVkx1s27L9F5wYshgRmxPs+NSTKoIOWWiAGehK3gximKZKpEZeiy3Zt71bkZ8Rdl22Sa3viK47tDzNOL+i9YlKV+b8tROUhNiGhUblVrXY=
+env:
+- TRAVIS_TEST="true"
