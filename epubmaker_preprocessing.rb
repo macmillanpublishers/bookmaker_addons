@@ -157,11 +157,11 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def getlinkAuthorInfo(myhash, logkey='')
+def getlinkAuthorInfo(htmlfile, myhash, logkey='')
   linkauthorarr = []
   linkauthorid = []
   if myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['PERSON_REALNAME'].nil? or myhash['book']['PERSON_REALNAME'].empty? or !myhash['book']['PERSON_REALNAME']
-    linkauthorarr = File.read(Bkmkr::Paths.outputtmp_html).scan(/<p.+="TitlepageAuthorNameau".*>.*?</)
+    linkauthorarr = File.read(htmlfile).scan(/<p[^>]*?class="TitlepageAuthorNameau".*?>(.*?)<.*?>/)
     linkauthorarr.map! { |x| x.gsub(/<p.+="TitlepageAuthorNameau".*?>/,"").gsub(/<\//,"") }
   else
     linkauthorarr = myhash['book']['PERSON_REALNAME'].clone
@@ -337,7 +337,7 @@ puts logstring
 @log_hash['query_status'] = logstring
 
 # get author info from sql if available, else scan outputtmp_html
-linkauthorarr, linkauthorid = getlinkAuthorInfo(myhash, 'get_link_author_info')
+linkauthorarr, linkauthorid = getlinkAuthorInfo(Bkmkr::Paths.outputtmp_html, myhash, 'get_link_author_info')
 @log_hash['linkauthorarr'] = linkauthorarr
 @log_hash['linkauthorid'] = linkauthorid
 
