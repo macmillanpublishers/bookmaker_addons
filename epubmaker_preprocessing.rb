@@ -234,7 +234,7 @@ ensure
 end
 
 def updateImprintandEISBNPlaceholders(myhash, filecontents, logkey='')
-  filecontents = filecontents.gsub(/(data-displayheader="no")/,"class=\"ChapTitleNonprintingctnp\" \\1").gsub(/\{\{IMPRINT\}\}/,"#{Metadata.imprint}").gsub(/\{\{EISBN\}\}/,"#{Metadata.eisbn}")
+  filecontents = filecontents.gsub(/\{\{IMPRINT\}\}/,"#{Metadata.imprint}").gsub(/\{\{EISBN\}\}/,"#{Metadata.eisbn}")
   return filecontents
 rescue => logstring
   return ''
@@ -317,7 +317,11 @@ localInsertAddons(epub_tmp_html, sectionjson, addonjson, 'insert_extra_epub_cont
 # evaluate templates
 localCompileJS(epub_tmp_html, 'evaluate_templates')
 
-filecontents = readHtml(epub_tmp_html, 'read-in_epub_tmp_html_2')
+# do content conversions
+addonstransformationsjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "epubmaker_preprocessing-addonstransformations.js")
+localRunNode(addonstransformationsjs, epub_tmp_html, 'running_post-addons_js_transformations')
+
+filecontents = readHtml(epub_tmp_html, 'read_updated_epub_tmp_html')
 
 # link author name to author updates webpage - need to restrict this so it only works on appendix sections
 # aulink = "http://us.macmillan.com/authoralerts?authorName=#{linkauthornametxt}&amp;authorRefId=AUTHORID&amp;utm_source=ebook&amp;utm_medium=adcard&amp;utm_term=ebookreaders&amp;utm_content=#{linkauthornameall}_authoralertsignup_macdotcom&amp;utm_campaign={{EISBN}}"
@@ -336,7 +340,7 @@ puts logstring
 @log_hash['query_status'] = logstring
 
 # get author info from sql if available, else scan outputtmp_html
-linkauthorarr, linkauthorid = getlinkAuthorInfo(data_hash, myhash, 'get_link_author_info')
+linkauthorarr, linkauthorid = getlinkAuthorInfo(data_hash, myhash, 'get_author_link_info')
 @log_hash['linkauthorarr'] = linkauthorarr
 @log_hash['linkauthorid'] = linkauthorid
 
