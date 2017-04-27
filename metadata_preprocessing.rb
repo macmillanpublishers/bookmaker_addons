@@ -22,8 +22,6 @@ imprint_json = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "imprints
 
 configfile = File.join(Bkmkr::Paths.project_tmp_dir, "config.json")
 
-xml_file = File.join(Bkmkr::Paths.project_tmp_dir, "#{Bkmkr::Project.filename}.xml")
-
 title_js = File.join(Bkmkr::Paths.core_dir, "htmlmaker", "title.js")
 
 # ---------------------- METHODS
@@ -483,8 +481,8 @@ pdf_js_file = File.join(Bkmkr::Paths.project_tmp_dir, "pdf.js")
 # get JS file for pdf and edit title info to match our book
 setupPdfJSfile(proj_js_file, fallback_js_file, pdf_js_file, booktitle, authorname, 'setup_pdf_JS_file')
 
-#check the xml in tmp for toc_value
-toc_value = setTOCvalFromHTML('set_TOC_value_From_xml')
+#check the html for toc_value
+toc_value = setTOCvalFromHTML('set_TOC_value_From_html')
 
 # Generating the json metadata
 
