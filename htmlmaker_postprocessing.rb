@@ -32,7 +32,7 @@ end
 
 def fixNoteCallouts(html, logkey='')
   # retag Note Callout as superscript spans
-  filecontents = html.gsub(/(&lt;NoteCallout&gt;)(\w*)(&lt;\/NoteCallout&gt;)/, "<sup class=\"spansuperscriptcharacterssup\">\\2</sup>")
+  filecontents = html.gsub(/(&lt;NoteCallout&gt;)(\w*)(&lt;\/NoteCallout&gt;)/, "<sup class=\"spansuperscriptcharacterssup\">\\2</sup>").gsub(/(<notecallout>)(\w*)(<\/notecallout>)/, "<sup class=\"spansuperscriptcharacterssup\">\\2</sup>")
   return filecontents
 rescue => logstring
   return ''
