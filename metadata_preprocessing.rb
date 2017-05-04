@@ -22,8 +22,6 @@ imprint_json = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "imprints
 
 configfile = File.join(Bkmkr::Paths.project_tmp_dir, "config.json")
 
-xml_file = File.join(Bkmkr::Paths.project_tmp_dir, "#{Bkmkr::Project.filename}.xml")
-
 title_js = File.join(Bkmkr::Paths.core_dir, "htmlmaker", "title.js")
 
 # ---------------------- METHODS
@@ -373,11 +371,10 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setTOCvalFromXml(xml_file, logkey='')
-  if Mcmlln::Tools.checkFileExist(xml_file)
-    check_tocbody = File.read(xml_file).scan(/w:pStyle w:val\="TOC/)
-    check_tochead = File.read(Bkmkr::Paths.outputtmp_html).scan(/class="texttoc"/)
-    if check_tocbody.any? or check_tochead.any?
+def setTOCvalFromHTML(logkey='')
+  if Mcmlln::Tools.checkFileExist(Bkmkr::Paths.outputtmp_html)
+    check_toc = File.read(Bkmkr::Paths.outputtmp_html).scan(/class=".*?texttoc.*?"/)
+    if check_toc.any?
       toc_value = "true"
     else
       toc_value = "false"
@@ -484,8 +481,8 @@ pdf_js_file = File.join(Bkmkr::Paths.project_tmp_dir, "pdf.js")
 # get JS file for pdf and edit title info to match our book
 setupPdfJSfile(proj_js_file, fallback_js_file, pdf_js_file, booktitle, authorname, 'setup_pdf_JS_file')
 
-#check the xml in tmp for toc_value
-toc_value = setTOCvalFromXml(xml_file, 'set_TOC_value_From_xml')
+#check the html for toc_value
+toc_value = setTOCvalFromHTML('set_TOC_value_From_html')
 
 # Generating the json metadata
 
