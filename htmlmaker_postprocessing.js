@@ -12,6 +12,17 @@ fs.readFile(file, function editContent (err, contents) {
           xmlMode: true
         });
 
+  //function to replace element, keeping innerHtml & attributes
+  function replaceEl (selector, newTag) {
+    selector.each(function(){
+      var myAttr = $(this).attr();
+      var myHtml = $(this).html();
+      $(this).replaceWith(function(){
+          return $(newTag).html(myHtml).attr(myAttr);
+      });
+    });
+  }
+
   // merge contiguous small caps char styles
   $("p[class^='ChapOpeningText']").each(function (i) {
    $(this).children("span.spansmallcapscharacterssc").each(function () {
@@ -123,6 +134,49 @@ fs.readFile(file, function editContent (err, contents) {
       var consecutiveLastPBs = $(this).prevUntil(":not(.PageBreakpb)").addBack();
       consecutiveLastPBs.remove();
     }
+  });
+
+  //// The below items were migrated here from bookmaker/htmlmaker/bandaid.js
+
+  // fix fig ids in case of duplication
+  $('figure').each(function(){
+    var myId = $(this).attr('id');
+    if ( myId !== undefined ) {
+      var newId = "fig-" + myId;
+      $(this).attr('id', newId);
+    }
+  });
+
+  // remove leading and trailing brackets from image filenames
+  $('figure img').each(function(){
+    var mySrc = $(this).attr('src');
+    var myAlt = $(this).attr('alt');
+    var mypattern1 = new RegExp( "^images/\\[", "g");
+    var mypattern2 = new RegExp( "\\]$", "g");
+    var result1 = mypattern1.test(mySrc);
+    var result2 = mypattern2.test(mySrc);
+    if ( result1 === true && result2 === true ) {
+      mySrc = mySrc.replace("[", "").replace("]", "");
+    } else {
+      mySrc = mySrc.replace("[", "%5B").replace("]", "%5D");
+    }
+    $(this).attr('src', mySrc);
+    myAlt = myAlt.replace("[", "%5B").replace("]", "%5D");
+    $(this).attr('alt', myAlt);
+  });
+
+  // fix brackets in urls
+  $('a[href]').each(function(){
+    var myHref = $(this).attr('href');
+    myHref = myHref.replace("[", "%5B").replace("]", "%5D");
+    $(this).attr('href', myHref);
+  });
+
+  $('span.spanhyperlinkurl:not(":has(a)")').each(function(){
+    var myText = $(this).text();
+    myText = myText.replace("[", "%5B").replace("]", "%5D");
+    $(this).empty();
+    $(this).append(myText);
   });
 
   var output = $.html();
