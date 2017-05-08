@@ -95,6 +95,31 @@ fs.readFile(file, function editContent (err, contents) {
     $(this).after(match[4]);
   });
 
+// remove Section-Blank-Page sections
+var sectionBlankPage = $("section.blankpage")
+sectionBlankPage.remove()
+
+//// Strip pageBreaks directly preceding Section starts:
+// Part 1 (of 2): catch & remove any page break immediately preceding sections
+//  (nothing should be outside of a seciton block, but just in case)
+var leadingPageBreak = $("section").prevUntil(":not(.PageBreakpb)")
+leadingPageBreak.remove()
+
+// Part 2 (of 2): select elements with .PageBreakpb class that are are last children of sections
+var lastChildPageBreak = $("section > .PageBreakpb:last-child")
+// cycle through each matched last-child page break
+lastChildPageBreak.each(function() {
+  // verify the parent sections directly precede other sections,
+  //  so we are definitely looking at pbs that precede Section Starts
+  var parentcheck = $(this).parent().next()
+  if (parentcheck.prop('nodeName') == "SECTION") {
+    // capture any pagebreaks directly preceding the last-child one
+    var consecutiveLastPBs = $(this).prevUntil(":not(.PageBreakpb)").addBack()
+    // remove!
+    consecutiveLastPBs.remove()
+  }
+})
+
   var output = $.html();
     fs.writeFile(file, output, function(err) {
       if(err) {
