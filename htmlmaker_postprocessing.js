@@ -136,6 +136,10 @@ fs.readFile(file, function editContent (err, contents) {
     }
   });
 
+  // Strip content from all PageBreakbp
+  var allPageBreaks = $(".PageBreakpb")
+  allPageBreaks.empty()
+
   //// The below items were migrated here from bookmaker/htmlmaker/bandaid.js
 
   // fix fig ids in case of duplication
