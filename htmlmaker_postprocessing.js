@@ -114,7 +114,7 @@ fs.readFile(file, function editContent (err, contents) {
   $(".PageBreakpb + section, .PageBreakpb + div").prev().remove();
   // and remove elements with .PageBreakpb class that are are last children of sections or divs that are followed by other sections or divs
   var SectionWithLastChildPageBreak = $("section:has(.PageBreakpb:last-child) + section, section:has(.PageBreakpb:last-child) + div, div:has(.PageBreakpb:last-child) + section, div:has(.PageBreakpb:last-child) + div").prev()
-  // we have to do an 'each' loop, otherwise the .last() selector only acts on the very last item selected (a cheerio isiosyncrasy apparently)
+  // we have to do an 'each' loop, otherwise the .last() selector selects only the very last match in the whole document (the loop is not necessary w/ jsbin, may be a cheerio idiosyncrasy)
   SectionWithLastChildPageBreak.each(function() {
     $(this).children().last().remove();
   })
