@@ -107,38 +107,20 @@ fs.readFile(file, function editContent (err, contents) {
   });
 
   // remove Section-Blank-Page sections
-  var sectionBlankPage = $("section.blankpage");
-  sectionBlankPage.remove();
+  $("section.blankpage").remove();
 
-  //// Strip pageBreaks preceding Section starts: Part 1 (of 2):
-  // catch & remove any page break directly preceding Section Starts
-  //  (nothing should be outside of a seciton block, but just in case)
-  var leadingPageBreak = $("section").prev(".PageBreakpb");
-  // cycle through each Page Break para directly preceding a Section Start
-  leadingPageBreak.each(function() {
-    // capture any Page Breaks directly preceding the selected one
-    var consecutiveLeadingPBs = $(this).prevUntil(":not(.PageBreakpb)").addBack();
-    consecutiveLeadingPBs.remove();
-  });
+  //// Strip pageBreaks preceding Section starts:
+  // catch & remove any page break directly preceding Section Starts (nothing should be outside of a seciton block, but just in case)
+  $(".PageBreakpb + section, .PageBreakpb + div").prev().remove();
+  // and remove elements with .PageBreakpb class that are are last children of sections or divs that are followed by other sections or divs
+  var SectionWithLastChildPageBreak = $("section:has(.PageBreakpb:last-child) + section, section:has(.PageBreakpb:last-child) + div, div:has(.PageBreakpb:last-child) + section, div:has(.PageBreakpb:last-child) + div").prev()
+  // we have to do an 'each' loop, otherwise the .last() selector only acts on the very last item selected (a cheerio isiosyncrasy apparently)
+  SectionWithLastChildPageBreak.each(function() {
+    $(this).children().last().remove();
+  })
 
-  //// Strip pageBreaks preceding Section starts: Part 2 (of 2):
-  // select elements with .PageBreakpb class that are are last children of sections
-  var lastChildPageBreak = $("section > .PageBreakpb:last-child");
-  // cycle through each matched last-child page break
-  lastChildPageBreak.each(function() {
-    // verify the parent sections directly precede other sections,
-    //  so we are definitely looking at pbs that precede Section Starts
-    var parentCheckType = $(this).parent().next().prop('nodeName').toLowerCase();
-    if (parentCheckType == "section" || parentCheckType == "div") {
-      // capture any Page Breaks directly preceding the last-child one
-      var consecutiveLastPBs = $(this).prevUntil(":not(.PageBreakpb)").addBack();
-      consecutiveLastPBs.remove();
-    }
-  });
-
-  // Strip content from all PageBreakbp
-  var allPageBreaks = $(".PageBreakpb")
-  allPageBreaks.empty()
+  // // Strip content from all PageBreakbp
+  $(".PageBreakpb").empty();
 
   //// The below items were migrated here from bookmaker/htmlmaker/bandaid.js
 
