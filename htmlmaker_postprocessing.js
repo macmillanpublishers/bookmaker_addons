@@ -119,7 +119,7 @@ fs.readFile(file, function editContent (err, contents) {
     $(this).children().last().remove();
   })
 
-  // // Strip content from all PageBreakbp
+  // Strip content from all PageBreakbp
   $(".PageBreakpb").empty();
 
   //// The below items were migrated here from bookmaker/htmlmaker/bandaid.js
