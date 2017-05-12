@@ -12,6 +12,17 @@ fs.readFile(file, function editContent (err, contents) {
           xmlMode: true
         });
 
+  //function to replace element, keeping innerHtml & attributes
+  function replaceEl (selector, newTag) {
+    selector.each(function(){
+      var myAttr = $(this).attr();
+      var myHtml = $(this).html();
+      $(this).replaceWith(function(){
+          return $(newTag).html(myHtml).attr(myAttr);
+      });
+    });
+  }
+
   // merge contiguous small caps char styles
   $("p[class^='ChapOpeningText']").each(function (i) {
    $(this).children("span.spansmallcapscharacterssc").each(function () {
@@ -93,6 +104,65 @@ fs.readFile(file, function editContent (err, contents) {
     $(this).text(match[2]);
     $(this).before(match[1]);
     $(this).after(match[4]);
+  });
+
+  // remove Section-Blank-Page sections
+  $("section.blankpage").remove();
+
+  //// Strip pageBreaks preceding Section starts:
+  // catch & remove any page break directly preceding Section Starts (nothing should be outside of a seciton block, but just in case)
+  $(".PageBreakpb + section, .PageBreakpb + div").prev().remove();
+  // and remove elements with .PageBreakpb class that are are last children of sections or divs that are followed by other sections or divs
+  var SectionWithLastChildPageBreak = $("section:has(.PageBreakpb:last-child) + section, section:has(.PageBreakpb:last-child) + div, div:has(.PageBreakpb:last-child) + section, div:has(.PageBreakpb:last-child) + div").prev()
+  // we have to do an 'each' loop, otherwise the .last() selector selects only the very last match in the whole document (the loop is not necessary w/ jsbin, may be a cheerio idiosyncrasy)
+  SectionWithLastChildPageBreak.each(function() {
+    $(this).children().last().remove();
+  })
+
+  // Strip content from all PageBreakbp
+  $(".PageBreakpb").empty();
+
+  //// The below items were migrated here from bookmaker/htmlmaker/bandaid.js
+
+  // fix fig ids in case of duplication
+  $('figure').each(function(){
+    var myId = $(this).attr('id');
+    if ( myId !== undefined ) {
+      var newId = "fig-" + myId;
+      $(this).attr('id', newId);
+    }
+  });
+
+  // remove leading and trailing brackets from image filenames
+  $('figure img').each(function(){
+    var mySrc = $(this).attr('src');
+    var myAlt = $(this).attr('alt');
+    var mypattern1 = new RegExp( "^images/\\[", "g");
+    var mypattern2 = new RegExp( "\\]$", "g");
+    var result1 = mypattern1.test(mySrc);
+    var result2 = mypattern2.test(mySrc);
+    if ( result1 === true && result2 === true ) {
+      mySrc = mySrc.replace("[", "").replace("]", "");
+    } else {
+      mySrc = mySrc.replace("[", "%5B").replace("]", "%5D");
+    }
+    $(this).attr('src', mySrc);
+    myAlt = myAlt.replace("[", "%5B").replace("]", "%5D");
+    $(this).attr('alt', myAlt);
+  });
+
+  // fix brackets in urls
+  $('a[href]').each(function(){
+    var myHref = $(this).attr('href');
+    myHref = myHref.replace("[", "%5B").replace("]", "%5D");
+    $(this).attr('href', myHref);
+  });
+
+  $('span.spanhyperlinkurl:not(":has(a)")').each(function(){
+    var myText = $(this).text();
+    myText = myText.replace("[", "%5B").replace("]", "%5D");
+    $(this).empty();
+    $(this).append(myText);
   });
 
   var output = $.html();
