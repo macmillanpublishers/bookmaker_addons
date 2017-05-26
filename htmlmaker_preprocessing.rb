@@ -11,6 +11,14 @@ filetype = Bkmkr::Project.filename_split.split(".").pop
 
 configfile = File.join(Bkmkr::Paths.project_tmp_dir, "config.json")
 
+unzipdocx_py = File.join(Bkmkr::Paths.resource_dir, "wordmaker", "unzipDOCX.py")
+
+unzipdir = File.join(Bkmkr::Paths.project_tmp_dir, "docx_unzipped")
+
+custom_xml = File.join(unzipdir, 'docProps', 'custom.xml')
+
+get_template_version_py = File.join(Bkmkr::Paths.resource_dir, "wordmaker", "unzipDOCX.py")
+
 # ---------------------- METHODS
 
 def convertDocToDocxPSscript(filetype, logkey='')
@@ -21,6 +29,20 @@ def convertDocToDocxPSscript(filetype, logkey='')
     logstring = 'input file is html, skipping'
   end
 rescue => logstring
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
+def checkTemplateVersion(unzipdocx_py, unzipdir, custom_xml, get_template_version_py, logkey='')
+  unless filetype == "html"
+    Bkmkr::Tools.runpython(unzipdocx_py, "#{Bkmkr::Paths.project_docx_file} #{unzipdir}")
+    templateversion = Bkmkr::Tools.runpython(get_template_version_py, "#{custom_xml}")
+  else
+    logstring = 'input file is html, skipping'
+  end
+  return templateversion
+rescue => logstring
+  return ''
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
@@ -36,6 +58,9 @@ end
 
 #convert .doc to .docx via powershell script, ignore html files
 convertDocToDocxPSscript(filetype, 'convert_doc_to_docx')
+
+# get document version template number if it exists
+templateversion = checkTemplateVersion(unzipdocx_py, unzipdir, custom_xml, get_template_version_py, 'check_docx_template_version')
 
 # Create a temp JSON file
 datahash = {}
@@ -56,6 +81,7 @@ datahash.merge!(pod_toc: "TK")
 datahash.merge!(frontcover: "TK")
 datahash.merge!(epubtitlepage: "TK")
 datahash.merge!(podtitlepage: "TK")
+datahash.merge!(templateversion: "TK")
 
 # Printing the final JSON object
 writeConfigJson(datahash, configfile, 'write_config_jsonfile')
