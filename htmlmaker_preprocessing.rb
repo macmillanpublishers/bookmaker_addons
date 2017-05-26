@@ -33,14 +33,19 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def checkTemplateVersion(unzipdocx_py, unzipdir, custom_xml, get_template_version_py, logkey='')
+def checktemplate_version(unzipdocx_py, unzipdir, custom_xml, get_template_version_py, logkey='')
+  template_version = ''
   unless filetype == "html"
     Bkmkr::Tools.runpython(unzipdocx_py, "#{Bkmkr::Paths.project_docx_file} #{unzipdir}")
-    templateversion = Bkmkr::Tools.runpython(get_template_version_py, "#{custom_xml}")
+    if File.exist?(custom_xml)
+      template_version = Bkmkr::Tools.runpython(get_template_version_py, "#{custom_xml}")
+    else
+      template_version = 'not_found'
+    end
   else
     logstring = 'input file is html, skipping'
   end
-  return templateversion
+  return template_version
 rescue => logstring
   return ''
 ensure
@@ -60,7 +65,7 @@ end
 convertDocToDocxPSscript(filetype, 'convert_doc_to_docx')
 
 # get document version template number if it exists
-templateversion = checkTemplateVersion(unzipdocx_py, unzipdir, custom_xml, get_template_version_py, 'check_docx_template_version')
+template_version = checktemplate_version(unzipdocx_py, unzipdir, custom_xml, get_template_version_py, 'check_docx_template_version')
 
 # Create a temp JSON file
 datahash = {}
@@ -81,7 +86,7 @@ datahash.merge!(pod_toc: "TK")
 datahash.merge!(frontcover: "TK")
 datahash.merge!(epubtitlepage: "TK")
 datahash.merge!(podtitlepage: "TK")
-datahash.merge!(templateversion: "TK")
+datahash.merge!(template_version: "TK")
 
 # Printing the final JSON object
 writeConfigJson(datahash, configfile, 'write_config_jsonfile')
