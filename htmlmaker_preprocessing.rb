@@ -33,7 +33,7 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def checktemplate_version(unzipdocx_py, unzipdir, custom_xml, get_template_version_py, logkey='')
+def checktemplate_version(filetype, unzipdocx_py, unzipdir, custom_xml, get_template_version_py, logkey='')
   template_version = ''
   unless filetype == "html"
     Bkmkr::Tools.runpython(unzipdocx_py, "#{Bkmkr::Paths.project_docx_file} #{unzipdir}")
@@ -65,7 +65,7 @@ end
 convertDocToDocxPSscript(filetype, 'convert_doc_to_docx')
 
 # get document version template number if it exists
-template_version = checktemplate_version(unzipdocx_py, unzipdir, custom_xml, get_template_version_py, 'check_docx_template_version')
+template_version = checktemplate_version(filetype, unzipdocx_py, unzipdir, custom_xml, get_template_version_py, 'check_docx_template_version')
 
 # Create a temp JSON file
 datahash = {}
@@ -86,7 +86,7 @@ datahash.merge!(pod_toc: "TK")
 datahash.merge!(frontcover: "TK")
 datahash.merge!(epubtitlepage: "TK")
 datahash.merge!(podtitlepage: "TK")
-datahash.merge!(template_version: "TK")
+datahash.merge!(template_version: template_version)
 
 # Printing the final JSON object
 writeConfigJson(datahash, configfile, 'write_config_jsonfile')
