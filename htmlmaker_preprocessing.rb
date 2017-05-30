@@ -40,7 +40,7 @@ def checktemplate_version(filetype, unzipdocx_py, unzipdir, custom_xml, get_temp
     Bkmkr::Tools.runpython(unzipdocx_py, "#{Bkmkr::Paths.project_docx_file} #{unzipdir}")
     # get the custom doc property 'Version' from the custom.xml
     if File.exist?(custom_xml)
-      template_version = Bkmkr::Tools.runpython(get_template_version_py, "#{custom_xml}")
+      template_version = Bkmkr::Tools.runpython(get_template_version_py, "#{custom_xml}").strip()
     else
       template_version = 'not_found'
     end
