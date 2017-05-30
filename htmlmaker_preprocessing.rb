@@ -68,6 +68,7 @@ convertDocToDocxPSscript(filetype, 'convert_doc_to_docx')
 
 # get document version template number if it exists
 template_version = checktemplate_version(filetype, unzipdocx_py, unzipdir, custom_xml, get_template_version_py, 'check_docx_template_version')
+@log_hash['template_version'] = template_version
 
 # Create a temp JSON file
 datahash = {}
