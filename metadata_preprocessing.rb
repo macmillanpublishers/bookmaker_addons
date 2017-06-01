@@ -1,5 +1,6 @@
 require 'fileutils'
 require 'htmlentities'
+require 'nokogiri'
 
 unless (ENV['TRAVIS_TEST']) == 'true'
   require_relative '../bookmaker/core/header.rb'
@@ -174,16 +175,27 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setBookTitle(myhash, html_contents, logkey='')
+def setBookTitle(myhash, htmlfile, logkey='')
+  # get the page tree via nokogiri
+  page = Nokogiri::HTML(open(htmlfile))
   # get meta info from html if it exists
-  metabooktitle = html_contents.match(/(<meta name="title" content=")(.*?)("\/>)/i)
+  metabooktitle = page.css("meta[name='title']")
+  puts metabooktitle
   # Finding book title
-  if !metabooktitle.nil?
+  if !metabooktitle.empty? or !metabooktitle.nil?
+    puts "Getting book title from meta element"
     booktitle = HTMLEntities.new.decode(metabooktitle[2]).encode('utf-8')
   elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_COVERTITLE"].nil? or myhash["book"]["WORK_COVERTITLE"].empty? or !myhash["book"]["WORK_COVERTITLE"]
-    booktitle = html_contents.scan(/<h1[^<]*?class="TitlepageBookTitletit".*?>(.*?)<.*?>/).join(", ")
+    puts "Getting book title from titlepage"
+    titles = []
+    booktitle = page.css(".TitlepageBookTitletit")
+    booktitle.each do |t|
+      titles << t.text
+    end
+    booktitle = titles.join(" ")
     booktitle = HTMLEntities.new.decode(booktitle).encode('utf-8')
   else
+    puts "Getting book title from config"
     booktitle = myhash["book"]["WORK_COVERTITLE"]
     booktitle = booktitle.encode('utf-8')
   end
@@ -445,7 +457,7 @@ html_contents = readFile(Bkmkr::Paths.outputtmp_html, 'get_outputtmp_html_conten
 authorname = setAuthorInfo(myhash, html_contents, 'set_author_info')
 @log_hash['author_name'] = authorname
 
-booktitle = setBookTitle(myhash, html_contents, 'set_book_title')
+booktitle = setBookTitle(myhash, Bkmkr::Paths.outputtmp_html, 'set_book_title')
 @log_hash['book_title'] = booktitle
 
 booksubtitle = setBookSubtitle(myhash, html_contents, 'set_book_subtitle')
