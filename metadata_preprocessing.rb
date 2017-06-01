@@ -269,7 +269,7 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setImprint(myhash, project_dir, imprint_json, logkey='')
+def setImprint(myhash, htmlfile, project_dir, imprint_json, logkey='')
   # get the page tree via nokogiri
   page = Nokogiri::HTML(open(htmlfile))
   # get meta info from html if it exists
@@ -477,19 +477,19 @@ html_contents = readFile(Bkmkr::Paths.outputtmp_html, 'get_outputtmp_html_conten
 
 # Setting metadata vars for config.json:
 # Prioritize metainfo from html, then edition info from biblio, then scan html for tagged data
-authorname = setAuthorInfo(myhash, html_contents, 'set_author_info')
+authorname = setAuthorInfo(myhash, Bkmkr::Paths.outputtmp_html, 'set_author_info')
 @log_hash['author_name'] = authorname
 
 booktitle = setBookTitle(myhash, Bkmkr::Paths.outputtmp_html, 'set_book_title')
 @log_hash['book_title'] = booktitle
 
-booksubtitle = setBookSubtitle(myhash, html_contents, 'set_book_subtitle')
+booksubtitle = setBookSubtitle(myhash, Bkmkr::Paths.outputtmp_html, 'set_book_subtitle')
 @log_hash['book_subtitle'] = booksubtitle
 
-imprint = setImprint(myhash, project_dir, imprint_json, 'set_imprint')
+imprint = setImprint(myhash, Bkmkr::Paths.outputtmp_html, project_dir, imprint_json, 'set_imprint')
 @log_hash['imprint'] = imprint
 
-publisher = setPublisher(myhash, imprint, 'set_publisher')
+publisher = setPublisher(myhash, Bkmkr::Paths.outputtmp_html, imprint, 'set_publisher')
 @log_hash['publisher'] = publisher
 
 metatemplate, template = setTemplate(myhash, 'set_template')
