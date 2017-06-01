@@ -182,7 +182,7 @@ def setBookTitle(myhash, htmlfile, logkey='')
   metabooktitle = page.css("meta[name='title']")
   puts metabooktitle
   # Finding book title
-  if !metabooktitle.empty? or !metabooktitle.nil?
+  if !metabooktitle.empty?
     puts "Getting book title from meta element"
     booktitle = HTMLEntities.new.decode(metabooktitle[2]).encode('utf-8')
   elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_COVERTITLE"].nil? or myhash["book"]["WORK_COVERTITLE"].empty? or !myhash["book"]["WORK_COVERTITLE"]
