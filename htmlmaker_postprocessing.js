@@ -12,6 +12,10 @@ fs.readFile(file, function editContent (err, contents) {
           xmlMode: true
         });
 
+  // add missing class names to inline tags that were converted from direct formatting
+  $("strong:not(.spanboldfacecharactersbf)").addClass("spanboldfacecharactersbf");
+  $("em:not(.spanitaliccharactersital)").addClass("spanitaliccharactersital");
+
   // merge contiguous small caps char styles
   $("p[class^='ChapOpeningText']").each(function (i) {
    $(this).children("span.spansmallcapscharacterssc").each(function () {
