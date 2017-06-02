@@ -166,12 +166,12 @@ def setAuthorInfo(myhash, htmlfile, logkey='')
     authorname = HTMLEntities.new.decode(metabookauthor).encode('utf-8')
   elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_COVERTITLE"].nil? or myhash["book"]["WORK_COVERTITLE"].empty? or !myhash["book"]["WORK_COVERTITLE"]
     puts "Getting book AUTHOR from titlepage"
-    subtitles = []
+    names = []
     authorname = page.css(".TitlepageAuthorNameau")
     authorname.each do |t|
-      subtitles << t.text
+      names << t.text
     end
-    authorname = titles.join(", ")
+    authorname = names.join(", ")
     authorname = HTMLEntities.new.decode(authorname).encode('utf-8')
   else
     puts "Getting book AUTHOR from config"
@@ -231,7 +231,7 @@ def setBookSubtitle(myhash, htmlfile, logkey='')
     booksubtitle.each do |t|
       subtitles << t.text
     end
-    booksubtitle = titles.join(" ")
+    booksubtitle = subtitles.join(" ")
     booksubtitle = HTMLEntities.new.decode(booksubtitle).encode('utf-8')
   else
     puts "Getting book SUBTITLE from config"
@@ -276,10 +276,13 @@ def setImprint(myhash, htmlfile, project_dir, imprint_json, logkey='')
   metaimprint = page.xpath('//meta[@name="imprint"]/@content')
   # Finding imprint name
   if !metaimprint.nil?
+    puts "Getting book IMPRINT from meta element"
     imprint = HTMLEntities.new.decode(metaimprint)
   elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["IMPRINT_DESC"].nil? or myhash["book"]["IMPRINT_DESC"].empty? or !myhash["book"]["IMPRINT_DESC"]
+    puts "Getting book IMPRINT from config json"
     imprint = getImprint(project_dir, imprint_json, 'get_imprint_from_json')
   else
+    puts "Getting book IMPRINT from database"
     imprint = myhash["book"]["IMPRINT_DESC"]
     imprint = imprint.encode('utf-8')
   end
@@ -297,8 +300,10 @@ def setPublisher(myhash, htmlfile, imprint, logkey='')
   metapublisher = page.xpath('//meta[@name="publisher"]/@content')
   # Finding publisher
   if !metapublisher.nil?
+    puts "Getting book PUBLISHER from meta element"
     publisher = HTMLEntities.new.decode(metapublisher)
   else
+    puts "Getting book PUBLISHER from imprint"
     publisher = imprint
   end
   return publisher
