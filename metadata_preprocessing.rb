@@ -275,7 +275,7 @@ def setImprint(myhash, htmlfile, project_dir, imprint_json, logkey='')
   # get meta info from html if it exists
   metaimprint = page.xpath('//meta[@name="imprint"]/@content')
   # Finding imprint name
-  if !metaimprint.nil?
+  if !metaimprint.empty?
     puts "Getting book IMPRINT from meta element"
     imprint = HTMLEntities.new.decode(metaimprint)
   elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["IMPRINT_DESC"].nil? or myhash["book"]["IMPRINT_DESC"].empty? or !myhash["book"]["IMPRINT_DESC"]
@@ -299,7 +299,7 @@ def setPublisher(myhash, htmlfile, imprint, logkey='')
   # get meta info from html if it exists
   metapublisher = page.xpath('//meta[@name="publisher"]/@content')
   # Finding publisher
-  if !metapublisher.nil?
+  if !metapublisher.empty?
     puts "Getting book PUBLISHER from meta element"
     publisher = HTMLEntities.new.decode(metapublisher)
   else
