@@ -318,12 +318,12 @@ def setTemplate(myhash, htmlfile, logkey='')
   page = Nokogiri::HTML(open(htmlfile))
   # get meta info from html if it exists
   metatemplate = page.xpath('//meta[@name="template"]/@content')
-  if !metatemplate.nil?
+  if !metatemplate.empty?
     template = HTMLEntities.new.decode(metatemplate)
-    logstring = "Design template: #{template}"
+    logstring = "#{template}"
   else
     template = ""
-    logstring = "Design template: default"
+    logstring = "default"
   end
   puts logstring
   return metatemplate, template
@@ -497,7 +497,7 @@ imprint = setImprint(myhash, Bkmkr::Paths.outputtmp_html, project_dir, imprint_j
 publisher = setPublisher(myhash, Bkmkr::Paths.outputtmp_html, imprint, 'set_publisher')
 @log_hash['publisher'] = publisher
 
-metatemplate, template = setTemplate(myhash, Bkmkr::Paths.outputtmp_html, 'set_template')
+metatemplate, template = setTemplate(myhash, Bkmkr::Paths.outputtmp_html, 'set_design_template')
 
 
 # print and epub css files
