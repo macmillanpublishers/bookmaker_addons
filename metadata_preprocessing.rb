@@ -26,6 +26,7 @@ xml_file = File.join(Bkmkr::Paths.project_tmp_dir, "#{Bkmkr::Project.filename}.x
 
 title_js = File.join(Bkmkr::Paths.core_dir, "htmlmaker", "title.js")
 
+# we are reading from the json logfile here: local_log_hash is a hash of the json logfile, read in at the beginning of each script
 htmlmaker_js_version_test = local_log_hash['htmlmaker.rb']['htmlmaker_js_version_test']
 
 # ---------------------- METHODS
