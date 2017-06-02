@@ -12,7 +12,12 @@ import xml.etree.ElementTree as ET
 
 def read_xml_in_docx(docx, xmlfile):
     document = zipfile.ZipFile(docx, 'a')
-    xmlstring = document.read(xmlfile)
+    docxfiles = document.namelist()
+
+    if xmlfile in docxfiles:
+    	xmlstring = document.read(xmlfile)
+    else:
+    	xmlstring = ''
 
     return xmlstring
 
@@ -31,10 +36,12 @@ def check_xml_for_version(xmlstring, custom_doc_property_name):
 	return template_version
 
 
-
 xmlstring = read_xml_in_docx(docxfile, xmlfile)
 
-template_version = check_xml_for_version(xmlstring, custom_doc_property_name)
+if not xmlstring:
+	template_version = 'not_found'
+else:
+	template_version = check_xml_for_version(xmlstring, custom_doc_property_name)
 
 # pass value back to parent script
 print template_version

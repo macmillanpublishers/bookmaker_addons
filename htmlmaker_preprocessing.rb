@@ -30,7 +30,7 @@ end
 def checktemplate_version(filetype, get_template_version_py, logkey='')
   template_version = ''
   unless filetype == "html"
-    # get_template_version_py reads custom.xml inside the .docx to return custom doc property 'Version'
+    # the get_template_version_py script reads custom.xml inside the .docx to return custom doc property 'Version'
     template_version = Bkmkr::Tools.runpython(get_template_version_py, "#{Bkmkr::Paths.project_docx_file}").strip()
   else
     logstring = 'input file is html, skipping'
