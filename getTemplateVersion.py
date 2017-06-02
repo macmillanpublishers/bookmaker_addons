@@ -1,14 +1,24 @@
 from sys import argv
 
-xmlfile = argv[1]
+docxfile = argv[1]
 custom_doc_property_name = 'Version'
+xmlfile = 'docProps/custom.xml'
 
+import os
+import zipfile
+import shutil
 import xml.etree.ElementTree as ET
 
-def check_xml_for_version(xmlfile, custom_doc_property_name):
-	tree = ET.parse(xmlfile)
-	root = tree.getroot()
 
+def read_xml_in_docx(docx, xmlfile):
+    document = zipfile.ZipFile(docx, 'a')
+    xmlstring = document.read(xmlfile)
+
+    return xmlstring
+
+
+def check_xml_for_version(xmlstring, custom_doc_property_name):
+	root = ET.fromstring(xmlstring)
 	template_version=''
 
 	for child in root:
@@ -20,7 +30,11 @@ def check_xml_for_version(xmlfile, custom_doc_property_name):
 
 	return template_version
 
-template_version = check_xml_for_version(xmlfile, custom_doc_property_name)
+
+
+xmlstring = read_xml_in_docx(docxfile, xmlfile)
+
+template_version = check_xml_for_version(xmlstring, custom_doc_property_name)
 
 # pass value back to parent script
 print template_version
