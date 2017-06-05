@@ -288,10 +288,10 @@ htmlfilenames = getHTMLfilenameTypes(styleconfig_hash, 'get_html_filename-types'
 
 htmlfileshortnames = getHTMLfileShortNames(chunk_xsl, 'get_html_file_short_names')
 
-# combine the 2 arrays of html filename prefix possiblities
+# combine the 2 arrays of html filename prefix-possiblities
 htmlfilenames.concat htmlfileshortnames
 
-# for every html file in OEBPS with one of these filename prefixes, run create links to TOC for every heading.
+# for every html file in OEBPS with one of these filename prefixes, create links to TOC for every heading.
 htmlfilenames.each { |prefix|
   addLinkstoTOC(oebps_dir, "#{prefix}[0-9][0-9]*.html", epubmakerpostprocessingjs, "add_TOC_links_to_heads_in_#{prefix}.html_files")
 }
