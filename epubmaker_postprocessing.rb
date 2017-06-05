@@ -291,23 +291,10 @@ htmlfileshortnames = getHTMLfileShortNames(chunk_xsl, 'get_html_file_short_names
 # combine the 2 arrays of html filename prefix possiblities
 htmlfilenames.concat htmlfileshortnames
 
-puts htmlfilenames
-
+# for every html file in OEBPS with one of these filename prefixes, run create links to TOC for every heading.
 htmlfilenames.each { |prefix|
   addLinkstoTOC(oebps_dir, "#{prefix}[0-9][0-9]*.html", epubmakerpostprocessingjs, "add_TOC_links_to_heads_in_#{prefix}.html_files")
 }
-
-# # Add links back to TOC to chapter heads
-# addLinkstoTOC(oebps_dir, "ch[0-9][0-9]*.html", epubmakerpostprocessingjs, 'add_links_to_TOC_to_chap_heads')
-#
-# # Add links back to TOC to appendix heads
-# addLinkstoTOC(oebps_dir, "app[0-9][0-9]*.html", epubmakerpostprocessingjs, 'add_links_to_TOC_to_appendix_heads')
-#
-# # Add links back to TOC to preface heads
-# addLinkstoTOC(oebps_dir, "preface[0-9][0-9]*.html", epubmakerpostprocessingjs, 'add_links_to_TOC_to_preface_heads')
-#
-# # Add links back to TOC to part heads
-# addLinkstoTOC(oebps_dir, "part[0-9][0-9]*.html", epubmakerpostprocessingjs, 'add_links_to_TOC_to_part_heads')
 
 # fix toc entry in ncx
 # fix title page text in ncx
