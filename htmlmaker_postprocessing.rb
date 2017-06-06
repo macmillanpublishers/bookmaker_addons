@@ -71,6 +71,7 @@ localRunNode(htmlmakerpostprocessingjs, Bkmkr::Paths.outputtmp_html, 'post-proce
 
 filecontents = readOutputHtml('read_output_html')
 filecontents = fixNoteCallouts(filecontents, 'fix_note_callouts')
+filecontents = fixLongHyphenatedWords(filecontents, 'fix_long_hyphenated_phrases')
 
 overwriteFile(Bkmkr::Paths.outputtmp_html, filecontents, 'overwrite_html')
 
