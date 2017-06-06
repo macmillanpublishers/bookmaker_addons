@@ -40,6 +40,21 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
+def fixLongHyphenatedWords(html, logkey='')
+  filecontents = html
+  longstrings = html.scan(/((\S+-){3,})/)
+  longstrings.each do |l|
+    source = l[0]
+    newstring = l[0].gsub(/-/, "&#8202;-&#8202;")
+    filecontents = filecontents.gsub(source, newstring)
+  end
+  return filecontents  
+rescue => logstring
+  return ''
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
 ## wrapping a Mcmlln::Tools method in a new method for this script; to return a result for json_logfile
 def overwriteFile(path,filecontents, logkey='')
 	Mcmlln::Tools.overwriteFile(path, filecontents)
