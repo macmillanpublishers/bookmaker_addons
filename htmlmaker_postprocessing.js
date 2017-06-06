@@ -102,10 +102,10 @@ fs.readFile(file, function editContent (err, contents) {
   // some special handling for paras with long hyphenated phrases
   $('p:contains("-")').each(function (){
     var para_txt = $(this).text();
-    var myRegexp = /((\S+-){3,})/;
-    var match = myRegexp.exec(para_txt);
-    if (match === true) {
-      $(this).attr('style', 'prince-hyphenate-after: 6; prince-hyphenate-before: 6; hyphenate-lines: 6;');
+    var mypattern = /\S-/g;
+    var result = mypattern.test(para_txt);
+    if (result === true) {
+      $(this).addClass('longstring');
     }
   });
 
