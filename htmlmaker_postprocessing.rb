@@ -42,7 +42,7 @@ end
 
 def fixLongHyphenatedWords(html, logkey='')
   filecontents = html
-  longstrings = html.scan(/((\S+-){3,})/)
+  longstrings = html.scan(/((\S+-){4,})/)
   longstrings.each do |l|
     source = l[0]
     newstring = l[0].gsub(/-/, "&#x200B;-&#173;&#x200B;")
