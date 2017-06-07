@@ -1,5 +1,6 @@
 require 'fileutils'
 require 'unidecoder'
+require 'htmlentities'
 require 'nokogiri'
 
 require_relative '../bookmaker/core/header.rb'
