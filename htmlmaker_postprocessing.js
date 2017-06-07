@@ -106,9 +106,6 @@ fs.readFile(file, function editContent (err, contents) {
     var result = mypattern.test(para_txt);
     if (result === true) {
       $(this).addClass('longstring');
-      newhtml = $(this).html().replace("-", "<span style='font-size: 2pt;'> </span>-<span style='font-size: 2pt;'> </span>");
-      $(this).empty();
-      $(this).append(newhtml);
     }
   });
 
