@@ -313,6 +313,7 @@ addonjson = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker",
 
 # anthologies need some custom handling
 anthology = isAnthology(epub_tmp_html, 'isAnthology')
+puts anthology
 
 # move sections to the back, per ebooks SOP
 # note that the order in which these moves occur is IMPORTANT
