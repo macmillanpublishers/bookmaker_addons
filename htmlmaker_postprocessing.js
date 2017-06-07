@@ -99,6 +99,16 @@ fs.readFile(file, function editContent (err, contents) {
     $(this).after(match[4]);
   });
 
+  // some special handling for paras with long hyphenated phrases
+  $('p:contains("-")').each(function (){
+    var para_txt = $(this).text();
+    var mypattern = /((\S+-){4,})/g;
+    var result = mypattern.test(para_txt);
+    if (result === true) {
+      $(this).addClass('longstring');
+    }
+  });
+
   var output = $.html();
     fs.writeFile(file, output, function(err) {
       if(err) {
