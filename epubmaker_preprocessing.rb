@@ -153,7 +153,7 @@ def isAnthology(htmlfile, logkey='')
   page = Nokogiri::HTML(open(htmlfile))
   # get meta info from html if it exists
   metabookformat = page.xpath('//meta[@name="template"]/@content')
-  imprint = HTMLEntities.new.decode(metabookformat)
+  metabookformat = HTMLEntities.new.decode(metabookformat)
   if metabookformat == "anthology"
     value = true
   else
