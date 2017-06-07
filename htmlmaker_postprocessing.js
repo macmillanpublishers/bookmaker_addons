@@ -100,12 +100,15 @@ fs.readFile(file, function editContent (err, contents) {
   });
 
   // some special handling for paras with long hyphenated phrases
-  $('p:contains("-")').each(function (){
+  $('p:contains("-"):not(:has(span.spanISBNisbn))').each(function (){
     var para_txt = $(this).text();
-    var mypattern = /((\S+-){4,})/g;
+    var mypattern = /((\S+-){3,})/g;
     var result = mypattern.test(para_txt);
     if (result === true) {
       $(this).addClass('longstring');
+      newhtml = $(this).html().replace("-", "<span style='font-size: 2pt;'> </span>-<span style='font-size: 2pt;'> </span>");
+      $(this).empty();
+      $(this).append(newhtml);
     }
   });
 

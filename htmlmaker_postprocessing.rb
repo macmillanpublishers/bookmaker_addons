@@ -40,21 +40,6 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def fixLongHyphenatedWords(html, logkey='')
-  filecontents = html
-  longstrings = html.scan(/((\S+-){4,})/)
-  longstrings.each do |l|
-    source = l[0]
-    newstring = l[0].gsub(/-/, "<span style='font-size: 2pt;'> </span>-<span style='font-size: 2pt;'> </span>")
-    filecontents = filecontents.gsub(source, newstring)
-  end
-  return filecontents  
-rescue => logstring
-  return ''
-ensure
-  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
-end
-
 ## wrapping a Mcmlln::Tools method in a new method for this script; to return a result for json_logfile
 def overwriteFile(path,filecontents, logkey='')
 	Mcmlln::Tools.overwriteFile(path, filecontents)
@@ -71,7 +56,6 @@ localRunNode(htmlmakerpostprocessingjs, Bkmkr::Paths.outputtmp_html, 'post-proce
 
 filecontents = readOutputHtml('read_output_html')
 filecontents = fixNoteCallouts(filecontents, 'fix_note_callouts')
-filecontents = fixLongHyphenatedWords(filecontents, 'fix_long_hyphenated_phrases')
 
 overwriteFile(Bkmkr::Paths.outputtmp_html, filecontents, 'overwrite_html')
 
