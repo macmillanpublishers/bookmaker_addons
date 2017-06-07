@@ -158,6 +158,7 @@ def isAnthology(htmlfile, logkey='')
   else
     value = false
   end
+  puts metabookformat
   return value
 rescue => logstring
   return ''
