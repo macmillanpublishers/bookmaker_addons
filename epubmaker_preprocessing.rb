@@ -160,7 +160,6 @@ def isAnthology(htmlfile, logkey='')
   else
     value = false
   end
-  puts metabookformat
   return value
 rescue => logstring
   return ''
@@ -316,7 +315,6 @@ addonjson = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker",
 
 # anthologies need some custom handling
 anthology = isAnthology(epub_tmp_html, 'isAnthology')
-puts anthology
 
 # move sections to the back, per ebooks SOP
 # note that the order in which these moves occur is IMPORTANT
@@ -324,10 +322,14 @@ puts anthology
 unless anthology == true
   # move about the author to back
   localMoveSection(epub_tmp_html, sectionjson, "abouttheauthor", "", "endofbook", "1", 'move_ata_to_back')
+end
 
+unless anthology == true
   # move bobad to back
   localMoveSection(epub_tmp_html, sectionjson, "bobad", "", "endofbook", "1", 'move_bobad_to_back')
+end
 
+unless anthology == true
   # move adcard to back
   localMoveSection(epub_tmp_html, sectionjson, "adcard", "", "endofbook", "1", 'move_adcard_to_back')
 end
