@@ -1,5 +1,6 @@
 require 'fileutils'
 require 'unidecoder'
+require 'nokogiri'
 
 require_relative '../bookmaker/core/header.rb'
 require_relative '../bookmaker/core/metadata.rb'
@@ -143,6 +144,22 @@ end
 def localCompileJS(file, logkey='')
   Bkmkr::Tools.compileJS(file)
 rescue => logstring
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
+def isAnthology(htmlfile, logkey='')
+  # get the page tree via nokogiri
+  page = Nokogiri::HTML(open(htmlfile))
+  # get meta info from html if it exists
+  metabookformat = page.xpath('//meta[@name="booktype"]/@content')
+  if metabookformat == "anthology"
+    value = true
+  else
+    value = false
+  return value
+rescue => logstring
+  return ''
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
@@ -293,14 +310,22 @@ localRunNode(epubmakerpreprocessingjs, epub_tmp_html, 'epubmaker_preprocessing_j
 sectionjson = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "sections.json")
 addonjson = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker", "addons", "addons.json")
 
-# move about the author to back
-localMoveSection(epub_tmp_html, sectionjson, "abouttheauthor", "", "endofbook", "1", 'move_ata_to_back')
+# anthologies need some custom handling
+anthology = isAnthology(epub_tmp_html, 'isAnthology')
 
-# move bobad to back
-localMoveSection(epub_tmp_html, sectionjson, "bobad", "", "endofbook", "1", 'move_bobad_to_back')
+# move sections to the back, per ebooks SOP
+# note that the order in which these moves occur is IMPORTANT
 
-# move adcard to back
-localMoveSection(epub_tmp_html, sectionjson, "adcard", "", "endofbook", "1", 'move_adcard_to_back')
+unless anthology == true
+  # move about the author to back
+  localMoveSection(epub_tmp_html, sectionjson, "abouttheauthor", "", "endofbook", "1", 'move_ata_to_back')
+
+  # move bobad to back
+  localMoveSection(epub_tmp_html, sectionjson, "bobad", "", "endofbook", "1", 'move_bobad_to_back')
+
+  # move adcard to back
+  localMoveSection(epub_tmp_html, sectionjson, "adcard", "", "endofbook", "1", 'move_adcard_to_back')
+end
 
 # move front sales to back
 localMoveSection(epub_tmp_html, sectionjson, "frontsales", "", "endofbook", "1", 'move_frontsales_to_back')
