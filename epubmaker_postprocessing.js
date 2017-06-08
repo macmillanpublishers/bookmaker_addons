@@ -8,7 +8,7 @@ fs.readFile(file, function editContent (err, contents) {
         });
 
 // Add links back to TOC to all section heads and part heads
-$("body>section h1, div[data-type='part']>section h1, div[data-type='part'] h1").each(function () {
+$("body>section>h1, div[data-type='part']>section>h1, div[data-type='part']>h1").each(function () {
   var newlink = "<a href='toc01.html'>" + $( this ).text() + "</a>";
   $(this).empty();
   $(this).prepend(newlink);

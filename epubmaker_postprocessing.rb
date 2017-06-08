@@ -62,7 +62,7 @@ def getHTMLfilenameTypes(styleconfig_hash, logkey='')
   styleconfig_hash['toplevelheads'].each do |key, array|
 	   types << array[0]['type']
   end
-  return types.uniq
+  return types
 rescue => logstring
   return []
 ensure
@@ -78,7 +78,7 @@ def getHTMLfileShortNames(chunk_xsl, logkey='')
   		shortnames << line.split(':')[1].strip()
   	end
   }
-  return shortnames.uniq
+  return shortnames
 rescue => logstring
   return []
 ensure
@@ -292,7 +292,7 @@ htmlfileshortnames = getHTMLfileShortNames(chunk_xsl, 'get_html_file_short_names
 htmlfilenames.concat htmlfileshortnames
 
 # for every html file in OEBPS with one of these filename prefixes, create links to TOC for every heading.
-htmlfilenames.each { |prefix|
+htmlfilenames.uniq.each { |prefix|
   addLinkstoTOC(oebps_dir, "#{prefix}[0-9][0-9]*.html", epubmakerpostprocessingjs, "add_TOC_links_to_heads_in_#{prefix}.html_files")
 }
 
