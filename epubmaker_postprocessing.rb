@@ -59,8 +59,8 @@ end
 
 def getHTMLfilenameTypes(styleconfig_hash, logkey='')
   types = []
-  styleconfig_hash['toplevelheads'].each do |key, array|
-	   types << array[0]['type']
+  styleconfig_hash['toplevelheads'].each do |key, hash|
+	   types << hash['type']
   end
   return types
 rescue => logstring
