@@ -155,6 +155,9 @@ fs.readFile(file, function editContent (err, contents) {
   // suppress toc entries for certain sections
   $('div[data-type="part"] + section[data-type="chapter"]:has(h1.ChapTitleNonprintingctnp) + *:not(section[data-type="chapter"])').prev().addClass("notoc");
 
+  // suppress toc entries for bobad, Section-Excerpt-Chaptersec
+  $('section.bobad, section.excerptchapter').addClass("notoc");
+
   // remove header blocks
   $("header").remove();
 
