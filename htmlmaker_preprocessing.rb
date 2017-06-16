@@ -28,7 +28,7 @@ ensure
 end
 
 def getContextforUnsupportedSymbols(filetype, symbolcodes, getsymbolstring_py, logkey='')
-  allsymbolreplacements = {}
+  wordsymbolreplacements = {}
   unless filetype == "html"
     # cycle through each symbol we need to replace
     symbolcodes.each { |symbolname,codes|
@@ -40,17 +40,17 @@ def getContextforUnsupportedSymbols(filetype, symbolcodes, getsymbolstring_py, l
         symbolstrings_hash.each { |beforestring,afterstring|
           stringreplacementset = {}
           stringreplacementset['searchstring'] = "#{beforestring}#{afterstring}"
-          stringreplacementset['replacementstring'] = "#{beforestring}#{codes['replacementhtml']}#{afterstring}"
+          stringreplacementset['replacementstring'] = "#{beforestring}#{codes['htmlcode']}#{afterstring}"
           thissymbolreplacementset << stringreplacementset
         }
-        # create a new entry in the allsymbolreplacements hash; with symbol name as key, and search & replace strings as nested values
-        allsymbolreplacements[symbolname] = thissymbolreplacementset
+        # create a new entry in the wordsymbolreplacements hash; with symbol name as key, and search & replace strings as nested values
+        wordsymbolreplacements[symbolname] = thissymbolreplacementset
       end
     }
   else
     logstring = 'input file is html, skipping'
   end
-  return allsymbolreplacements
+  return wordsymbolreplacements
 rescue => logstring
   return {}
 ensure
@@ -82,9 +82,9 @@ symbolcodes = {
 }
 
 # check for occurrences of word symbol items in the symbolcodes hash; if any are found write output to the json logfile
-allsymbolreplacements = getContextforUnsupportedSymbols(filetype, symbolcodes, getsymbolstring_py, 'get_context_for_unsupported_symbols')
-unless allsymbolreplacements.empty?
-  @log_hash['allsymbolreplacements'] = allsymbolreplacements
+wordsymbolreplacements = getContextforUnsupportedSymbols(filetype, symbolcodes, getsymbolstring_py, 'get_context_for_unsupported_symbols')
+unless wordsymbolreplacements.empty?
+  @log_hash['wordsymbolreplacements'] = wordsymbolreplacements
 end
 
 

@@ -48,6 +48,16 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
+def makeSymbolReplacements(symbolreplacementhash, filecontents, logkey='')
+  symbolreplacementhash.each { |symbolname,replacementsarray|
+    replacementsarray.each { |stringpair|
+
+    }
+  }
+rescue => logstring
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
 
 # ---------------------- PROCESSES
 
@@ -56,6 +66,12 @@ localRunNode(htmlmakerpostprocessingjs, Bkmkr::Paths.outputtmp_html, 'post-proce
 
 filecontents = readOutputHtml('read_output_html')
 filecontents = fixNoteCallouts(filecontents, 'fix_note_callouts')
+
+# we are reading from the json logfile here: local_log_hash is a hash of the json logfile, read in at the beginning of each script
+if local_log_hash['htmlmaker_preprocessing.rb'].has_key?('wordsymbolreplacements')
+  symbolreplacementhash = local_log_hash['htmlmaker_preprocessing.rb']['wordsymbolreplacements']
+  makeSymbolReplacements(symbolreplacementhash, filecontents, 'make_symbol_replacements')
+end
 
 overwriteFile(Bkmkr::Paths.outputtmp_html, filecontents, 'overwrite_html')
 
