@@ -43,7 +43,7 @@ def getContextforUnsupportedSymbols(filetype, symbolcodes, getsymbolstring_py, l
           stringreplacementset['replacementstring'] = "#{beforestring}#{codes['replacementhtml']}#{afterstring}"
           thissymbolreplacementset << stringreplacementset
         }
-        # create a hash for this symbol with replacement strings as the value, to be logged
+        # create a new entry in the allsymbolreplacements hash; with symbol name as key, and search & replace strings as nested values
         allsymbolreplacements[symbolname] = thissymbolreplacementset
       end
     }
@@ -69,16 +69,16 @@ end
 #convert .doc to .docx via powershell script, ignore html files
 convertDocToDocxPSscript(filetype, 'convert_doc_to_docx')
 
-# items in this hash represent characters that are 'word symbol' encodings ignored by mammoth when converting to html.
+# items in this hash represent characters that are word symbol ('w:sym') encodings ignored by mammoth during html conversion.
 # add an item to this hash to scan for re-insertion post html conversion
 # the 'wordsymcode' value can be found in the document.xml and confirmed here:
 #     https://gist.github.com/ptsefton/1ce30879e9cfef289356#file-gistfile1-txt-L163
 # the 'htmlcode' value is the html encoding for the desired replacement character (could also be a string)
 symbolcodes = {
   "copyrightsymbol" => {
-		"wordsymcode" => "F0D3",
-		"htmlcode" => "&#xA9;"
-	}
+    "wordsymcode" => "F0D3",
+    "htmlcode" => "&#xA9;"
+  }
 }
 
 # check for occurrences of word symbol items in the symbolcodes hash; if any are found write output to the json logfile
