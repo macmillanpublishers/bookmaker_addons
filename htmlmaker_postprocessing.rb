@@ -42,8 +42,8 @@ end
 
 def fixLongHyphenatedWords(html, logkey='')
   filecontents = html
-  # tag & alter long-hyphen phrases that are parts or hyperlinks (so they are bypassed by the next block)
-  longhyphenhyperlinks = html.scan(/(<a href="(?:(?!<a href).)*?(([a-zA-Z]+-){4,}).*?<\/a>)/)
+  # tag & alter long-hyphen phrases that are parts of hyperlinks (so they are bypassed by the next block's transformation)
+  longhyphenhyperlinks = html.scan(/(<span class="spanhyperlinkurl">(?:(?!<span).)*?(([a-zA-Z]+-){4,}).*?<\/span>)/)
   longhyphenhyperlinks.each do |lh|
     source = lh[0]
     newstring = lh[0].gsub(/(^.*$)/, 'LONGHYPHENHYPERLINK\1ENDLONGHYPHENHYPERLINK').gsub(/-/, "zzzzz") #(placeholders for easy cleanup gsubs)
