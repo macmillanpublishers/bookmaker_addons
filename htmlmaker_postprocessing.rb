@@ -42,13 +42,31 @@ end
 
 def fixLongHyphenatedWords(html, logkey='')
   filecontents = html
+  # tag & alter long-hyphen phrases that are parts of hyperlinks (so they are bypassed by the next block's transformation)
+  longhyphenhyperlinks = html.scan(/(<span class="spanhyperlinkurl">(?:(?!<span).)*?(([a-zA-Z]+-){4,}).*?<\/span>)/)
+  longhyphenhyperlinks.each do |lh|
+    source = lh[0]
+    newstring = lh[0].gsub(/(^.*$)/, 'LONGHYPHENHYPERLINK\1ENDLONGHYPHENHYPERLINK').gsub(/-/, "zzzzz") #(placeholders for easy cleanup gsubs)
+    filecontents = filecontents.gsub(source, newstring)
+  end
+
+  # capture and replace all other long-hyphen phrases
   longstrings = html.scan(/(([a-zA-Z]+-){4,})/)
   longstrings.each do |l|
     source = l[0]
     newstring = l[0].gsub(/-/, "<span style='font-size: 2pt;'> </span>-<span style='font-size: 2pt;'> </span>")
     filecontents = filecontents.gsub(source, newstring)
   end
-  return filecontents  
+
+  # return long-hyphen-hypen strings in hyperlinks to their previous state
+  taggedhyphenhyperlinks = filecontents.scan(/LONGHYPHENHYPERLINK.*?ENDLONGHYPHENHYPERLINK/)
+  taggedhyphenhyperlinks.each do |th|
+    source = th
+    newstring = th.gsub(/LONGHYPHENHYPERLINK(.*?)ENDLONGHYPHENHYPERLINK/, '\1').gsub(/zzzzz/, "-") #(placeholders for easy cleanup gsubs)
+    filecontents = filecontents.gsub(source, newstring)
+  end
+
+  return filecontents
 rescue => logstring
   return ''
 ensure
