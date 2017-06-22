@@ -101,17 +101,17 @@ fs.readFile(file, function editContent (err, contents) {
 
   // special handling for paras with long hyphenated phrases.
   $('p:contains("-"):not(:has(span.spanISBNisbn))').each(function (){
-  // verify we have a long-hyphen-phrase pattern match somewhere here before proceeding any further
   var para_html = $(this).html();
   // for the regexp, we could use greedier (/((\S+-){3,})/), but this could select hyphens inside of markup tags
   // we could also use (/((\S+(<span.*?>)*-(<span.*?>)*){3,})/) to get long-hyphenated phrases that cross span tags
   //  but this results in nested spans
   var mypattern = new RegExp(/((\w+-){3,})/);  // using the 'g' gives inconsistent results with 'regexp.test(pattern)'
-  var mypattern_g = new RegExp(/((\w+-){3,})/g);  // butwe need the 'g' when making replacements
+  var mypattern_g = new RegExp(/((\w+-){3,})/g);  // but we need the 'g' when making replacements
 
+  // verify we have a long-hyphen-phrase pattern match somewhere here before proceeding any further
   if (mypattern.test(para_html)) {
     var new_para_html = para_html
-    // change long-hyphen strings in this paragraph's hyperlink spans to preserve them during the next transformation
+    // change long-hyphen strings in hyperlink spans to preserve them during the next transformation
     var url_hyphen_placeholder = 'zzzzz - zzzzz'
     var hyperlink_span = $(this).find(".spanhyperlinkurl")
       hyperlink_span.each(function(){
@@ -136,13 +136,13 @@ fs.readFile(file, function editContent (err, contents) {
       });
     }
 
-    // remove all the temporary hyperlink long-hyphen placeholders
+    // remove all the temporary long-hyphen-hyperlink placeholders
     if (new_para_html.search(url_hyphen_placeholder)>0) {
       var urlplaceholderregex = new RegExp(url_hyphen_placeholder, "g")
       new_para_html = new_para_html.replace(urlplaceholderregex, "-")
     }
 
-    // apply the above transformations and add 'longstring' class
+    // apply the above transformations and add 'longstring' class to the para
     $(this).html(new_para_html)
     $(this).addClass('longstring');
   };
