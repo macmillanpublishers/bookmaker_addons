@@ -108,7 +108,7 @@ fs.readFile(file, function editContent (err, contents) {
   var mypattern = new RegExp(/((\w+-){3,})/);  // using the 'g' gives inconsistent results with 'regexp.test(pattern)'
   var mypattern_g = new RegExp(/((\w+-){3,})/g);  // but we need the 'g' when making replacements
 
-  // verify we have a long-hyphen-phrase pattern match somewhere here before proceeding any further
+  // verify we have a long-hyphen-phrase pattern match in this paragraph
   if (mypattern.test(para_html)) {
     var new_para_html = para_html
     // change long-hyphen strings in hyperlink spans to preserve them during the next transformation
@@ -131,7 +131,7 @@ fs.readFile(file, function editContent (err, contents) {
     if (mypattern.test(new_para_html)) {
       patternmatches = new_para_html.match(mypattern_g)
       patternmatches.forEach(function(string){
-        newstring = string.replace(/-/g, "<span style='font-size: 2pt;'> </span>&&&<span style='font-size: 2pt;'> </span>")
+        newstring = string.replace(/-/g, "<span style='font-size: 2pt;'> </span>-<span style='font-size: 2pt;'> </span>")
         new_para_html = new_para_html.replace(string, newstring)
       });
     }
