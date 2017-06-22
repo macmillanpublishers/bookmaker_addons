@@ -102,11 +102,11 @@ fs.readFile(file, function editContent (err, contents) {
   // special handling for paras with long hyphenated phrases.
   $('p:contains("-"):not(:has(span.spanISBNisbn))').each(function (){
   var para_html = $(this).html();
-  // for the regexp, we could use greedier (/((\S+-){3,})/), but this could select hyphens inside of markup tags
-  // we could also use (/((\S+(<span.*?>)*-(<span.*?>)*){3,})/) to get long-hyphenated phrases that cross span tags
+  // for the regexp, we could use greedier (/((\S+-){4,})/), but this could select hyphens inside of markup tags
+  // we could also use (/((\S+(<span.*?>)*-(<span.*?>)*){4,})/) to get long-hyphenated phrases that cross span tags
   //  but this results in nested spans
-  var mypattern = new RegExp(/((\w+-){3,})/);  // using the 'g' gives inconsistent results with 'regexp.test(pattern)'
-  var mypattern_g = new RegExp(/((\w+-){3,})/g);  // but we need the 'g' when making replacements
+  var mypattern = new RegExp(/((\w+-){4,})/);  // using the 'g' gives inconsistent results with 'regexp.test(pattern)'
+  var mypattern_g = new RegExp(/((\w+-){4,})/g);  // but we need the 'g' when making replacements
 
   // verify we have a long-hyphen-phrase pattern match in this paragraph
   if (mypattern.test(para_html)) {
