@@ -99,15 +99,54 @@ fs.readFile(file, function editContent (err, contents) {
     $(this).after(match[4]);
   });
 
-  // some special handling for paras with long hyphenated phrases
+  // special handling for paras with long hyphenated phrases.
   $('p:contains("-"):not(:has(span.spanISBNisbn))').each(function (){
-    var para_txt = $(this).text();
-    var mypattern = /((\S+-){3,})/g;
-    var result = mypattern.test(para_txt);
-    if (result === true) {
-      $(this).addClass('longstring');
+  var para_html = $(this).html();
+  // for the regexp, we could use greedier (/((\S+-){4,})/), but this could select hyphens inside of markup tags
+  // we could also use (/((\S+(<span.*?>)*-(<span.*?>)*){4,})/) to get long-hyphenated phrases that cross span tags
+  //  but this results in nested spans
+  var mypattern = new RegExp(/((\w+-){4,})/);  // using the 'g' gives inconsistent results with 'regexp.test(pattern)'
+  var mypattern_g = new RegExp(/((\w+-){4,})/g);  // but we need the 'g' when making replacements
+
+  // verify we have a long-hyphen-phrase pattern match in this paragraph
+  if (mypattern.test(para_html)) {
+    var new_para_html = para_html
+    // change long-hyphen strings in hyperlink spans to preserve them during the next transformation
+    var url_hyphen_placeholder = 'zzzzz - zzzzz'
+    var hyperlink_span = $(this).find(".spanhyperlinkurl")
+      hyperlink_span.each(function(){
+        var hyperlink_text = $(this).text()
+        var new_hyperlink_text = hyperlink_text
+        if (mypattern.test(hyperlink_text)) {
+          patternmatches = hyperlink_text.match(mypattern_g)
+          patternmatches.forEach(function(string){
+            newstring = string.replace(/-/g, url_hyphen_placeholder)
+            new_hyperlink_text = new_hyperlink_text.replace(string,newstring)
+            new_para_html = new_para_html.replace(hyperlink_text, new_hyperlink_text)
+          });
+        };
+      });
+
+    // transform all the other long-hyphenated strings
+    if (mypattern.test(new_para_html)) {
+      patternmatches = new_para_html.match(mypattern_g)
+      patternmatches.forEach(function(string){
+        newstring = string.replace(/-/g, "<span style='font-size: 2pt;'> </span>-<span style='font-size: 2pt;'> </span>")
+        new_para_html = new_para_html.replace(string, newstring)
+      });
     }
-  });
+
+    // remove all the temporary long-hyphen-hyperlink placeholders
+    if (new_para_html.search(url_hyphen_placeholder)>0) {
+      var urlplaceholderregex = new RegExp(url_hyphen_placeholder, "g")
+      new_para_html = new_para_html.replace(urlplaceholderregex, "-")
+    }
+
+    // apply the above transformations and add 'longstring' class to the para
+    $(this).html(new_para_html)
+    $(this).addClass('longstring');
+  };
+});
 
   var output = $.html();
     fs.writeFile(file, output, function(err) {
