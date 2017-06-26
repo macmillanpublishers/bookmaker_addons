@@ -99,14 +99,78 @@ fs.readFile(file, function editContent (err, contents) {
     $(this).after(match[4]);
   });
 
-  // some special handling for paras with long hyphenated phrases
+  // turn links into real hyperlinks
+  $("span.spanhyperlinkurl:not(:has(a))").each(function () {
+    var newlink = "<a href='" + $(this).text() + "'>" + $(this).text() + "</a>";
+    var mypattern1 = new RegExp( "https?://", "g");
+    var result1 = mypattern1.test($(this).text());
+    var mypattern2 = new RegExp( "^@", "g");
+    var result2 = mypattern2.test($(this).text());
+    var mypattern3 = new RegExp( ".@.", "g");
+    var result3 = mypattern3.test($(this).text());
+    if (result1 === false && result2 === false && result3 === false) {
+      newlink = newlink.replace("href='", "href='http://");
+    }
+    if (result1 === false && result2 === true) {
+      newlink = newlink.replace("href='@", "href='https://twitter.com/");
+    }
+    if (result2 === false && result3 === true) {
+      newlink = newlink.replace("href='", "href='mailto:");
+    }
+    $(this).empty();
+    $(this).prepend(newlink); 
+  });
+
+  // some special handling for paras with long hyphenated phrases.
+  // This should run AFTER the link-making function above.
   $('p:contains("-"):not(:has(span.spanISBNisbn))').each(function (){
     var para_txt = $(this).text();
-    var mypattern = /((\S+-){3,})/g;
-    var result = mypattern.test(para_txt);
+    var myhtml = $(this).html();
+    // Test to see if any long hyphenated strings are present
+    var testLongString = /((\S+-){4,})/g;
+    var result = testLongString.test(para_txt);
+    // If any are found, we'll do an initial pass to fix them
     if (result === true) {
-      $(this).addClass('longstring');
+      // First we'll loop through all the children within the active p element
+      // and add spacing to the text within the children
+      // making sure not to mess with the href contents of any links
+      $(this).find("*:not(.spanhyperlinkurl)").each(function () {
+        $(this).html( $(this).html().replace(/-/g,"<span style='font-size: 2pt;'> </span>-<span style='font-size: 2pt;'> </span>") );
+      });
+      // Now we'll grab any top-level text nodes and prep them for replacement
+      $(this).contents().filter(function(){ 
+        return this.nodeType == 3; 
+      }).wrap("<span class='longstringtmp'></span>");
     }
+  });
+
+  // This is the final piece of the hyphenated strings replacement
+  // where we'll take the prepped text nodes and do the replacements.
+  // This should run AFTER the above function.
+  $('span.longstringtmp').each(function (){
+    // In this function, we'll grab hyphenated strings
+    // that include at least two hyphens, to account for 
+    // strings that might be split by child elements.
+    var myhtml = $(this).html();
+
+    // First, test to see if any shorter hyphenated strings are present
+    var testShortString = /((\S+-\S*){2,})/g;
+    var patternmatches = [];
+    patternmatches = $(this).text().match(testShortString);
+    // If any are found, then perform the replacements
+    if (patternmatches) {
+      patternmatches.forEach(function(mystring){
+        newstring = mystring.replace(/-/g, "<span style='font-size: 2pt;'> </span>-<span style='font-size: 2pt;'> </span>")
+        // Wrap the found string in a span for future targetting
+        newstring = "<span class='longstring'>" + newstring + "</span>";
+        // Replace the text with the new span and it's text
+        myhtml = myhtml.replace(mystring, newstring);
+      });
+    };
+    // Replace the element text with our updated html content
+    $(this).html(myhtml);
+    // Finally, remove the temp class
+    $(this).removeClass('longstringtmp');
   });
 
   var output = $.html();
