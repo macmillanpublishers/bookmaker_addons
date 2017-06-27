@@ -121,57 +121,80 @@ fs.readFile(file, function editContent (err, contents) {
     $(this).prepend(newlink); 
   });
 
-  // some special handling for paras with long hyphenated phrases.
-  // This should run AFTER the link-making function above.
-  $('p:contains("-"):not(:has(span.spanISBNisbn))').each(function (){
-    var para_txt = $(this).text();
-    var myhtml = $(this).html();
-    // Test to see if any long hyphenated strings are present
-    var testLongString = /((\S+-){4,})/g;
-    var result = testLongString.test(para_txt);
-    // If any are found, we'll do an initial pass to fix them
-    if (result === true) {
-      // First we'll loop through all the children within the active p element
-      // and add spacing to the text within the children
-      // making sure not to mess with the href contents of any links
-      $(this).find("*:not(.spanhyperlinkurl)").each(function () {
-        $(this).html( $(this).html().replace(/-/g,"<span style='font-size: 2pt;'> </span>-<span style='font-size: 2pt;'> </span>") );
-      });
-      // Now we'll grab any top-level text nodes and prep them for replacement
-      $(this).contents().filter(function(){ 
-        return this.nodeType == 3; 
-      }).wrap("<span class='longstringtmp'></span>");
-    }
-  });
+  function replaceHyphenatedStrings() {
+    // Next we'll add some special handling for 
+    // long strings connected by hyphens.
+    // Note that is the link replacements from the function above
+    // do not occur before this function, then hyphens within link 
+    // text WILL NOT be spaced. (However, link href attributes will
+    // always be left alone.)
 
-  // This is the final piece of the hyphenated strings replacement
-  // where we'll take the prepped text nodes and do the replacements.
-  // This should run AFTER the above function.
-  $('span.longstringtmp').each(function (){
-    // In this function, we'll grab hyphenated strings
-    // that include at least two hyphens, to account for 
-    // strings that might be split by child elements.
-    var myhtml = $(this).html();
+    // First we need to set a counter and create an empty hash to work with.
+    var counter = 1;  
+    var hashReplacements = {};
 
-    // First, test to see if any shorter hyphenated strings are present
-    var testShortString = /((\S+-\S*){2,})/g;
-    var patternmatches = [];
-    patternmatches = $(this).text().match(testShortString);
-    // If any are found, then perform the replacements
-    if (patternmatches) {
-      patternmatches.forEach(function(mystring){
-        newstring = mystring.replace(/-/g, "<span style='font-size: 2pt;'> </span>-<span style='font-size: 2pt;'> </span>")
-        // Wrap the found string in a span for future targetting
-        newstring = "<span class='longstring'>" + newstring + "</span>";
-        // Replace the text with the new span and it's text
-        myhtml = myhtml.replace(mystring, newstring);
-      });
-    };
-    // Replace the element text with our updated html content
-    $(this).html(myhtml);
-    // Finally, remove the temp class
-    $(this).removeClass('longstringtmp');
-  });
+    // Now we'll loop through every non-ISBN paragraph
+    $('p:contains("-"):not(:has(span.spanISBNisbn))').each(function (){
+      var para_txt = $(this).text();
+      var myhtml = $(this).html();
+      // Check to see if the paragraph contains any long strings
+      var testLongString = /((\S+-){4,})/g;
+      var result = testLongString.test(para_txt);
+      if (result === true) {
+        // If yes, we'll start by replacing hyphens in any child elements within the para
+        $(this).find("*:not(.spanhyperlinkurl)").each(function () {
+          $(this).html( $(this).html().replace(/-/g,"<span style='font-size: 2pt;'> </span>-<span style='font-size: 2pt;'> </span>") );
+        });
+        // Now we'll work with the raw top-level text.
+        // We want to make sure we aren't accidentally grabbing any child element
+        // attributes or other bits that shouldn't be changed.
+        var rawtext = $(this).contents().filter(function(){ 
+          return this.nodeType == 3 && this.nodeValue.match(/((\S+-){2,})/); 
+        });
+        if (rawtext.length) {
+          // Now we'll loop through the child text and filter for just the hyphenated strings
+          rawtext.each(function() {
+            var currentString = this.nodeValue;
+            // We're matching shorter chunks this time, since a longer string
+            // could potentially be split up by a nested inline tag
+            var testShortString = /((\S+-\S*){2,})/g;
+            var patternMatches = [];
+            patternMatches = currentString.match(testShortString);
+            var parentid = $(this).parent().attr("id");
+            if (patternMatches) {
+              for (i = 0; i < patternMatches.length; i++) {
+                // For each hyphenated text string we find,
+                // we'll add the parent para id, the source string text, and our new markup to a hash.
+                var oldString = patternMatches[i];
+                var newString = patternMatches[i].replace(/-/g, "<span style='font-size: 2pt;'> </span>-<span style='font-size: 2pt;'> </span>")
+                // Wrap the hyphanted strings in a span for future potential targetting
+                newString = "<span class='longstring'>" + newString + "</span>";
+                hashReplacements[counter] = [];
+                hashReplacements[counter].push(parentid);
+                hashReplacements[counter].push(oldString);
+                hashReplacements[counter].push(newString);
+                counter = counter + 1;
+              }
+            }
+          });
+        }
+      }
+    });
+
+    // Now we loop through that hash and do the text replacements
+    // by targeting just the paragraph in which the strings occur
+    Object.keys(hashReplacements).forEach(function (key) { 
+      var value = hashReplacements[key]
+      var selection = value[0];
+      var searchString = value[1];
+      var replacementString = value[2];
+      var oldHTML = $('p#' + selection).html();
+      var newHTML = $('p#' + selection).html().replace(searchString, replacementString);
+      $('p#' + selection).html(newHTML);
+    });
+  };
+
+  replaceHyphenatedStrings();
 
   var output = $.html();
     fs.writeFile(file, output, function(err) {
