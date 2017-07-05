@@ -99,28 +99,6 @@ fs.readFile(file, function editContent (err, contents) {
     $(this).after(match[4]);
   });
 
-  // // turn links into real hyperlinks
-  // $("span.spanhyperlinkurl:not(:has(a))").each(function () {
-  //   var newlink = "<a href='" + $(this).text() + "'>" + $(this).text() + "</a>";
-  //   var mypattern1 = new RegExp( "https?://", "g");
-  //   var result1 = mypattern1.test($(this).text());
-  //   var mypattern2 = new RegExp( "^@", "g");
-  //   var result2 = mypattern2.test($(this).text());
-  //   var mypattern3 = new RegExp( ".@.", "g");
-  //   var result3 = mypattern3.test($(this).text());
-  //   if (result1 === false && result2 === false && result3 === false) {
-  //     newlink = newlink.replace("href='", "href='http://");
-  //   }
-  //   if (result1 === false && result2 === true) {
-  //     newlink = newlink.replace("href='@", "href='https://twitter.com/");
-  //   }
-  //   if (result2 === false && result3 === true) {
-  //     newlink = newlink.replace("href='", "href='mailto:");
-  //   }
-  //   $(this).empty();
-  //   $(this).prepend(newlink); 
-  // });
-
   function replaceHyphenatedStrings() {
     // Next we'll add some special handling for 
     // long strings connected by hyphens.
