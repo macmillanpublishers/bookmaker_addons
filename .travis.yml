@@ -1,6 +1,8 @@
 language: ruby
 rvm:
 - 2.0.0
+env:
+  - TRAVIS_NODE_VERSION="7.10.0"
 branches:
   only:
   - master
