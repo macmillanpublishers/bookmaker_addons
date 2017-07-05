@@ -86,7 +86,7 @@ fs.readFile(file, function editContent (err, contents) {
     mySibling.remove();
   });
 
-    // turn links into real hyperlinks
+  // turn links into real hyperlinks
   $("span.spanhyperlinkurl:not(:has(a))").each(function () {
     var newlink = "<a href='" + $(this).text() + "'>" + $(this).text() + "</a>";
     var mypattern1 = new RegExp( "https?://", "g");

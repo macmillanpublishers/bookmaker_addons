@@ -102,7 +102,7 @@ fs.readFile(file, function editContent (err, contents) {
   function replaceHyphenatedStrings() {
     // Next we'll add some special handling for 
     // long strings connected by hyphens.
-    // Note that is the link replacements from the function above
+    // Note that if the link replacements from the function above
     // do not occur before this function, then hyphens within link 
     // text WILL NOT be spaced. (However, link href attributes will
     // always be left alone.)
@@ -155,7 +155,7 @@ fs.readFile(file, function editContent (err, contents) {
                 // For each hyphenated text string we find,
                 // we'll add the parent para id, the source string text, and our new markup to a hash.
                 var oldString = patternMatches[i];
-                var newString = patternMatches[i].replace(/-/g, "<span style='font-size: 2pt;'> </span>-<span style='font-size: 2pt;'> </span>")
+                var newString = patternMatches[i].replace(/-/g, "<span style='font-size: 2pt;'> </span>-<span style='font-size: 2pt;'> </span>");
                 // Wrap the hyphanted strings in a span for future potential targetting
                 newString = "<span class='longstring'>" + newString + "</span>";
                 hashReplacements[counter] = [];
@@ -173,7 +173,7 @@ fs.readFile(file, function editContent (err, contents) {
     // Now we loop through that hash and do the text replacements
     // by targeting just the paragraph in which the strings occur
     Object.keys(hashReplacements).forEach(function (key) { 
-      var value = hashReplacements[key]
+      var value = hashReplacements[key];
       var selection = value[0];
       var searchString = value[1];
       var replacementString = value[2];
