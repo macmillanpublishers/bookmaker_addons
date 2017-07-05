@@ -137,11 +137,22 @@ fs.readFile(file, function editContent (err, contents) {
     $('p:contains("-"):not(:has(span.spanISBNisbn))').each(function (){
       var para_txt = $(this).text();
       var myhtml = $(this).html();
+      var myID = $(this).attr("id");
       // Check to see if the paragraph contains any long strings
       var testLongString = /((\S+-){4,})/g;
       var result = testLongString.test(para_txt);
       if (result === true) {
-        // If yes, we'll start by replacing hyphens in any child elements within the para
+        // Make sure the paragraph has an ID
+        if (myID === undefined) {
+          var newID = function () {
+            // Math.random should be unique because of its seeding algorithm.
+            // Convert it to base 36 (numbers + letters), and grab the first 9 characters
+            // after the decimal.
+            return '_' + Math.random().toString(36).substr(2, 9);
+          };
+          $(this).attr("id", newID);
+        }
+        // Replace hyphens in any child elements within the para
         $(this).find("*:not(.spanhyperlinkurl)").each(function () {
           $(this).html( $(this).html().replace(/-/g,"<span style='font-size: 2pt;'> </span>-<span style='font-size: 2pt;'> </span>") );
         });
