@@ -11,6 +11,8 @@ filetype = Bkmkr::Project.filename_split.split(".").pop
 
 configfile = File.join(Bkmkr::Paths.project_tmp_dir, "config.json")
 
+get_template_version_py = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "getTemplateVersion.py")
+
 # ---------------------- METHODS
 
 def convertDocToDocxPSscript(filetype, logkey='')
@@ -21,6 +23,21 @@ def convertDocToDocxPSscript(filetype, logkey='')
     logstring = 'input file is html, skipping'
   end
 rescue => logstring
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
+def checktemplate_version(filetype, get_template_version_py, logkey='')
+  template_version = ''
+  unless filetype == "html"
+    # the get_template_version_py script reads custom.xml inside the .docx to return custom doc property 'Version'
+    template_version = Bkmkr::Tools.runpython(get_template_version_py, "#{Bkmkr::Paths.project_docx_file}").strip()
+  else
+    logstring = 'input file is html, skipping'
+  end
+  return template_version
+rescue => logstring
+  return ''
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
@@ -36,6 +53,10 @@ end
 
 #convert .doc to .docx via powershell script, ignore html files
 convertDocToDocxPSscript(filetype, 'convert_doc_to_docx')
+
+# get document version template number if it exists
+template_version = checktemplate_version(filetype, get_template_version_py, 'check_docx_template_version')
+@log_hash['template_version'] = template_version
 
 # Create a temp JSON file
 datahash = {}
