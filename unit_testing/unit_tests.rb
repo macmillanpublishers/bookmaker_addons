@@ -79,22 +79,24 @@ puts @@html_contents_fixed
 
 
   def testMetadataPreprocessing
-    # read the updated html
+    # read the updated html contents
+    # (no longer necessary for these tests, as the function being tested was updated to take a file as an argument..
+    #   but good to have as an example for future tests)
     html_contents_bad_tmp = self.class.getHTMLfileContents(@@test_html_bad_tmp)
     html_contents_good_tmp = self.class.getHTMLfileContents(@@test_html_good_tmp)
 
     ### Assertions:
     # method: setAuthorInfo
-    assert_equal(setAuthorInfo({}, html_contents_bad_tmp), "Alva Noë, Keenan Tester, Linda Tester")
-    assert_equal(setAuthorInfo({}, html_contents_good_tmp), "Alva Noë, Keenan Tester, Linda Tester")
+    assert_equal(setAuthorInfo({}, @@test_html_bad_tmp), "Alva Noë, Keenan Tester, Linda Tester")
+    assert_equal(setAuthorInfo({}, @@test_html_good_tmp), "Alva Noë, Keenan Tester, Linda Tester")
     assert_equal(setAuthorInfo({}, ''), "")
     # method: setBookSubtitle
-    assert_equal(setBookSubtitle({}, html_contents_bad_tmp), "Art and Human Nature, Or, How I Became an Artist")
-    assert_equal(setBookSubtitle({}, html_contents_good_tmp), "Art and Human Nature, Or, How I Became an Artist")
+    assert_equal(setBookSubtitle({}, @@test_html_bad_tmp), "Art and Human Nature Or, How I Became an Artist")
+    assert_equal(setBookSubtitle({}, @@test_html_good_tmp), "Art and Human Nature Or, How I Became an Artist")
     assert_equal(setBookSubtitle({}, ''), "")
     # method: setBookTitle
-    assert_equal(setBookTitle({}, html_contents_bad_tmp), "Strange Tools")
-    assert_equal(setBookTitle({}, html_contents_good_tmp), "Strange Tools")
+    assert_equal(setBookTitle({}, @@test_html_bad_tmp), "Strange Tools")
+    assert_equal(setBookTitle({}, @@test_html_good_tmp), "Strange Tools")
     assert_equal(setBookTitle({}, ''), "")
 
   end
