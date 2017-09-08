@@ -1,5 +1,6 @@
 require 'fileutils'
 require 'net/smtp'
+require 'nokogiri'
 
 unless (ENV['TRAVIS_TEST']) == 'true'
   require_relative '../bookmaker/core/header.rb'
@@ -14,6 +15,10 @@ end
 # ---------------------- VARIABLES
 
 local_log_hash, @log_hash = Bkmkr::Paths.setLocalLoghash
+
+styleconfig_json = File.join(Bkmkr::Paths.scripts_dir, "htmlmaker_js", "style_config.json")
+
+chunk_xsl = File.join(Bkmkr::Paths.scripts_dir, "HTMLBook", "htmlbook-xsl", "chunk.xsl")
 
 oebps_dir = File.join(Bkmkr::Paths.project_tmp_dir, "OEBPS")
 
@@ -42,11 +47,40 @@ end
 
 # ---------------------- METHODS
 
-def readConfigJson(logkey='')
-  data_hash = Mcmlln::Tools.readjson(Metadata.configfile)
+## wrapping a Mcmlln::Tools method in a new method for this script; to return a result for json_logfile
+def readJson(jsonfile, logkey='')
+  data_hash = Mcmlln::Tools.readjson(jsonfile)
   return data_hash
 rescue => logstring
   return {}
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
+def getHTMLfilenameTypes(styleconfig_hash, logkey='')
+  types = []
+  styleconfig_hash['toplevelheads'].each do |key, hash|
+	   types << hash['type']
+  end
+  return types
+rescue => logstring
+  return []
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
+def getHTMLfileShortNames(chunk_xsl, logkey='')
+  shortnames = []
+  doc = File.open(chunk_xsl) { |f| Nokogiri::XML(f) }
+  node = doc.xpath('//xsl:param[@name="output.filename.prefix.by.data-type"]').first.content
+  node.each_line { |line|
+  	unless line.strip().empty?
+  		shortnames << line.split(':')[1].strip()
+  	end
+  }
+  return shortnames
+rescue => logstring
+  return []
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
@@ -241,24 +275,26 @@ end
 
 # ---------------------- PROCESSES
 
-data_hash = readConfigJson('read_config_json')
-#local definition(s) based on config.json
-stage_dir = data_hash['stage']
-
 # If an epubcheck_errfile exists, delete it
 deleteFileIfPresent(epubcheck_errfile, 'delete_epubcheck_errfile')
 
-# Add links back to TOC to chapter heads
-addLinkstoTOC(oebps_dir, "ch[0-9][0-9]*.html", epubmakerpostprocessingjs, 'add_links_to_TOC_to_chap_heads')
+data_hash = readJson(Metadata.configfile, 'read_config_json')
+#local definition(s) based on config.json
+stage_dir = data_hash['stage']
 
-# Add links back to TOC to appendix heads
-addLinkstoTOC(oebps_dir, "app[0-9][0-9]*.html", epubmakerpostprocessingjs, 'add_links_to_TOC_to_appendix_heads')
+styleconfig_hash = readJson(styleconfig_json, 'read_styleconfig_json')
 
-# Add links back to TOC to preface heads
-addLinkstoTOC(oebps_dir, "preface[0-9][0-9]*.html", epubmakerpostprocessingjs, 'add_links_to_TOC_to_preface_heads')
+htmlfilenames = getHTMLfilenameTypes(styleconfig_hash, 'get_html_filename-types')
 
-# Add links back to TOC to part heads
-addLinkstoTOC(oebps_dir, "part[0-9][0-9]*.html", epubmakerpostprocessingjs, 'add_links_to_TOC_to_part_heads')
+htmlfileshortnames = getHTMLfileShortNames(chunk_xsl, 'get_html_file_short_names')
+
+# combine the 2 arrays of html filename prefix-possiblities
+htmlfilenames.concat htmlfileshortnames
+
+# for every html file in OEBPS with one of these filename prefixes, create links to TOC for every heading.
+htmlfilenames.uniq.each { |prefix|
+  addLinkstoTOC(oebps_dir, "#{prefix}[0-9][0-9]*.html", epubmakerpostprocessingjs, "add_TOC_links_to_heads_in_#{prefix}.html_files")
+}
 
 # fix toc entry in ncx
 # fix title page text in ncx
