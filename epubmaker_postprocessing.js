@@ -14,6 +14,9 @@ $("body>section>div>h1, div[data-type='part']>section>h1, div[data-type='part']>
   $(this).prepend(newlink);
 });
 
+// Strip out the header elements
+  $("header").remove();
+
   var output = $.html();
 	  fs.writeFile(file, output, function(err) {
 	    if(err) {

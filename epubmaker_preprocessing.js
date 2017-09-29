@@ -159,7 +159,7 @@ fs.readFile(file, function editContent (err, contents) {
   $('section.bobad, section.excerptchapter').addClass("notoc");
 
   // remove header blocks
-  $("header").remove();
+  // $("header").remove();
 
   var output = $.html();
 	  fs.writeFile(file, output, function(err) {
