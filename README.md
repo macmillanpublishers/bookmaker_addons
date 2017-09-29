@@ -1,3 +1,14 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [Internal Extensions to Macmillan's Bookmaker Toolchain](#internal-extensions-to-macmillans-bookmaker-toolchain)
+  - [Extra Content Conversions](#extra-content-conversions)
+    - [epubmaker_preprocessing](#epubmaker_preprocessing)
+  - [Logging](#logging)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Internal Extensions to Macmillan's Bookmaker Toolchain
 
 This repository houses the internal extensions to [Macmillan's Bookmaker toolchain](https://github.com/macmillanpublishers/bookmaker). These extensions were written to meet Macmillan's unique content conversion needs, and thus should not be incorporated into the universal conversion process.
