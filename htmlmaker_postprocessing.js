@@ -100,15 +100,15 @@ fs.readFile(file, function editContent (err, contents) {
   });
 
   function replaceHyphenatedStrings() {
-    // Next we'll add some special handling for 
+    // Next we'll add some special handling for
     // long strings connected by hyphens.
     // Note that if the link replacements from the function above
-    // do not occur before this function, then hyphens within link 
+    // do not occur before this function, then hyphens within link
     // text WILL NOT be spaced. (However, link href attributes will
     // always be left alone.)
 
     // First we need to set a counter and create an empty hash to work with.
-    var counter = 1;  
+    var counter = 1;
     var hashReplacements = {};
 
     // Now we'll loop through every non-ISBN paragraph
@@ -131,14 +131,19 @@ fs.readFile(file, function editContent (err, contents) {
           $(this).attr("id", newID);
         }
         // Replace hyphens in any child elements within the para
-        $(this).find("*:not(.spanhyperlinkurl)").each(function () {
-          $(this).html( $(this).html().replace(/-/g,"<span style='font-size: 2pt;'> </span>-<span style='font-size: 2pt;'> </span>") );
+        $(this).each(function () {
+          $(this).html( $(this).html().replace(/-/g,"<span class='longhyphenhelper' style='font-size: 2pt; vertical-align:top;'> </span>-<span class='longhyphenhelper' style='font-size: 2pt; vertical-align:top;'> </span>") );
+        });
+        // now remove any instances of those spans that are enclosed in a hyperlinkspan. Have to do this in two steps; previously using a 'not' selector,
+        //  but the 'not' was not accounting for nested spans with hyperlink spans at different depths.
+        $(this).find(".spanhyperlinkurl").each(function () {
+           $(this).find(".longhyphenhelper").remove();
         });
         // Now we'll work with the raw top-level text.
         // We want to make sure we aren't accidentally grabbing any child element
         // attributes or other bits that shouldn't be changed.
-        var rawtext = $(this).contents().filter(function(){ 
-          return this.nodeType == 3 && this.nodeValue.match(/((\S+-){2,})/); 
+        var rawtext = $(this).contents().filter(function(){
+          return this.nodeType == 3 && this.nodeValue.match(/((\S+-){2,})/);
         });
         if (rawtext.length) {
           // Now we'll loop through the child text and filter for just the hyphenated strings
@@ -155,7 +160,8 @@ fs.readFile(file, function editContent (err, contents) {
                 // For each hyphenated text string we find,
                 // we'll add the parent para id, the source string text, and our new markup to a hash.
                 var oldString = patternMatches[i];
-                var newString = patternMatches[i].replace(/-/g, "<span style='font-size: 2pt;'> </span>-<span style='font-size: 2pt;'> </span>");
+                // adding the vertical-align, otherwise for some reason the 2pt space disrupts vertical line-spacing.
+                var newString = patternMatches[i].replace(/-/g, "<span class='longhyphenhelper' style='font-size: 2pt; vertical-align:top;'> </span>-<span class='longhyphenhelper' style='font-size: 2pt; vertical-align:top;'> </span>");
                 // Wrap the hyphanted strings in a span for future potential targetting
                 newString = "<span class='longstring'>" + newString + "</span>";
                 hashReplacements[counter] = [];
@@ -172,7 +178,7 @@ fs.readFile(file, function editContent (err, contents) {
 
     // Now we loop through that hash and do the text replacements
     // by targeting just the paragraph in which the strings occur
-    Object.keys(hashReplacements).forEach(function (key) { 
+    Object.keys(hashReplacements).forEach(function (key) {
       var value = hashReplacements[key];
       var selection = value[0];
       var searchString = value[1];
