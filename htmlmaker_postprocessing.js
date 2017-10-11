@@ -132,7 +132,7 @@ fs.readFile(file, function editContent (err, contents) {
         }
         // Replace hyphens in any child elements within the para
        $(this).find("*").each(function () {
-          $(this).html( $(this).html().replace(/-/g,"<span class='longhyphenhelper' style='font-size: 2pt; vertical-align:top;'> </span>-<span class='longhyphenhelper' style='font-size: 2pt; vertical-align:top;'> </span>") );
+          $(this).text( $(this).text().replace(/-/g,"<span class='longhyphenhelper' style='font-size: 2pt; vertical-align:top;'> </span>-<span class='longhyphenhelper' style='font-size: 2pt; vertical-align:top;'> </span>") );
         });
         // now remove any instances of those spans that are enclosed in a hyperlinkspan. Have to do this in two steps; previously using a 'not' selector,
         //  but the 'not' was not accounting for nested spans with hyperlink spans at different depths.
