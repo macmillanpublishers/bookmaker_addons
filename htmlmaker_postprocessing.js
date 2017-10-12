@@ -7,7 +7,7 @@ var pisbn = process.argv[5];
 var imprint = process.argv[6];
 var publisher = process.argv[7];
 
-fs.readFile(file, function editContent (err, contents) {
+fs.readFile(file, function editContent(err, contents) {
   $ = cheerio.load(contents, {
           xmlMode: true
         });
