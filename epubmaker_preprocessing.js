@@ -158,9 +158,6 @@ fs.readFile(file, function editContent (err, contents) {
   // suppress toc entries for bobad, Section-Excerpt-Chaptersec
   $('section.bobad, section.excerptchapter').addClass("notoc");
 
-  // remove header blocks
-  $("header").remove();
-
   var output = $.html();
 	  fs.writeFile(file, output, function(err) {
 	    if(err) {
