@@ -31,7 +31,7 @@ def check_xml_for_version(xmlstring, custom_doc_property_name):
 			template_version = child[0].text
 
 	if not template_version:
-		template_version = 'not_found'
+		template_version = ''
 
 	return template_version
 
@@ -39,7 +39,7 @@ def check_xml_for_version(xmlstring, custom_doc_property_name):
 xmlstring = read_xml_in_docx(docxfile, xmlfile)
 
 if not xmlstring:
-	template_version = 'not_found'
+	template_version = ''
 else:
 	template_version = check_xml_for_version(xmlstring, custom_doc_property_name)
 

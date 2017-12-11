@@ -10,27 +10,27 @@ local_log_hash, @log_hash = Bkmkr::Paths.setLocalLoghash
 
 htmlmakerpostprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "htmlmaker_postprocessing.js")
 
-required_version_for_jsconvert = '4.7.0'
-
-helpurl = 'https://confluence.macmillan.com/display/PWG/Stylecheck+Help'
-
-# full path to the version error file
-version_error = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "TEMPLATE_VERSION_ERROR.txt")
+# required_version_for_jsconvert = '4.7.0'
+#
+# helpurl = 'https://confluence.macmillan.com/display/PWG/Stylecheck+Help'
+#
+# # full path to the version error file
+# version_error = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "TEMPLATE_VERSION_ERROR.txt")
 
 # ---------------------- METHODS
 
-# If a version error file exists, delete it
-## wrapping a Mcmlln::Tools method in a new method for this script; to return a result for json_logfile
-def checkErrorFile(file, logkey='')
-	if File.file?(file)
-		Mcmlln::Tools.deleteFile(file)
-	else
-		logstring = 'n-a'
-	end
-rescue => logstring
-ensure
-	Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
-end
+# # If a version error file exists, delete it
+# ## wrapping a Mcmlln::Tools method in a new method for this script; to return a result for json_logfile
+# def checkErrorFile(file, logkey='')
+# 	if File.file?(file)
+# 		Mcmlln::Tools.deleteFile(file)
+# 	else
+# 		logstring = 'n-a'
+# 	end
+# rescue => logstring
+# ensure
+# 	Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+# end
 
 ## wrapping Bkmkr::Tools.runnode in a new method for this script; to return a result for json_logfile
 def localRunNode(jsfile, args, logkey='')
@@ -138,8 +138,8 @@ end
 
 # ---------------------- PROCESSES
 
-# delete version error file if it exists
-checkErrorFile(version_error, 'delete_version_errfile')
+# # delete version error file if it exists
+# checkErrorFile(version_error, 'delete_version_errfile')
 
 # run content conversions
 localRunNode(htmlmakerpostprocessingjs, Bkmkr::Paths.outputtmp_html, 'post-processing_js')
@@ -148,22 +148,22 @@ filecontents = readOutputHtml('read_output_html')
 filecontents = fixNoteCallouts(filecontents, 'fix_note_callouts')
 
 overwriteFile(Bkmkr::Paths.outputtmp_html, filecontents, 'overwrite_html')
-
-# get template_version value from json logfile (local_log_hash is a hash of the json logfile, read in at the beginning of each script)
-if local_log_hash.key?('htmlmaker_preprocessing.rb')
-  template_version = local_log_hash['htmlmaker_preprocessing.rb']['template_version']
-else
-  # scan for version in outputtmp.html (will return '' if no templateversion value found in hrml):
-  template_version = checkHTMLforTemplateVersion(filecontents, 'check_htlm_for_template_version')
-end
-
-# versionCompare returns false if:
-#   template_version <= required_version_for_jsconvert, template_version has any non-digit chars (besides '.'), is nil, or is empty
-htmlmaker_js_version_test = versionCompare(template_version, required_version_for_jsconvert, 'version_compare')
-@log_hash['htmlmaker_js_version_test'] = htmlmaker_js_version_test
-
-# if version error, write file for user (and email workflows?)
-writeVersionErrfile(htmlmaker_js_version_test, version_error, helpurl, 'write_errfile_as_needed')
+#
+# # get template_version value from json logfile (local_log_hash is a hash of the json logfile, read in at the beginning of each script)
+# if local_log_hash.key?('htmlmaker_preprocessing.rb')
+#   template_version = local_log_hash['htmlmaker_preprocessing.rb']['template_version']
+# else
+#   # scan for version in outputtmp.html (will return '' if no templateversion value found in hrml):
+#   template_version = checkHTMLforTemplateVersion(filecontents, 'check_htlm_for_template_version')
+# end
+#
+# # versionCompare returns false if:
+# #   template_version <= required_version_for_jsconvert, template_version has any non-digit chars (besides '.'), is nil, or is empty
+# htmlmaker_js_version_test = versionCompare(template_version, required_version_for_jsconvert, 'version_compare')
+# @log_hash['htmlmaker_js_version_test'] = htmlmaker_js_version_test
+#
+# # if version error, write file for user (and email workflows?)
+# writeVersionErrfile(htmlmaker_js_version_test, version_error, helpurl, 'write_errfile_as_needed')
 
 # ---------------------- LOGGING
 

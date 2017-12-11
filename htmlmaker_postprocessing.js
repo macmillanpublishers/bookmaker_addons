@@ -64,7 +64,7 @@ fs.readFile(file, function editContent(err, contents) {
   $("p[class^='CopyrightText']:not(:has(a.spanISBNisbn))").each(function () {
       var mypattern1 = new RegExp( "978(\\D?\\d?){10}", "g");
       var result1 = mypattern1.test($( this ).text());
-  console.log(result1);
+      // console.log(result1);
       if ( result1 === true ) {
         var newtext = $( this ).text().replace(/(978(\D?\d?){10})/g, '<span class="spanISBNisbn">$1</span>');
         $(this).empty();
@@ -110,7 +110,6 @@ fs.readFile(file, function editContent(err, contents) {
     $(this).after(match[4]);
   });
 
-<<<<<<< HEAD
   // remove Section-Blank-Page sections
   $("section.blankpage").remove();
 
@@ -169,7 +168,7 @@ fs.readFile(file, function editContent(err, contents) {
     $(this).empty();
     $(this).append(myText);
   });
-=======
+
   function replaceHyphenatedStrings() {
     // Next we'll add some special handling for
     // long strings connected by hyphens.
@@ -261,7 +260,6 @@ fs.readFile(file, function editContent(err, contents) {
   };
 
   replaceHyphenatedStrings();
->>>>>>> d64613d937f5cf433a95c7acaae914fa1fbb6b98
 
   var output = $.html();
     fs.writeFile(file, output, function(err) {
