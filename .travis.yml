@@ -1,6 +1,8 @@
 language: ruby
 rvm:
 - 2.0.0
+before_install:
+- nvm install node
 branches:
   only:
   - master
