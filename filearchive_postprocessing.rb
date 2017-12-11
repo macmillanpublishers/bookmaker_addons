@@ -97,7 +97,7 @@ def versionCompare(v1, v2, logkey='')
     logstring = "template_version is nil; htmlmaker_preprocessing.rb may have crashed?"
     return false
   elsif v1.empty?
-    logstring = "template_version is empty; input file is html or this is a non-Macmillan bookmaker instance"
+    logstring = "template_version is empty; .docx has no version, input file is html, or this is a non-Macmillan bookmaker instance"
     return false
   elsif v1.match(/[^\d.]/) || v2.match(/[^\d.]/)
     logstring = "template_version string includes nondigit chars: returning false."
