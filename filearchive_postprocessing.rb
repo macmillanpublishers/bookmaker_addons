@@ -134,9 +134,10 @@ end
 def writeVersionErrfile(htmlmaker_js_version_test, errfile, helpurl, logkey='')
   if htmlmaker_js_version_test == false
   	File.open(errfile, 'w') do |output|
-  		output.puts "This document was styled using the old Macmillan style-template."
-  		output.puts "\nThe bookmaker toolchain has been updated: to generate valid PDF and ePub output you must attach the latest style-template, and add Section Start styles to your document as needed."
-  		output.puts "\nFor more information please go to this page: #{helpurl}"
+  		output.puts "This document was styled using the old Macmillan style template."
+  		output.puts "\nThe bookmaker toolchain has been updated: to generate valid PDFs and ePubs you must attach the latest style template, and add Section Start styles to your document as needed."
+      output.puts "\nYou can also use the Stylecheck-converter tool to update your manuscript."
+      output.puts "\nFor more information please go to this page: #{helpurl}"
   	end
   else
     logstring = 'n-a'
