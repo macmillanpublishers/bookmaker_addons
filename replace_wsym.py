@@ -9,8 +9,6 @@ import traceback
 docxfile = sys.argv[1]
 charcode = sys.argv[2]
 replacementstring = sys.argv[3].decode("utf-8")
-# rstring = "\u00A9"    # debug
-# charcode = 'F0D3'     # debug
 
 # load modules from sectionstart scripts_dir
 import imp

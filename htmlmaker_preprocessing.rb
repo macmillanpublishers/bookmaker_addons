@@ -79,8 +79,8 @@ template_version = checktemplate_version(filetype, get_template_version_py, 'che
 #   wsymcode values can be found in the xml (value of 'w:char attribute for the w:sym'), here is a large table of these codes:
 #     https://gist.github.com/ptsefton/1ce30879e9cfef289356
 #   replacement code should be unicode for desired replacement symbol: http://www.fileformat.info/info/unicode/char/search.htm
-#     the desired format is the 'Python source code' version, sans the preceding 'u'
-replace_wsym(filetype, replace_wsym_py, 'F0D3', '\u00A9', 'replace_w:sym_copyright_symbol')
+#     the desired format is the 'C/C++/Java source code' including the doublequotes
+replace_wsym(filetype, replace_wsym_py, 'F0D3', "\u00A9", 'replace_w:sym_copyright_symbol')
 
 
 # Create a temp JSON file
