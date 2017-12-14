@@ -74,7 +74,6 @@ convertDocToDocxPSscript(filetype, 'convert_doc_to_docx')
 template_version = checktemplate_version(filetype, get_template_version_py, 'check_docx_template_version')
 @log_hash['template_version'] = template_version
 
-@log_hash['hi'] = 'hi'
 # run replacements on any w:sym elements in the word xml:
 # Right now, just to catch a copyright symbol variant, but for additional replacements, just run the method again with codes
 #   wsymcode values can be found in the xml (value of 'w:char attribute for the w:sym'), here is a large table of these codes:
