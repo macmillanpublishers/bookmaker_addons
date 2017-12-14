@@ -4,6 +4,7 @@ import zipfile
 from shutil import copyfile
 # make sure to install lxml: sudo pip install lxml
 from lxml import etree
+import traceback
 
 docxfile = sys.argv[1]
 charcode = sys.argv[2]
@@ -76,22 +77,25 @@ def replace_wsym(unzip_dir, doc_xmlfile, searchstring, replace_string):
 
 
 # # # # # # # # # # RUN
+try:
+    # check for existence of symbol without unzipping
+    wsym_check = check_xml_for_wsym(docxfile, doc_xmlfile, searchstring)
 
-# check for existence of symbol without unzipping
-wsym_check = check_xml_for_wsym(docxfile, doc_xmlfile, searchstring)
+    if wsym_check == True:
+        # at least one instance of the symbol exists. Unzip:
+        unzip_dir = os.path.join(os.path.dirname(docxfile),"%s_unzipped" % os.path.basename(docxfile))
+        unzipDOCX.unzipDOCX(docxfile, unzip_dir)
+        # replace symbol in xml, write edited xml out to document.xml
+        wsym_count, wsyms_replaced = replace_wsym(unzip_dir, doc_xmlfile, searchstring, replacementstring)
+        # make a backup copy of input file
+        pre_replacement_docx = os.path.join(os.path.dirname(docxfile),"%s_pre-sym-replacement%s" % (os.path.splitext(docxfile)[0],os.path.splitext(docxfile)[1]))
+        if not os.path.exists(pre_replacement_docx):
+            copyfile(docxfile, pre_replacement_docx)
+        # zip up edited xml & replace input file
+        zipDOCX.zipDOCX(unzip_dir, docxfile)
+        print "Found %s '%s'(s), replaced %s of them with %s" % (wsym_count, charcode, wsyms_replaced, replacementstring)
+    else:
+        print "No '%s'(s) found, no replacements made" % charcode
 
-if wsym_check == True:
-    # at least one instance of the symbol exists. Unzip:
-    unzip_dir = os.path.join(os.path.dirname(docxfile),"%s_unzipped" % os.path.basename(docxfile))
-    unzipDOCX.unzipDOCX(docxfile, unzip_dir)
-    # replace symbol in xml, write edited xml out to document.xml
-    wsym_count, wsyms_replaced = replace_wsym(unzip_dir, doc_xmlfile, searchstring, replacementstring)
-    # make a backup copy of input file
-    pre_replacement_docx = os.path.join(os.path.dirname(docxfile),"%s_pre-sym-replacement%s" % (os.path.splitext(docxfile)[0],os.path.splitext(docxfile)[1]))
-    if not os.path.exists(pre_replacement_docx):
-        copyfile(docxfile, pre_replacement_docx)
-    # zip up edited xml & replace input file
-    zipDOCX.zipDOCX(unzip_dir, docxfile)
-    print "Found %s '%s'(s), replaced %s of them with %s" % (wsym_count, charcode, wsyms_replaced, replacementstring)
-else:
-    print "No '%s'(s) found, no replacements made" % charcode
+except Exception, e:
+    print "error: ", traceback.format_exc()#sys.exc_info(),

@@ -49,7 +49,7 @@ def replace_wsym(filetype, replace_wsym_py, wsymcode, replacementcode, logkey=''
     # the replace_wsym_py script checks document.xml without unzipping the .docx. If w:sym with wsymcode is found,
     #   the w:sym element is replaced with with the decoded replacementcode in the xml, the new xml is overwritten to file,
     #   the original file is backed up, and the .docx is overwritten with edits.
-    logstring = Bkmkr::Tools.runpython(replace_wsym_py, "#{Bkmkr::Paths.project_docx_file} #{wsymcode} #{replacementcode}")
+    logstring = Bkmkr::Tools.runpython(replace_wsym_py, "#{Bkmkr::Paths.project_docx_file} #{wsymcode} #{replacementcode}").strip()
   else
     logstring = 'input file is html, skipping'
   end
