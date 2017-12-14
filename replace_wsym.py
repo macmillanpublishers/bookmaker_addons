@@ -8,7 +8,8 @@ import traceback
 
 docxfile = sys.argv[1]
 charcode = sys.argv[2]
-replacementstring = sys.argv[3].decode("utf-8")
+replacement = sys.argv[3]
+replacementstring = replacement.decode("utf-8")
 
 # load modules from sectionstart scripts_dir
 import imp
@@ -91,7 +92,7 @@ try:
             copyfile(docxfile, pre_replacement_docx)
         # zip up edited xml & replace input file
         zipDOCX.zipDOCX(unzip_dir, docxfile)
-        print "Found %s '%s'(s), replaced %s of them with %s" % (wsym_count, charcode, wsyms_replaced, replacementstring)
+        print "Found {} '{}'(s), replaced {}, with {}".format(wsym_count, charcode, wsyms_replaced, replacement)
     else:
         print "No '%s'(s) found, no replacements made" % charcode
 
