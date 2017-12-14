@@ -92,7 +92,7 @@ try:
             copyfile(docxfile, pre_replacement_docx)
         # zip up edited xml & replace input file
         zipDOCX.zipDOCX(unzip_dir, docxfile)
-        print "Found {} '{}'(s), replaced {}, with {}".format(wsym_count, charcode, wsyms_replaced, replacement)
+        print "Found {} '{}'(s), replaced {}".format(wsym_count, charcode, wsyms_replaced)
     else:
         print "No '%s'(s) found, no replacements made" % charcode
 
