@@ -12,7 +12,6 @@ htmlmakerpostprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addon
 
 
 # ---------------------- METHODS
-
 ## wrapping Bkmkr::Tools.runnode in a new method for this script; to return a result for json_logfile
 def localRunNode(jsfile, args, logkey='')
 	Bkmkr::Tools.runnode(jsfile, args)
