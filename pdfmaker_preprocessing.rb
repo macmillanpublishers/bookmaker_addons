@@ -336,7 +336,7 @@ end
 if corrupt.any?
   @log_hash['corrupt_images'] = corrupt
 end
-@log_hash['ftp_status'] = ftpstatus
+# @log_hash['ftp_status'] = ftpstatus
 
 # Write json log:
 Mcmlln::Tools.logtoJson(@log_hash, 'completed', Time.now)
