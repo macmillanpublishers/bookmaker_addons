@@ -99,6 +99,11 @@ fs.readFile(file, function editContent(err, contents) {
     $(this).after(match[4]);
   });
 
+  function HtmlEncode(s) {
+   output = $('<div>').text(s).html();
+   return output;
+  };
+
   function replaceHyphenatedStrings() {
     // Next we'll add some special handling for
     // long strings connected by hyphens.
@@ -181,7 +186,7 @@ fs.readFile(file, function editContent(err, contents) {
     Object.keys(hashReplacements).forEach(function (key) {
       var value = hashReplacements[key];
       var selection = value[0];
-      var searchString = value[1];
+      var searchString = HtmlEncode(value[1]);
       var replacementString = value[2];
       var oldHTML = $('p#' + selection).html();
       var newHTML = $('p#' + selection).html().replace(searchString, replacementString);
