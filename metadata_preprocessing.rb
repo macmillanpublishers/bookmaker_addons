@@ -27,9 +27,6 @@ xml_file = File.join(Bkmkr::Paths.project_tmp_dir, "#{Bkmkr::Project.filename}.x
 
 title_js = File.join(Bkmkr::Paths.core_dir, "htmlmaker", "title.js")
 
-# we are reading from the json logfile here: local_log_hash is a hash of the json logfile, read in at the beginning of each script
-htmlmaker_js_version_test = local_log_hash['htmlmaker.rb']['htmlmaker_js_version_test']
-
 # ---------------------- METHODS
 
 def readFile(file, logkey='')
@@ -545,14 +542,8 @@ pdf_js_file = File.join(Bkmkr::Paths.project_tmp_dir, "pdf.js")
 # get JS file for pdf and edit title info to match our book
 setupPdfJSfile(proj_js_file, fallback_js_file, pdf_js_file, booktitle, authorname, 'setup_pdf_JS_file')
 
-# if htmlmaker_js_version_test is true, then we had a js html conversion, false means it was xsl
-if htmlmaker_js_version_test == true
-  # check the html for toc_value
-  toc_value = setTOCvalFromHTML('set_TOC_value_From_html')
-elsif htmlmaker_js_version_test == false
-  # check the xml in tmp for toc_value
-  toc_value = setTOCvalFromXml(xml_file, 'set_TOC_value_From_xml')
-end
+# check the html for toc_value
+toc_value = setTOCvalFromHTML('set_TOC_value_From_html')
 
 # Generating the json metadata
 
