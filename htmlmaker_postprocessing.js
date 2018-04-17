@@ -122,8 +122,10 @@ fs.readFile(file, function editContent(err, contents) {
       var myhtml = $(this).html();
       var myID = $(this).attr("id");
       // Check to see if the paragraph contains any long strings
-      var testLongString = /((\S+-){4,})/g;
-      var result = testLongString.test(para_txt);
+      // var testLongString = /((\S+-){4,})/g;
+      // var result = testLongString.test(para_txt);
+      var testHyphenString = /((\S+-\S+){1,})/g;
+      var result = testHyphenString.test(para_txt);
       if (result === true) {
         // Make sure the paragraph has an ID
         if (myID === undefined) {
