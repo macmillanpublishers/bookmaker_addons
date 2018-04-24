@@ -13,6 +13,10 @@ var document = ''//jsdom.jsdom(src);
 fs.readFile(file, function editContent (err, contents) {
   // console.log(contents.toString())
   document = jsdom.jsdom(contents.toString());
+  // const {JSDOM} = jsdom;
+// const {document} = (new JSDOM(contents.toString())).window;
+// const JsDOM = require('jsdom').JSDOM;
+// let dom = new JsDOM(contents);
   $ = cheerio.load(contents, {
           xmlMode: true
         });
@@ -90,23 +94,42 @@ fs.readFile(file, function editContent (err, contents) {
       // repeats as text node can contain multiple phrases
       while (t) {
           // match entire phrase from beginning to end
-          var index = t.data.search(/(-)(\b\w{3,6})|(\w{3,6}\b)(?=-)/);
+          var index = t.data.search(/(-)(\b\w{4,6})|(\w{4,6}\b)(?=-)/);
+          var re = /(-)(\b\w{3,6})|(\w{3,6}\b)(?=-)/;
+          var result = re.exec(t.data);
+
+          if (result == null) break;
+          firstindex = result.index
+          lastindex = result[0].length
+          // lastindex = result.lastindex
+// console.log(firstindex,lastindex)
           // (orig regex: (/\w+-\w[-\w]*/); this only captures
           if (index < 0) break;
-          var t2 = t.splitText(index);
+
+                    // console.log(firstindex,lastindex)
+          // var t2 = t.splitText(index);
           // find the end of the phrase
-          index = t2.data.search(/[^-\w]/);
-          if (index > 0) {
-              t = t2.splitText(index);
+
+          // var firstmatch=t2.data.match(/(-)(\b\w{3,6})|(\w{3,6}\b)(?=-)/)
+
+          var t2=t.splitText(firstindex);
+          // var q=q2.splitText(lastindex);
+
+          // index = t2.data.search(/[^-\w]/);//(/[^-\w]/);
+          if (lastindex > 0) {
+              t = t2.splitText(lastindex);
           } else {
               t = null;
           }
+          // var q2=t.splitText(firstindex);
+          // var q=q2.splitText(lastindex);
+
           // wrap the phrase in a span element
           var span = document.createElement("span");
           t2.parentNode.insertBefore(span, t2);
           span.appendChild(t2);
           span.className = "prevent_hyphen";
-          // console.log("hyphenated phrase: "+t2.data);
+          console.log("hyphenated phrase: "+t2.data);
       }
   }
     var output = document.documentElement.outerHTML;
