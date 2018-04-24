@@ -1,3 +1,5 @@
+// ATTN: requires npm install jsdom
+
 var fs = require('fs');
 var cheerio = require('cheerio');
 var file = process.argv[2];
