@@ -18,6 +18,7 @@ maxwidth = 3.5
 grid = 16.0
 
 pdftmp_dir = File.join(Bkmkr::Paths.project_tmp_dir_img, "pdftmp")
+@log_hash['pdftmp_dir'] = pdftmp_dir
 pdfmaker_dir = File.join(Bkmkr::Paths.core_dir, "pdfmaker")
 pdf_tmp_html = File.join(Bkmkr::Paths.project_tmp_dir, "pdf_tmp.html")
 assets_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker")
@@ -249,9 +250,10 @@ ensure
 end
 
 # fixes images in html, keep final words and ellipses from breaking
-def fixHtmlImageSrcAndKTs(pdf_tmp_html, ftpdirext, logkey='')
+# def fixHtmlImageSrcAndKTs(pdf_tmp_html, ftpdirext, logkey='')
+def fixHtmlImageSrcAndKTs(pdf_tmp_html, pdftmp_dir, logkey='')
   # .gsub(/([a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9]\s\. \. \.)/,"<span class=\"bookmakerkeeptogetherkt\">\\0</span>")
-  filecontents = File.read(pdf_tmp_html).gsub(/src="images\//,"src=\"#{ftpdirext}/")
+  filecontents = File.read(pdf_tmp_html).gsub(/src="images\//,"src=\"#{pdftmp_dir}/")
                                         .gsub(/([a-zA-Z0-9]?[a-zA-Z0-9]?[a-zA-Z0-9]?\s\. \. \.)/,"<span class=\"bookmakerkeeptogetherkt\">\\0</span>")
                                         .gsub(/(\s)(\w\w\w*?\.)(<\/p>)/,"\\1<span class=\"bookmakerkeeptogetherkt\">\\2</span>\\3")
   return filecontents
@@ -304,10 +306,10 @@ writeImageErrors(corrupt, image_error, 'write_image_errfiles')
 # copy assets to tmp upload dir and upload to ftp
 copyFilesinDir("#{assets_dir}/images/#{project_dir}", pdftmp_dir, 'copy_assets_to_pdftmp_dir')
 
-ftplist = getFilesinDir(pdftmp_dir, 'get_file_list_for_ftp')
+# ftplist = getFilesinDir(pdftmp_dir, 'get_file_list_for_ftp')
 
-ftpsetup = ftpSetupMethod("#{project_dir}_#{stage_dir}", Metadata.pisbn, 'mkdirs_on_ftp_site')
-ftpstatus = ftpUpload(ftpdirint, pdftmp_dir, ftplist, 'upload_imgs_to_ftp')
+# ftpsetup = ftpSetupMethod("#{project_dir}_#{stage_dir}", Metadata.pisbn, 'mkdirs_on_ftp_site')
+# ftpstatus = ftpUpload(ftpdirint, pdftmp_dir, ftplist, 'upload_imgs_to_ftp')
 
 # run node.js content conversions
 pdfmakerpreprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "pdfmaker_preprocessing.js")
@@ -315,7 +317,8 @@ args = "\"#{pdf_tmp_html}\" \"#{Metadata.booktitle}\" \"#{Metadata.bookauthor}\"
 localRunNode(pdfmakerpreprocessingjs, args, 'run_pdfmaker-pre_js')
 
 # fixes images in html, keep final words and ellipses from breaking
-filecontents = fixHtmlImageSrcAndKTs(pdf_tmp_html, ftpdirext, 'fix_html_image_src_and_keeptogethers')
+# filecontents = fixHtmlImageSrcAndKTs(pdf_tmp_html, ftpdirext, 'fix_html_image_src_and_keeptogethers')
+filecontents = fixHtmlImageSrcAndKTs(pdf_tmp_html, pdftmp_dir, 'fix_html_image_src_and_keeptogethers')
 
 overwriteHtml(pdf_tmp_html, filecontents, 'overwrite_pdfhtml_2')
 
@@ -333,7 +336,7 @@ end
 if corrupt.any?
   @log_hash['corrupt_images'] = corrupt
 end
-@log_hash['ftp_status'] = ftpstatus
+# @log_hash['ftp_status'] = ftpstatus
 
 # Write json log:
 Mcmlln::Tools.logtoJson(@log_hash, 'completed', Time.now)
