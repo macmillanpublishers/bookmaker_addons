@@ -93,10 +93,10 @@ end
 
 # returns true if v1 is nil, empty, or >= v2. Otherwise returns false
 def versionCompare(v1, v2, logkey='')
-  # eliminate the leading 'v' if present
+  # eliminate leading 'v' if present
   if v1[0] == 'v'
     v1 = v1[1..-1]
-  end  
+  end
   if v1.nil?
     logstring = "template_version is nil; htmlmaker_preprocessing.rb may have crashed?"
     return false
