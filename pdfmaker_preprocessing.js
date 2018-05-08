@@ -86,7 +86,7 @@ fs.readFile(file, function editContent (err, contents) {
       // repeats as text node can contain multiple phrases
       while (t) {
           // match entire phrase from beginning to end
-          var re = /(-)(\b\w{4,6})|(\w{4,6}\b)(?=-)/;
+          var re = /\w{1,5}-([\w]{1,5}-)*\w{1,5}/;
           var result = re.exec(t.data);
 
           if (result == null || /\bISBN\b/.test(result[0])) break;
