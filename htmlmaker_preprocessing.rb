@@ -1,4 +1,5 @@
 require 'fileutils'
+# require 'nokogiri'
 
 require_relative '../bookmaker/core/header.rb'
 
@@ -12,6 +13,10 @@ filetype = Bkmkr::Project.filename_split.split(".").pop
 configfile = File.join(Bkmkr::Paths.project_tmp_dir, "config.json")
 
 get_template_version_py = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "getTemplateVersion.py")
+
+sectionstart_template_version = Bkmkr::Tools.sectionstart_template_version
+
+rsuite_template_version = Bkmkr::Tools.rsuite_template_version
 
 replace_wsym_py = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "replace_wsym.py")
 
@@ -29,17 +34,104 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def checktemplate_version(filetype, get_template_version_py, logkey='')
-  template_version = ''
+def readHtml(htmlfile, logkey='')
+	filecontents = File.read(htmlfile)
+	return filecontents
+rescue => logstring
+  return ''
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
+# scan for version in outputtmp.html (will return '' if no templateversion value found in hrml):
+#   (this could also be done with nokogiri, cleanly, but with added dependency.. see metadata_preprocessing for ex.)
+def checkHTMLforTemplateVersion(filecontents, logkey='')
+  version = filecontents.scan(/<meta name="templateversion"/)
+  unless version.nil? or version.empty? or !version
+    templateversion = filecontents.match(/(<meta name="templateversion" content=")(.*)("\/>)/)[2]
+  else
+    templateversion = ''
+  end
+  return templateversion
+rescue => logstring
+  return ''
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
+# def checktemplate_versionHTML(htmlfile, logkey='')
+#   template_version = ''
+#   page = Nokogiri::HTML(open(htmlfile))
+#   # get meta info from html if it exists
+#   meta_templateversion = page.xpath('//meta[@name="templateversion"]/@content')
+#   if !meta_templateversion.empty?
+#     logstring = "template-version from meta-tag: #{meta_templateversion}"
+#     template_version = meta_templateversion #HTMLEntities.new.decode(metaimprint)
+#   else
+#     logstring = 'no meta-tag with templateversion (or no templateversion value)'
+#   end
+#   return template_version
+# rescue => logstring
+#   return ''
+# ensure
+#   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+# end
+
+def checkDocTemplateVersion(filetype, get_template_version_py, logkey='')
+  doctemplate_version = ''
   unless filetype == "html"
     # the get_template_version_py script reads custom.xml inside the .docx to return custom doc property 'Version'
-    template_version = Bkmkr::Tools.runpython(get_template_version_py, "#{Bkmkr::Paths.project_docx_file}").strip()
+    doctemplate_version = Bkmkr::Tools.runpython(get_template_version_py, "#{Bkmkr::Paths.project_docx_file}").strip()
   else
     logstring = 'input file is html, skipping'
   end
-  return template_version
+  return doctemplate_version
 rescue => logstring
   return ''
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
+# returns false if v1 is empty, nil, has bad characters, or is less than v2
+def versionCompare(v1, v2, logkey='')
+  # eliminate leading 'v' if present
+  if v1[0] == 'v'
+    v1 = v1[1..-1]
+  end
+  if v1.nil?
+    logstring = "doctemplate_version is nil - false"
+    return false
+  elsif v1.empty?
+    logstring = "doctemplate_version is empty; input .docx/html has no version, or this is a non-Macmillan bookmaker instance - false"
+    return false
+  elsif v1.match(/[^\d.]/) || v2.match(/[^\d.]/)
+    logstring = "doctemplate_version string includes nondigit chars - false"
+    return false
+  elsif v1 == v2
+    logstring = "doctemplate_version meets requirements for jsconvert - true"
+    return true
+  else
+    v1long = v1.split('.').length
+    v2long = v2.split('.').length
+    maxlength = v1long > v2long ? v1long : v2long
+    0.upto(maxlength-1) { |n|
+      puts "n is #{n}"
+      v1split = v1.split('.')[n].to_i
+      v2split = v2.split('.')[n].to_i
+      if v1split > v2split
+        logstring = "v1 (doctemplate_version) is greater than v2 (static version) - true"
+        return true
+      elsif v1split < v2split
+        logstring = "v1 (doctemplate_version) is less than v2 (static version) - false"
+        return false
+      elsif n == maxlength-1 && v1split == v2split
+        logstring = "v1 (doctemplate_version) equals v2 (static version) - true"
+        return true
+      end
+    }
+  end
+rescue => logstring
+  return true
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
@@ -70,9 +162,32 @@ end
 #convert .doc to .docx via powershell script, ignore html files
 convertDocToDocxPSscript(filetype, 'convert_doc_to_docx')
 
-# get document version template number if it exists
-template_version = checktemplate_version(filetype, get_template_version_py, 'check_docx_template_version')
-@log_hash['template_version'] = template_version
+# if filetype is html, check for version in metatag, else...
+if filetype == "html"
+  # doctemplate_version = checktemplate_versionHTML(Bkmkr::Paths.project_tmp_file, 'check_docx_template_version-HTML')
+  filecontents = readHtml(Bkmkr::Paths.project_tmp_file, 'read_input_html')
+  doctemplate_version = checkHTMLforTemplateVersion(filecontents, 'check_html_for_doctemplate_version')
+# ...get document version template number if it from .dox xml with python
+else
+  doctemplate_version = checkDocTemplateVersion(filetype, get_template_version_py, 'check_docx_doctemplate_version')
+end
+@log_hash['doctemplate_version'] = doctemplate_version
+
+# figure out what type of doctemplate we have
+# versionCompare returns false if:
+#   doctemplate_version < required_version_for_jsconvert, doctemplate_version has any non-digit chars (besides '.'), is nil, or is empty
+rsuite_versioncompare = versionCompare(doctemplate_version, rsuite_template_version, 'rsuite_version_compare')
+if rsuite_versioncompare == true
+  doctemplatetype = "rsuite"
+else
+  sectionstart_versioncompare = versionCompare(doctemplate_version, sectionstart_template_version, 'sectionstart_version_compare')
+  if sectionstart_versioncompare == true
+    doctemplatetype = "sectionstart"
+  else
+    doctemplatetype = "pre-sectionstart"
+  end
+end
+@log_hash['doctemplatetype'] = doctemplatetype
 
 # run replacements on any w:sym elements in the word xml:
 # Right now, just to catch a copyright symbol variant, but for additional replacements, just run the method again with codes
@@ -102,6 +217,8 @@ datahash.merge!(pod_toc: "TK")
 datahash.merge!(frontcover: "TK")
 datahash.merge!(epubtitlepage: "TK")
 datahash.merge!(podtitlepage: "TK")
+datahash.merge!(doctemplate_version: doctemplate_version)
+datahash.merge!(doctemplatetype: doctemplatetype)
 
 # Printing the final JSON object
 writeConfigJson(datahash, configfile, 'write_config_jsonfile')
