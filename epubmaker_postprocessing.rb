@@ -281,6 +281,7 @@ deleteFileIfPresent(epubcheck_errfile, 'delete_epubcheck_errfile')
 data_hash = readJson(Metadata.configfile, 'read_config_json')
 #local definition(s) based on config.json
 stage_dir = data_hash['stage']
+doctemplatetype = data_hash['doctemplatetype']
 
 styleconfig_hash = readJson(styleconfig_json, 'read_styleconfig_json')
 
@@ -293,7 +294,7 @@ htmlfilenames.concat htmlfileshortnames
 
 # for every html file in OEBPS with one of these filename prefixes, create links to TOC for every heading.
 htmlfilenames.uniq.each { |prefix|
-  addLinkstoTOC(oebps_dir, "#{prefix}[0-9][0-9]*.html", epubmakerpostprocessingjs, "add_TOC_links_to_heads_in_#{prefix}.html_files")
+  addLinkstoTOC(oebps_dir, "#{prefix}[0-9][0-9]*.html", "#{epubmakerpostprocessingjs} #{doctemplatetype}", "add_TOC_links_to_heads_in_#{prefix}.html_files")
 }
 
 # fix toc entry in ncx

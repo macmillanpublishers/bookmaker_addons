@@ -11,7 +11,9 @@ local_log_hash, @log_hash = Bkmkr::Paths.setLocalLoghash
 # Find supplemental titlepages
 finalimagedir = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "images")
 
-required_version_for_jsconvert = '4.7.0'
+# example: ["pre-sectionstart","sectionstart"]
+# listed items, when found, will generate TEMPLATE_ERROR file in final_dir
+obsolete_doctemplate_types = ["pre-sectionstart"]
 
 helpurl = 'https://confluence.macmillan.com/display/PWG/Stylecheck+Help'
 
@@ -20,6 +22,15 @@ version_error = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "TEMPLATE_VERSI
 
 
 # ---------------------- METHODS
+
+def readConfigJson(logkey='')
+  data_hash = Mcmlln::Tools.readjson(Metadata.configfile)
+  return data_hash
+rescue => logstring
+  return {}
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
 
 def archivePodTitlePage(finalimagedir, logkey='')
 	if File.file?(Metadata.podtitlepage)
@@ -77,66 +88,8 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def checkHTMLforTemplateVersion(filecontents)
-  version = filecontents.scan(/<meta name="templateversion"/)
-  unless version.nil? or version.empty? or !version
-    templateversion = filecontents.match(/(<meta name="templateversion" content=")(.*)("\/>)/)[2]
-  else
-    templateversion = ''
-  end
-  return templateversion
-rescue => logstring
-  return ''
-ensure
-  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
-end
-
-# returns true if v1 is nil, empty, or >= v2. Otherwise returns false
-def versionCompare(v1, v2, logkey='')
-  # eliminate leading 'v' if present
-  if v1[0] == 'v'
-    v1 = v1[1..-1]
-  end
-  if v1.nil?
-    logstring = "template_version is nil; htmlmaker_preprocessing.rb may have crashed?"
-    return false
-  elsif v1.empty?
-    logstring = "template_version is empty; .docx has no version, input file is html, or this is a non-Macmillan bookmaker instance"
-    return false
-  elsif v1.match(/[^\d.]/) || v2.match(/[^\d.]/)
-    logstring = "template_version string includes nondigit chars: returning false."
-    return false
-  elsif v1 == v2
-    logstring = "template_version meets requirements for jsconvert"
-    return true
-  else
-    v1long = v1.split('.').length
-    v2long = v2.split('.').length
-    maxlength = v1long > v2long ? v1long : v2long
-    0.upto(maxlength-1) { |n|
-      puts "n is #{n}"
-      v1split = v1.split('.')[n].to_i
-      v2split = v2.split('.')[n].to_i
-      if v1split > v2split
-        logstring = "template_version meets requirements for jsconvert"
-        return true
-      elsif v1split < v2split
-        logstring = "template_version is older than required version for jsconvert: returning false, xsl conversion"
-        return false
-      elsif n == maxlength-1 && v1split == v2split
-        logstring = "template_version meets requirements for jsconvert"
-        return true
-      end
-    }
-  end
-rescue => logstring
-  return true
-ensure
-  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
-end
-
-def writeVersionErrfile(htmlmaker_js_version_test, errfile, helpurl, logkey='')
-  if htmlmaker_js_version_test == false
+def writeVersionErrfile(obsolete_doctemplate_types, doctemplatetype, errfile, helpurl, logkey='')
+  if obsolete_doctemplate_types.include? doctemplatetype
   	File.open(errfile, 'w') do |output|
   		output.puts "This document was styled using the old Macmillan style template."
   		output.puts "\nThe bookmaker toolchain has been updated: to generate valid PDFs and ePubs you must attach the latest style template, and add Section Start styles to your document as needed."
@@ -154,6 +107,11 @@ end
 
 # ---------------------- PROCESSES
 
+data_hash = readConfigJson('read_config_json')
+#local definition(s) based on config.json
+doctemplate_version = data_hash['doctemplate_version']
+doctemplatetype = data_hash['doctemplatetype']
+
 # move podtitlepage to archival dir, if it exists & is not already there
 archivePodTitlePage(finalimagedir, 'archive_podtitlepage')
 
@@ -164,23 +122,8 @@ archiveEpubTitlePage(finalimagedir, 'archive_epubtitlepage')
 # delete version error file if it exists
 checkErrorFile(version_error, 'delete_version_errfile')
 
-# get template_version value from json logfile (local_log_hash is a hash of the json logfile, read in at the beginning of each script)
-if local_log_hash.key?('htmlmaker_preprocessing.rb')
-  template_version = local_log_hash['htmlmaker_preprocessing.rb']['template_version']
-else
-  filecontents = readOutputHtml('read_output_html')
-  # scan for version in outputtmp.html (will return '' if no templateversion value found in hrml):
-  template_version = checkHTMLforTemplateVersion(filecontents, 'check_htlm_for_template_version')
-end
-
-# versionCompare returns false if:
-#   template_version <= required_version_for_jsconvert, template_version has any non-digit chars (besides '.'), is nil, or is empty
-htmlmaker_js_version_test = versionCompare(template_version, required_version_for_jsconvert, 'version_compare')
-@log_hash['htmlmaker_js_version_test'] = htmlmaker_js_version_test
-
-# if version error, write file for user (and email workflows?)
-writeVersionErrfile(htmlmaker_js_version_test, version_error, helpurl, 'write_errfile_as_needed')
-
+# if version error, write file for user (and email workflows? <-- not right now)
+writeVersionErrfile(obsolete_doctemplate_types, doctemplatetype, version_error, helpurl, 'write_errfile_as_needed')
 
 # ---------------------- LOGGING
 

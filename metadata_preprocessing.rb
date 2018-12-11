@@ -29,6 +29,15 @@ title_js = File.join(Bkmkr::Paths.core_dir, "htmlmaker", "title.js")
 
 # ---------------------- METHODS
 
+def readConfigJson(logkey='')
+  data_hash = Mcmlln::Tools.readjson(Metadata.configfile)
+  return data_hash
+rescue => logstring
+  return {}
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
 def readFile(file, logkey='')
 	filecontents = File.read(file)
 	return filecontents
@@ -469,6 +478,10 @@ end
 # for logging purposes
 puts "RUNNING METADATA_PREPROCESSING"
 
+data_hash = readConfigJson('read_config_json')
+#local definition(s) based on config.json
+doctemplatetype = data_hash['doctemplatetype']
+
 pisbn, eisbn, allworks = findBookISBNs_metadataPreprocessing('find_book_ISBNs')
 
 allimg = File.join(Bkmkr::Paths.submitted_images, "*")
@@ -542,8 +555,12 @@ pdf_js_file = File.join(Bkmkr::Paths.project_tmp_dir, "pdf.js")
 # get JS file for pdf and edit title info to match our book
 setupPdfJSfile(proj_js_file, fallback_js_file, pdf_js_file, booktitle, authorname, 'setup_pdf_JS_file')
 
-# check the html for toc_value
-toc_value = setTOCvalFromHTML('set_TOC_value_From_html')
+# check the html or xml for toc_value depending on doctemplatetype
+if doctemplatetype == 'pre-sectionstart'
+  toc_value = setTOCvalFromXml(xml_file, 'set_TOC_value_From_xml')
+else
+  toc_value = setTOCvalFromHTML('set_TOC_value_From_html')
+end
 
 # Generating the json metadata
 
