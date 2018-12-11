@@ -12,6 +12,15 @@ htmlmakerpostprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addon
 
 
 # ---------------------- METHODS
+def readConfigJson(logkey='')
+  data_hash = Mcmlln::Tools.readjson(Metadata.configfile)
+  return data_hash
+rescue => logstring
+  return {}
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
 ## wrapping Bkmkr::Tools.runnode in a new method for this script; to return a result for json_logfile
 def localRunNode(jsfile, args, logkey='')
 	Bkmkr::Tools.runnode(jsfile, args)
@@ -50,8 +59,12 @@ end
 
 # ---------------------- PROCESSES
 
+data_hash = readConfigJson('read_config_json')
+#local definition(s) based on config.json
+doctemplatetype = data_hash['doctemplatetype']
+
 # run content conversions
-localRunNode(htmlmakerpostprocessingjs, Bkmkr::Paths.outputtmp_html, 'post-processing_js')
+localRunNode(htmlmakerpostprocessingjs, "#{Bkmkr::Paths.outputtmp_html} #{doctemplatetype}", 'post-processing_js')
 
 filecontents = readOutputHtml('read_output_html')
 filecontents = fixNoteCallouts(filecontents, 'fix_note_callouts')

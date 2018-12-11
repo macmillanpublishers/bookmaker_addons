@@ -99,33 +99,33 @@ def versionCompare(v1, v2, logkey='')
     v1 = v1[1..-1]
   end
   if v1.nil?
-    logstring = "doctemplate_version is nil - false"
+    logstring = "false: doctemplate_version is nil"
     return false
   elsif v1.empty?
-    logstring = "doctemplate_version is empty; input .docx/html has no version, or this is a non-Macmillan bookmaker instance - false"
+    logstring = "false: doctemplate_version is empty; input .docx/html has no version, or this is a non-Macmillan bookmaker instance"
     return false
   elsif v1.match(/[^\d.]/) || v2.match(/[^\d.]/)
-    logstring = "doctemplate_version string includes nondigit chars - false"
+    logstring = "false: doctemplate_version string includes nondigit chars"
     return false
   elsif v1 == v2
-    logstring = "doctemplate_version meets requirements for jsconvert - true"
+    logstring = "true: doctemplate_version meets requirements for jsconvert"
     return true
   else
     v1long = v1.split('.').length
     v2long = v2.split('.').length
     maxlength = v1long > v2long ? v1long : v2long
     0.upto(maxlength-1) { |n|
-      puts "n is #{n}"
+      # puts "n is #{n}"  ## < debug
       v1split = v1.split('.')[n].to_i
       v2split = v2.split('.')[n].to_i
       if v1split > v2split
-        logstring = "v1 (doctemplate_version) is greater than v2 (static version) - true"
+        logstring = "true: v1 (doctemplate_version) is greater than v2 (static version)"
         return true
       elsif v1split < v2split
-        logstring = "v1 (doctemplate_version) is less than v2 (static version) - false"
+        logstring = "false: v1 (doctemplate_version) is less than v2 (static version)"
         return false
       elsif n == maxlength-1 && v1split == v2split
-        logstring = "v1 (doctemplate_version) equals v2 (static version) - true"
+        logstring = "true: v1 (doctemplate_version) equals v2 (static version)"
         return true
       end
     }
@@ -196,7 +196,6 @@ end
 #   replacement code should be unicode for desired replacement symbol: http://www.fileformat.info/info/unicode/char/search.htm
 #     the desired format is the 'C/C++/Java source code' including the doublequotes
 replace_wsym(filetype, replace_wsym_py, 'F0D3', "\u00A9", 'replace_w:sym_copyright_symbol')
-
 
 # Create a temp JSON file
 datahash = {}

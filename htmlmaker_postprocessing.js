@@ -1,11 +1,13 @@
 var fs = require('fs');
 var cheerio = require('cheerio');
 var file = process.argv[2];
-var booktitle = process.argv[3];
-var bookauthor = process.argv[4];
-var pisbn = process.argv[5];
-var imprint = process.argv[6];
-var publisher = process.argv[7];
+var doctemplatetype = process.argv[3];
+// var booktitle = process.argv[3];
+// var bookauthor = process.argv[4];
+// var pisbn = process.argv[5];
+// var imprint = process.argv[6];
+// var publisher = process.argv[7];
+
 
 fs.readFile(file, function editContent(err, contents) {
   $ = cheerio.load(contents, {
@@ -110,21 +112,22 @@ fs.readFile(file, function editContent(err, contents) {
     $(this).after(match[4]);
   });
 
-  // remove Section-Blank-Page sections
-  $("section.blankpage").remove();
+  if (doctemplatetype == 'rsuite') {
+    // remove Section-Blank-Page sections
+    $("section.blankpage").remove();
+    //// Strip pageBreaks preceding Section starts:
+    // catch & remove any page break directly preceding Section Starts (nothing should be outside of a seciton block, but just in case)
+    $(".PageBreakpb + section, .PageBreakpb + div").prev().remove();
+    // and remove elements with .PageBreakpb class that are are last children of sections or divs that are followed by other sections or divs
+    var SectionWithLastChildPageBreak = $("section:has(.PageBreakpb:last-child) + section, section:has(.PageBreakpb:last-child) + div, div:has(.PageBreakpb:last-child) + section, div:has(.PageBreakpb:last-child) + div").prev()
+    // we have to do an 'each' loop, otherwise the .last() selector selects only the very last match in the whole document (the loop is not necessary w/ jsbin, may be a cheerio idiosyncrasy)
+    SectionWithLastChildPageBreak.each(function() {
+      $(this).children().last().remove();
+    })
 
-  //// Strip pageBreaks preceding Section starts:
-  // catch & remove any page break directly preceding Section Starts (nothing should be outside of a seciton block, but just in case)
-  $(".PageBreakpb + section, .PageBreakpb + div").prev().remove();
-  // and remove elements with .PageBreakpb class that are are last children of sections or divs that are followed by other sections or divs
-  var SectionWithLastChildPageBreak = $("section:has(.PageBreakpb:last-child) + section, section:has(.PageBreakpb:last-child) + div, div:has(.PageBreakpb:last-child) + section, div:has(.PageBreakpb:last-child) + div").prev()
-  // we have to do an 'each' loop, otherwise the .last() selector selects only the very last match in the whole document (the loop is not necessary w/ jsbin, may be a cheerio idiosyncrasy)
-  SectionWithLastChildPageBreak.each(function() {
-    $(this).children().last().remove();
-  })
-
-  // Strip content from all PageBreakbp
-  $(".PageBreakpb").empty();
+    // Strip content from all PageBreakbp
+    $(".PageBreakpb").empty();
+  }
 
   //// The below items were migrated here from bookmaker/htmlmaker/bandaid.js
 
