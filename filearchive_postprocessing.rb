@@ -13,7 +13,8 @@ finalimagedir = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "images")
 
 # example: ["pre-sectionstart","sectionstart"]
 # listed items, when found, will generate TEMPLATE_ERROR file in final_dir
-obsolete_doctemplate_types = ["pre-sectionstart"]
+obsolete_doctemplate_types = []
+# could flag newer items, too, if we want folks to see that rsuite styles have been properly handled
 
 helpurl = 'https://confluence.macmillan.com/display/PWG/Stylecheck+Help'
 

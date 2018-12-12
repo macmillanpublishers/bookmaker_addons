@@ -4,6 +4,7 @@ require 'nokogiri'
 
 unless (ENV['TRAVIS_TEST']) == 'true'
   require_relative '../bookmaker/core/header.rb'
+  require_relative '../bookmaker/core/metadata.rb'
   require_relative '../utilities/oraclequery.rb'
   require_relative '../utilities/isbn_finder.rb'
 else
@@ -480,6 +481,7 @@ puts "RUNNING METADATA_PREPROCESSING"
 
 data_hash = readConfigJson('read_config_json')
 #local definition(s) based on config.json
+doctemplate_version = data_hash['doctemplate_version']
 doctemplatetype = data_hash['doctemplatetype']
 
 pisbn, eisbn, allworks = findBookISBNs_metadataPreprocessing('find_book_ISBNs')
@@ -593,6 +595,8 @@ end
 unless podtitlepage.nil?
   datahash.merge!(podtitlepage: podtitlepage)
 end
+datahash.merge!(doctemplate_version: doctemplate_version)
+datahash.merge!(doctemplatetype: doctemplatetype)
 
 # write to config.json file
 writeConfigJson(datahash, configfile, 'write_config_jsonfile')
