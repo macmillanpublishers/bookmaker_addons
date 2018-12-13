@@ -96,11 +96,11 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def addLinkstoTOC(oebps_dir, file_select_string, epubmakerpostprocessingjs, logkey='')
+def addLinkstoTOC(oebps_dir, file_select_string, epubmakerpostprocessingjs, doctemplatetype, logkey='')
   searchdir = File.join(oebps_dir, file_select_string)
   chapfiles = Dir.glob(searchdir)
   chapfiles.each do |c|
-    Bkmkr::Tools.runnode(epubmakerpostprocessingjs, c)
+    Bkmkr::Tools.runnode(epubmakerpostprocessingjs, "#{c} #{doctemplatetype}")
   end
 rescue => logstring
 ensure
@@ -294,7 +294,7 @@ htmlfilenames.concat htmlfileshortnames
 
 # for every html file in OEBPS with one of these filename prefixes, create links to TOC for every heading.
 htmlfilenames.uniq.each { |prefix|
-  addLinkstoTOC(oebps_dir, "#{prefix}[0-9][0-9]*.html", "#{epubmakerpostprocessingjs} #{doctemplatetype}", "add_TOC_links_to_heads_in_#{prefix}.html_files")
+  addLinkstoTOC(oebps_dir, "#{prefix}[0-9][0-9]*.html", epubmakerpostprocessingjs, doctemplatetype, "add_TOC_links_to_heads_in_#{prefix}.html_files")
 }
 
 # fix toc entry in ncx

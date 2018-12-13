@@ -33,7 +33,7 @@ if (doctemplatetype == 'pre-sectionstart') {
       $(this).empty();
       $(this).prepend(newlink);
     });
-} (else) {
+} else {
   // Add links back to TOC to all section heads and part heads
   $("body>section>div>h1, div[data-type='part']>section>h1, div[data-type='part']>h1").each(function () {
     var newlink = "<a href='toc01.html'>" + $( this ).text() + "</a>";
