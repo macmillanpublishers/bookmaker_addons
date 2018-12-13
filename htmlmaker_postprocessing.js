@@ -112,7 +112,7 @@ fs.readFile(file, function editContent(err, contents) {
     $(this).after(match[4]);
   });
 
-  if (doctemplatetype == 'rsuite') {
+  if (doctemplatetype != 'pre-sectionstart') {
     // remove Section-Blank-Page sections
     $("section.blankpage").remove();
     //// Strip pageBreaks preceding Section starts:
