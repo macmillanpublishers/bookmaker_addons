@@ -13,8 +13,9 @@ tmp_layout_dir = File.join(Bkmkr::Project.working_dir, "done", Metadata.pisbn, "
 pdf_css_file = File.join(tmp_layout_dir, "pdf.css")
 epub_css_file = File.join(tmp_layout_dir, "epub.css")
 
-oneoff_45x7 = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "css", "picador", "oneoff_45x7.css")
-oneoff_45x7_sans = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "css", "picador", "oneoff_45x7_sans.css")
+bookmaker_assets_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets")
+oneoff_45x7 = File.join(bookmaker_assets_dir, "pdfmaker", "css", "picador", "oneoff_45x7.css")
+oneoff_45x7_sans = File.join(bookmaker_assets_dir, "pdfmaker", "css", "picador", "oneoff_45x7_sans.css")
 
 
 # ---------------------- METHODS
@@ -157,6 +158,12 @@ data_hash = readConfigJson('read_config_json')
 #local definition(s) based on config.json
 stage_dir = data_hash['stage']
 pod_toc = data_hash['pod_toc']
+doctemplatetype = data_hash['doctemplatetype']
+# set bookmaker_assets path based on presence of rsuite styles
+if doctemplatetype == "rsuite"
+  oneoff_45x7 = File.join(bookmaker_assets_dir, "rsuite_assets", "pdfmaker", "css", "picador", "oneoff_45x7.css")
+  oneoff_45x7_sans = File.join(bookmaker_assets_dir, "rsuite_assets", "pdfmaker", "css", "picador", "oneoff_45x7_sans.css")
+end
 
 
 # an array of all occurances of chapters in the manuscript

@@ -281,6 +281,11 @@ data_hash = readConfigJson('read_config_json')
 #local definition(s) based on config.json
 project_dir = data_hash['project']
 stage_dir = data_hash['stage']
+doctemplatetype = data_hash['doctemplatetype']
+# set bookmaker_assets path based on presence of rsuite styles
+if doctemplatetype == "rsuite"
+  assets_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "rsuite_assets", "pdfmaker")
+end
 # including: ftp url
 ftpdirext = "http://www.macmillan.tools.vhost.zerolag.com/bookmaker/bookmakerimg/#{project_dir}_#{stage_dir}/#{Metadata.pisbn}"
 ftpdirint = "/files/html/bookmaker/bookmakerimg/#{project_dir}_#{stage_dir}/#{Metadata.pisbn}"

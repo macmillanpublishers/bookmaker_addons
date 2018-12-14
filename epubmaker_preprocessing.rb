@@ -276,6 +276,12 @@ end
 data_hash = readConfigJson('read_config_json')
 #local definition(s) based on config.json
 resource_dir = data_hash['resourcedir']
+doctemplatetype = data_hash['doctemplatetype']
+# set bookmaker_assets path based on presence of rsuite styles
+if doctemplatetype == "rsuite"
+  assets_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "rsuite_assets", "epubmaker")
+end
+
 
 makeFolder(epub_img_dir, 'make_epub_img_dir')
 
@@ -311,7 +317,7 @@ localRunNode(epubmakerpreprocessingjs, epub_tmp_html, 'epubmaker_preprocessing_j
 # end
 
 sectionjson = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "sections.json")
-addonjson = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker", "addons", "addons.json")
+addonjson = File.join(assets_dir, "addons", "addons.json")
 
 # anthologies need some custom handling
 anthology = isAnthology(epub_tmp_html, 'isAnthology')

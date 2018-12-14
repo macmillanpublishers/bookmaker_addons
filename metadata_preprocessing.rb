@@ -28,6 +28,8 @@ xml_file = File.join(Bkmkr::Paths.project_tmp_dir, "#{Bkmkr::Project.filename}.x
 
 title_js = File.join(Bkmkr::Paths.core_dir, "htmlmaker", "title.js")
 
+bookmaker_assets_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets")
+
 # ---------------------- METHODS
 
 def readConfigJson(logkey='')
@@ -483,6 +485,10 @@ data_hash = readConfigJson('read_config_json')
 #local definition(s) based on config.json
 doctemplate_version = data_hash['doctemplate_version']
 doctemplatetype = data_hash['doctemplatetype']
+# set bookmaker_assets path based on presence of rsuite styles
+if doctemplatetype == "rsuite"
+  bookmaker_assets_dir = File.join(bookmaker_assets_dir, "rsuite_assets")
+end
 
 pisbn, eisbn, allworks = findBookISBNs_metadataPreprocessing('find_book_ISBNs')
 
@@ -534,8 +540,8 @@ metatemplate, template = setTemplate(myhash, Bkmkr::Paths.outputtmp_html, 'set_d
 
 
 # print and epub css files
-epub_css_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker", "css")
-pdf_css_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "css")
+epub_css_dir = File.join(bookmaker_assets_dir, "epubmaker", "css")
+pdf_css_dir = File.join(bookmaker_assets_dir, "pdfmaker", "css")
 
 resource_dir = getResourceDir(imprint, imprint_json, 'get_resource_dir')
 @log_hash['resource_dir'] = resource_dir
@@ -550,8 +556,8 @@ epub_css_file = setEpubCssFile(metatemplate, template, epub_css_dir, stage_dir, 
 puts "Epub CSS file: #{epub_css_file}"
 
 
-proj_js_file = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "scripts", resource_dir, "pdf.js")
-fallback_js_file = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "scripts", "torDOTcom", "pdf.js")
+proj_js_file = File.join(bookmaker_assets_dir, "pdfmaker", "scripts", resource_dir, "pdf.js")
+fallback_js_file = File.join(bookmaker_assets_dir, "pdfmaker", "scripts", "torDOTcom", "pdf.js")
 pdf_js_file = File.join(Bkmkr::Paths.project_tmp_dir, "pdf.js")
 
 # get JS file for pdf and edit title info to match our book
