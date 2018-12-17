@@ -48,7 +48,7 @@ end
 def checkHTMLforTemplateVersion(filecontents, logkey='')
   version = filecontents.scan(/<meta name="templateversion"/)
   unless version.nil? or version.empty? or !version
-    templateversion = filecontents.match(/(<meta name="templateversion" content=")(.*)("\/>)/)[2]
+    templateversion = filecontents.match(/(<meta name="templateversion" content=")(.*)(" \/>)/)[2]
   else
     templateversion = ''
   end
