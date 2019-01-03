@@ -38,9 +38,9 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def fixNoteCallouts(html, logkey='')
+def fixNoteCallouts(html, super_cs, logkey='')
   # retag Note Callout as superscript spans
-  filecontents = html.gsub(/(&lt;NoteCallout&gt;)(\w*)(&lt;\/NoteCallout&gt;)/, "<sup class=\"spansuperscriptcharacterssup\">\\2</sup>").gsub(/(<notecallout>)(\w*)(<\/notecallout>)/, "<sup class=\"spansuperscriptcharacterssup\">\\2</sup>")
+  filecontents = html.gsub(/(&lt;NoteCallout&gt;)(\w*)(&lt;\/NoteCallout&gt;)/, "<sup class=\"#{super_cs}\">\\2</sup>").gsub(/(<notecallout>)(\w*)(<\/notecallout>)/, "<sup class=\"#{super_cs}\">\\2</sup>")
   return filecontents
 rescue => logstring
   return ''
@@ -62,12 +62,18 @@ end
 data_hash = readConfigJson('read_config_json')
 #local definition(s) based on config.json
 doctemplatetype = data_hash['doctemplatetype']
+# setting names of hardcoded styles by template:
+if doctemplatetype == 'rsuite'
+  super_cs = 'supersup'
+else
+  super_cs = 'spansuperscriptcharacterssup'
+end
 
 # run content conversions
 localRunNode(htmlmakerpostprocessingjs, "#{Bkmkr::Paths.outputtmp_html} #{doctemplatetype}", 'post-processing_js')
 
 filecontents = readOutputHtml('read_output_html')
-filecontents = fixNoteCallouts(filecontents, 'fix_note_callouts')
+filecontents = fixNoteCallouts(filecontents, super_cs, 'fix_note_callouts')
 
 overwriteFile(Bkmkr::Paths.outputtmp_html, filecontents, 'overwrite_html')
 

@@ -25,16 +25,36 @@ fs.readFile(file, function editContent(err, contents) {
     });
   }
 
+  //vars for target styles based on doctemplatetype
+  if (doctemplatetype == 'rsuite') {
+    bold_cs = "boldb"
+    ital_cs = "itali"
+    isbn_cs = "cs-isbnisbn"
+    hyperlink_cs = "Hyperlink"
+    smallcaps_cs = "smallcapssc"
+    designnote_style = "Design-NoteDn"
+  } else {
+    bold_cs = "spanboldfacecharactersbf"
+    ital_cs = "spanitaliccharactersital"
+    isbn_cs = "spanISBNisbn"
+    hyperlink_cs = "spanhyperlinkurl"
+    smallcaps_cs = "spansmallcapscharacterssc"
+    designnote_style = "DesignNotedn"
+  }
+
   // add missing class names to inline tags that were converted from direct formatting
-  $("strong:not(.spanboldfacecharactersbf)").addClass("spanboldfacecharactersbf");
-  $("em:not(.spanitaliccharactersital)").addClass("spanitaliccharactersital");
+  $("strong:not(." + bold_cs + ")").addClass(bold_cs);
+  $("em:not(." + ital_cs + ")").addClass(ital_cs);
 
   // merge contiguous small caps char styles
+  //  this class, chapopener \/ does not appear to be in use in any active CSS, so is moot..
+  //  leaving in, even though is not apropos for rsuite, as example of selecting/tagging chapopener.
+  //  would need to edit this ChapOpeningText selector if we want it to work.
   $("p[class^='ChapOpeningText']").each(function (i) {
-   $(this).children("span.spansmallcapscharacterssc").each(function () {
+   $(this).children("span." + smallcaps_cs).each(function () {
         var that = this.previousSibling;
-        var testing = $(that).hasClass('spansmallcapscharacterssc');
-        if ((that && that.nodeType === 1 && that.tagName === this.tagName && typeof $(that).attr('class') !== 'undefined' && $(that).hasClass('spansmallcapscharacterssc') === true) || (!that)) {
+        var testing = $(that).hasClass(smallcaps_cs);
+        if ((that && that.nodeType === 1 && that.tagName === this.tagName && typeof $(that).attr('class') !== 'undefined' && $(that).hasClass(smallcaps_cs) === true) || (!that)) {
           $(this).addClass("chapopener");
         }
       });
@@ -63,24 +83,25 @@ fs.readFile(file, function editContent(err, contents) {
   });
 
   //tag isbns if not tagged already
-  $("p[class^='CopyrightText']:not(:has(a.spanISBNisbn))").each(function () {
+  $("p[class^='CopyrightText']:not(:has(a." + isbn_cs + "))").each(function () {
       var mypattern1 = new RegExp( "978(\\D?\\d?){10}", "g");
       var result1 = mypattern1.test($( this ).text());
       // console.log(result1);
       if ( result1 === true ) {
-        var newtext = $( this ).text().replace(/(978(\D?\d?){10})/g, '<span class="spanISBNisbn">$1</span>');
+        var newtext = $( this ).text().replace(/(978(\D?\d?){10})/g, '<span class="' + isbn_cs + '">$1</span>');
         $(this).empty();
         $(this).prepend(newtext);
       }
     });
 
   // tag page placeholders as design notes
+  //  ^may not really be apropos with RSuite
   $('section h1[class*="Nonprinting"] + p:last-child').each( function () {
     var mytext = $(this).text().trim();
     var mypattern = new RegExp( "^\[[i|I|v|V|x|X|0-9]+\]$", "g");
     var result = mypattern.test(mytext);
     if (result === true) {
-      $(this).removeClass().addClass("DesignNotedn");
+      $(this).removeClass().addClass(designnote_style);
     }
   });
 
@@ -97,13 +118,13 @@ fs.readFile(file, function editContent(err, contents) {
   });
 
   // remove design notes
-  $('.DesignNotedn').remove();
+  $('.' + designnote_style).remove();
 
   // remove empty section
   $('section h1[class*="Nonprinting"]:only-child').parent().remove();
 
   // move non-ISBN text out of isbn spans
-  $("span[class='spanISBNisbn']").each(function (){
+  $("span[class='" + isbn_cs + "']").each(function (){
     var span_txt = $(this).text();
     var myRegexp = /(\D*)(978(\D?\d){10})(.*)/;
     var match = myRegexp.exec(span_txt);
@@ -112,7 +133,7 @@ fs.readFile(file, function editContent(err, contents) {
     $(this).after(match[4]);
   });
 
-  if (doctemplatetype != 'pre-sectionstart') {
+  if (doctemplatetype == 'sectionstart') {
     // remove Section-Blank-Page sections
     $("section.blankpage").remove();
     //// Strip pageBreaks preceding Section starts:
@@ -165,7 +186,7 @@ fs.readFile(file, function editContent(err, contents) {
     $(this).attr('href', myHref);
   });
 
-  $('span.spanhyperlinkurl:not(":has(a)")').each(function(){
+  $('span.' + hyperlink_cs + ':not(":has(a)")').each(function(){
     var myText = $(this).text();
     myText = myText.replace("[", "%5B").replace("]", "%5D");
     $(this).empty();
@@ -190,7 +211,7 @@ fs.readFile(file, function editContent(err, contents) {
     var hashReplacements = {};
 
     // Now we'll loop through every non-ISBN paragraph
-    $('p:contains("-"):not(:has(span.spanISBNisbn))').each(function (){
+    $('p:contains("-"):not(:has(span.' + isbn_cs + '))').each(function (){
       var para_txt = $(this).text();
       var myhtml = $(this).html();
       var myID = $(this).attr("id");
@@ -214,7 +235,7 @@ fs.readFile(file, function editContent(err, contents) {
         });
         // now remove any instances of those spans that are enclosed in a hyperlinkspan. Have to do this in two steps; previously using a 'not' selector,
         //  but the 'not' was not accounting for nested spans with hyperlink spans at different depths.
-        $(this).find(".spanhyperlinkurl").each(function () {
+        $(this).find("." + hyperlink_cs).each(function () {
            $(this).find(".longhyphenhelper").remove();
         });
         // Now we'll work with the raw top-level text.
