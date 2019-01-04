@@ -50,8 +50,8 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def findBookISBNs_metadataPreprocessing(logkey='')
-  pisbn, eisbn, allworks = findBookISBNs(Bkmkr::Paths.outputtmp_html, Bkmkr::Project.filename)
+def findBookISBNs_metadataPreprocessing(isbn_stylename, logkey='')
+  pisbn, eisbn, allworks = findBookISBNs(Bkmkr::Paths.outputtmp_html, Bkmkr::Project.filename, isbn_stylename)
   return pisbn, eisbn, allworks
 rescue => logstring
   return '','',''
@@ -167,7 +167,7 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setAuthorInfo(myhash, htmlfile, logkey='')
+def setAuthorInfo(myhash, htmlfile, author_selector, logkey='')
   # get the page tree via nokogiri
   page = Nokogiri::HTML(open(htmlfile))
   # get meta info from html if it exists
@@ -179,7 +179,7 @@ def setAuthorInfo(myhash, htmlfile, logkey='')
   elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_COVERTITLE"].nil? or myhash["book"]["WORK_COVERTITLE"].empty? or !myhash["book"]["WORK_COVERTITLE"]
     puts "Getting book AUTHOR from titlepage"
     names = []
-    authorname = page.css(".TitlepageAuthorNameau")
+    authorname = page.css(author_selector)
     authorname.each do |t|
       names << t.text
     end
@@ -197,7 +197,7 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setBookTitle(myhash, htmlfile, logkey='')
+def setBookTitle(myhash, htmlfile, title_selector, logkey='')
   # get the page tree via nokogiri
   page = Nokogiri::HTML(open(htmlfile))
   # get meta info from html if it exists
@@ -209,7 +209,7 @@ def setBookTitle(myhash, htmlfile, logkey='')
   elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_COVERTITLE"].nil? or myhash["book"]["WORK_COVERTITLE"].empty? or !myhash["book"]["WORK_COVERTITLE"]
     puts "Getting book TITLE from titlepage"
     titles = []
-    booktitle = page.css(".TitlepageBookTitletit")
+    booktitle = page.css(title_selector)
     booktitle.each do |t|
       titles << t.text
     end
@@ -227,7 +227,7 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setBookSubtitle(myhash, htmlfile, logkey='')
+def setBookSubtitle(myhash, htmlfile, subtitle_selector, logkey='')
   # get the page tree via nokogiri
   page = Nokogiri::HTML(open(htmlfile))
   # get meta info from html if it exists
@@ -239,7 +239,7 @@ def setBookSubtitle(myhash, htmlfile, logkey='')
   elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_COVERTITLE"].nil? or myhash["book"]["WORK_COVERTITLE"].empty? or !myhash["book"]["WORK_COVERTITLE"]
     puts "Getting book SUBTITLE from titlepage"
     subtitles = []
-    booksubtitle = page.css(".TitlepageBookSubtitlestit")
+    booksubtitle = page.css(subtitle_selector)
     booksubtitle.each do |t|
       subtitles << t.text
     end
@@ -488,9 +488,18 @@ doctemplatetype = data_hash['doctemplatetype']
 # set bookmaker_assets path based on presence of rsuite styles
 if doctemplatetype == "rsuite"
   bookmaker_assets_dir = File.join(bookmaker_assets_dir, "rsuite_assets")
+  isbn_stylename = "cs-isbnisbn"
+  author_selector = 'section[data-type="titlepage"] > .Author1Au1'
+  title_selector = 'section[data-type="titlepage"] > .TitleTtl'
+  subtitle_selector = 'section[data-type="titlepage"] > .SubtitleSttl'
+else
+  isbn_stylename = "spanISBNisbn"
+  author_selector = ".TitlepageAuthorNameau"
+  title_selector = ".TitlepageBookTitletit"
+  subtitle_selector = ".TitlepageBookSubtitlestit"
 end
 
-pisbn, eisbn, allworks = findBookISBNs_metadataPreprocessing('find_book_ISBNs')
+pisbn, eisbn, allworks = findBookISBNs_metadataPreprocessing(isbn_stylename, 'find_book_ISBNs')
 
 allimg = File.join(Bkmkr::Paths.submitted_images, "*")
 finalimg = File.join(Bkmkr::Paths.done_dir, pisbn, "images", "*")
@@ -521,13 +530,13 @@ html_contents = readFile(Bkmkr::Paths.outputtmp_html, 'get_outputtmp_html_conten
 
 # Setting metadata vars for config.json:
 # Prioritize metainfo from html, then edition info from biblio, then scan html for tagged data
-authorname = setAuthorInfo(myhash, Bkmkr::Paths.outputtmp_html, 'set_author_info')
+authorname = setAuthorInfo(myhash, Bkmkr::Paths.outputtmp_html, author_selector, 'set_author_info')
 @log_hash['author_name'] = authorname
 
-booktitle = setBookTitle(myhash, Bkmkr::Paths.outputtmp_html, 'set_book_title')
+booktitle = setBookTitle(myhash, Bkmkr::Paths.outputtmp_html, title_selector, 'set_book_title')
 @log_hash['book_title'] = booktitle
 
-booksubtitle = setBookSubtitle(myhash, Bkmkr::Paths.outputtmp_html, 'set_book_subtitle')
+booksubtitle = setBookSubtitle(myhash, Bkmkr::Paths.outputtmp_html, subtitle_selector, 'set_book_subtitle')
 @log_hash['book_subtitle'] = booksubtitle
 
 imprint = setImprint(myhash, Bkmkr::Paths.outputtmp_html, project_dir, imprint_json, 'set_imprint')
