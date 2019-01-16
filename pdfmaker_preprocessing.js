@@ -1,23 +1,31 @@
 var fs = require('fs');
 var cheerio = require('cheerio');
 var file = process.argv[2];
-var booktitle = process.argv[3]; 
+var booktitle = process.argv[3];
 var bookauthor = process.argv[4];
 var pisbn = process.argv[5];
 var imprint = process.argv[6];
 var publisher = process.argv[7];
+var doctemplatetype = process.argv[8];
 
 fs.readFile(file, function editContent (err, contents) {
   $ = cheerio.load(contents, {
           xmlMode: true
         });
 
-// add titlepage image if applicable
+  //vars for target stylenames based on doctemplatetype
+  if (doctemplatetype == 'rsuite') {
+    var imageholder_stylename = 'Image-PlacementImg'
+  } else {
+    var imageholder_stylename = 'Illustrationholderill'
+  }
+
+  // add titlepage image if applicable
   if ($('section[data-titlepage="yes"]').length) {
     //remove content
     $('section[data-type="titlepage"]').empty();
     //add image holder
-    image = '<figure class="Illustrationholderill fullpage"><img src="images/titlepage_fullpage.jpg"/></figure>';
+    image = '<figure class="' + imageholder_stylename + ' fullpage"><img src="images/titlepage_fullpage.jpg"/></figure>';
     $('section[data-type="titlepage"]').append(image);
   }
 

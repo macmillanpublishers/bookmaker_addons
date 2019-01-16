@@ -251,11 +251,11 @@ end
 
 # fixes images in html, keep final words and ellipses from breaking
 # def fixHtmlImageSrcAndKTs(pdf_tmp_html, ftpdirext, logkey='')
-def fixHtmlImageSrcAndKTs(pdf_tmp_html, pdftmp_dir, logkey='')
+def fixHtmlImageSrcAndKTs(pdf_tmp_html, pdftmp_dir, bkmkrkeeptogether_stylename, logkey='')
   # .gsub(/([a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9]\s\. \. \.)/,"<span class=\"bookmakerkeeptogetherkt\">\\0</span>")
   filecontents = File.read(pdf_tmp_html).gsub(/src="images\//,"src=\"#{pdftmp_dir}/")
-                                        .gsub(/([a-zA-Z0-9]?[a-zA-Z0-9]?[a-zA-Z0-9]?\s\. \. \.)/,"<span class=\"bookmakerkeeptogetherkt\">\\0</span>")
-                                        .gsub(/(\s)(\w\w\w*?\.)(<\/p>)/,"\\1<span class=\"bookmakerkeeptogetherkt\">\\2</span>\\3")
+                                        .gsub(/([a-zA-Z0-9]?[a-zA-Z0-9]?[a-zA-Z0-9]?\s\. \. \.)/,"<span class=\"#{bkmkrkeeptogether_stylename}\">\\0</span>")
+                                        .gsub(/(\s)(\w\w\w*?\.)(<\/p>)/,"\\1<span class=\"#{bkmkrkeeptogether_stylename}\">\\2</span>\\3")
   return filecontents
 rescue => logstring
   return ''
@@ -281,6 +281,14 @@ data_hash = readConfigJson('read_config_json')
 #local definition(s) based on config.json
 project_dir = data_hash['project']
 stage_dir = data_hash['stage']
+doctemplatetype = data_hash['doctemplatetype']
+# set bookmaker_assets path & hardcoded styles based on presence of rsuite styles
+if doctemplatetype == "rsuite"
+  assets_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "rsuite_assets", "pdfmaker")
+  bkmkrkeeptogether_stylename = "bookmaker-keep-togetherbkt"
+else
+  bkmkrkeeptogether_stylename = "bookmakerkeeptogetherkt"
+end
 # including: ftp url
 ftpdirext = "http://www.macmillan.tools.vhost.zerolag.com/bookmaker/bookmakerimg/#{project_dir}_#{stage_dir}/#{Metadata.pisbn}"
 ftpdirint = "/files/html/bookmaker/bookmakerimg/#{project_dir}_#{stage_dir}/#{Metadata.pisbn}"
@@ -313,12 +321,12 @@ copyFilesinDir("#{assets_dir}/images/#{project_dir}", pdftmp_dir, 'copy_assets_t
 
 # run node.js content conversions
 pdfmakerpreprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "pdfmaker_preprocessing.js")
-args = "\"#{pdf_tmp_html}\" \"#{Metadata.booktitle}\" \"#{Metadata.bookauthor}\" \"#{Metadata.pisbn}\" \"#{Metadata.imprint}\" \"#{Metadata.publisher}\""
+args = "\"#{pdf_tmp_html}\" \"#{Metadata.booktitle}\" \"#{Metadata.bookauthor}\" \"#{Metadata.pisbn}\" \"#{Metadata.imprint}\" \"#{Metadata.publisher}\" \"#{doctemplatetype}\""
 localRunNode(pdfmakerpreprocessingjs, args, 'run_pdfmaker-pre_js')
 
 # fixes images in html, keep final words and ellipses from breaking
 # filecontents = fixHtmlImageSrcAndKTs(pdf_tmp_html, ftpdirext, 'fix_html_image_src_and_keeptogethers')
-filecontents = fixHtmlImageSrcAndKTs(pdf_tmp_html, pdftmp_dir, 'fix_html_image_src_and_keeptogethers')
+filecontents = fixHtmlImageSrcAndKTs(pdf_tmp_html, pdftmp_dir, bkmkrkeeptogether_stylename, 'fix_html_image_src_and_keeptogethers')
 
 overwriteHtml(pdf_tmp_html, filecontents, 'overwrite_pdfhtml_2')
 

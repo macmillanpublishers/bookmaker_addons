@@ -4,6 +4,7 @@ require 'nokogiri'
 
 unless (ENV['TRAVIS_TEST']) == 'true'
   require_relative '../bookmaker/core/header.rb'
+  require_relative '../bookmaker/core/metadata.rb'
   require_relative '../utilities/oraclequery.rb'
   require_relative '../utilities/isbn_finder.rb'
 else
@@ -27,7 +28,18 @@ xml_file = File.join(Bkmkr::Paths.project_tmp_dir, "#{Bkmkr::Project.filename}.x
 
 title_js = File.join(Bkmkr::Paths.core_dir, "htmlmaker", "title.js")
 
+bookmaker_assets_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets")
+
 # ---------------------- METHODS
+
+def readConfigJson(logkey='')
+  data_hash = Mcmlln::Tools.readjson(Metadata.configfile)
+  return data_hash
+rescue => logstring
+  return {}
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
 
 def readFile(file, logkey='')
 	filecontents = File.read(file)
@@ -38,8 +50,8 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def findBookISBNs_metadataPreprocessing(logkey='')
-  pisbn, eisbn, allworks = findBookISBNs(Bkmkr::Paths.outputtmp_html, Bkmkr::Project.filename)
+def findBookISBNs_metadataPreprocessing(isbn_stylename, logkey='')
+  pisbn, eisbn, allworks = findBookISBNs(Bkmkr::Paths.outputtmp_html, Bkmkr::Project.filename, isbn_stylename)
   return pisbn, eisbn, allworks
 rescue => logstring
   return '','',''
@@ -155,7 +167,7 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setAuthorInfo(myhash, htmlfile, logkey='')
+def setAuthorInfo(myhash, htmlfile, author_selector, logkey='')
   # get the page tree via nokogiri
   page = Nokogiri::HTML(open(htmlfile))
   # get meta info from html if it exists
@@ -167,7 +179,7 @@ def setAuthorInfo(myhash, htmlfile, logkey='')
   elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_COVERTITLE"].nil? or myhash["book"]["WORK_COVERTITLE"].empty? or !myhash["book"]["WORK_COVERTITLE"]
     puts "Getting book AUTHOR from titlepage"
     names = []
-    authorname = page.css(".TitlepageAuthorNameau")
+    authorname = page.css(author_selector)
     authorname.each do |t|
       names << t.text
     end
@@ -185,7 +197,7 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setBookTitle(myhash, htmlfile, logkey='')
+def setBookTitle(myhash, htmlfile, title_selector, logkey='')
   # get the page tree via nokogiri
   page = Nokogiri::HTML(open(htmlfile))
   # get meta info from html if it exists
@@ -197,7 +209,7 @@ def setBookTitle(myhash, htmlfile, logkey='')
   elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_COVERTITLE"].nil? or myhash["book"]["WORK_COVERTITLE"].empty? or !myhash["book"]["WORK_COVERTITLE"]
     puts "Getting book TITLE from titlepage"
     titles = []
-    booktitle = page.css(".TitlepageBookTitletit")
+    booktitle = page.css(title_selector)
     booktitle.each do |t|
       titles << t.text
     end
@@ -215,7 +227,7 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setBookSubtitle(myhash, htmlfile, logkey='')
+def setBookSubtitle(myhash, htmlfile, subtitle_selector, logkey='')
   # get the page tree via nokogiri
   page = Nokogiri::HTML(open(htmlfile))
   # get meta info from html if it exists
@@ -227,7 +239,7 @@ def setBookSubtitle(myhash, htmlfile, logkey='')
   elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_COVERTITLE"].nil? or myhash["book"]["WORK_COVERTITLE"].empty? or !myhash["book"]["WORK_COVERTITLE"]
     puts "Getting book SUBTITLE from titlepage"
     subtitles = []
-    booksubtitle = page.css(".TitlepageBookSubtitlestit")
+    booksubtitle = page.css(subtitle_selector)
     booksubtitle.each do |t|
       subtitles << t.text
     end
@@ -413,10 +425,28 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
+def setTOCvalFromHTML(logkey='')
+  if Mcmlln::Tools.checkFileExist(Bkmkr::Paths.outputtmp_html)
+    check_toc = File.read(Bkmkr::Paths.outputtmp_html).scan(/class=".*?texttoc.*?"/)
+    if check_toc.any?
+      toc_value = "true"
+    else
+      toc_value = "false"
+    end
+  else
+    toc_value = "false"
+  end
+  return toc_value
+rescue => logstring
+  return ''
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
 def setTOCvalFromXml(xml_file, logkey='')
   if Mcmlln::Tools.checkFileExist(xml_file)
     check_tocbody = File.read(xml_file).scan(/w:pStyle w:val\="TOC/)
-    check_tochead = File.read(Bkmkr::Paths.outputtmp_html).scan(/class="texttoc"/)
+    check_tochead = File.read(Bkmkr::Paths.outputtmp_html).scan(/class=".*?texttoc.*?"/)
     if check_tocbody.any? or check_tochead.any?
       toc_value = "true"
     else
@@ -451,7 +481,25 @@ end
 # for logging purposes
 puts "RUNNING METADATA_PREPROCESSING"
 
-pisbn, eisbn, allworks = findBookISBNs_metadataPreprocessing('find_book_ISBNs')
+data_hash = readConfigJson('read_config_json')
+#local definition(s) based on config.json
+doctemplate_version = data_hash['doctemplate_version']
+doctemplatetype = data_hash['doctemplatetype']
+# set bookmaker_assets path based on presence of rsuite styles
+if doctemplatetype == "rsuite"
+  bookmaker_assets_dir = File.join(bookmaker_assets_dir, "rsuite_assets")
+  isbn_stylename = "cs-isbnisbn"
+  author_selector = 'section[data-type="titlepage"] > .Author1Au1'
+  title_selector = 'section[data-type="titlepage"] > .TitleTtl'
+  subtitle_selector = 'section[data-type="titlepage"] > .SubtitleSttl'
+else
+  isbn_stylename = "spanISBNisbn"
+  author_selector = ".TitlepageAuthorNameau"
+  title_selector = ".TitlepageBookTitletit"
+  subtitle_selector = ".TitlepageBookSubtitlestit"
+end
+
+pisbn, eisbn, allworks = findBookISBNs_metadataPreprocessing(isbn_stylename, 'find_book_ISBNs')
 
 allimg = File.join(Bkmkr::Paths.submitted_images, "*")
 finalimg = File.join(Bkmkr::Paths.done_dir, pisbn, "images", "*")
@@ -482,13 +530,13 @@ html_contents = readFile(Bkmkr::Paths.outputtmp_html, 'get_outputtmp_html_conten
 
 # Setting metadata vars for config.json:
 # Prioritize metainfo from html, then edition info from biblio, then scan html for tagged data
-authorname = setAuthorInfo(myhash, Bkmkr::Paths.outputtmp_html, 'set_author_info')
+authorname = setAuthorInfo(myhash, Bkmkr::Paths.outputtmp_html, author_selector, 'set_author_info')
 @log_hash['author_name'] = authorname
 
-booktitle = setBookTitle(myhash, Bkmkr::Paths.outputtmp_html, 'set_book_title')
+booktitle = setBookTitle(myhash, Bkmkr::Paths.outputtmp_html, title_selector, 'set_book_title')
 @log_hash['book_title'] = booktitle
 
-booksubtitle = setBookSubtitle(myhash, Bkmkr::Paths.outputtmp_html, 'set_book_subtitle')
+booksubtitle = setBookSubtitle(myhash, Bkmkr::Paths.outputtmp_html, subtitle_selector, 'set_book_subtitle')
 @log_hash['book_subtitle'] = booksubtitle
 
 imprint = setImprint(myhash, Bkmkr::Paths.outputtmp_html, project_dir, imprint_json, 'set_imprint')
@@ -501,8 +549,8 @@ metatemplate, template = setTemplate(myhash, Bkmkr::Paths.outputtmp_html, 'set_d
 
 
 # print and epub css files
-epub_css_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "epubmaker", "css")
-pdf_css_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "css")
+epub_css_dir = File.join(bookmaker_assets_dir, "epubmaker", "css")
+pdf_css_dir = File.join(bookmaker_assets_dir, "pdfmaker", "css")
 
 resource_dir = getResourceDir(imprint, imprint_json, 'get_resource_dir')
 @log_hash['resource_dir'] = resource_dir
@@ -517,15 +565,19 @@ epub_css_file = setEpubCssFile(metatemplate, template, epub_css_dir, stage_dir, 
 puts "Epub CSS file: #{epub_css_file}"
 
 
-proj_js_file = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "scripts", resource_dir, "pdf.js")
-fallback_js_file = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "scripts", "torDOTcom", "pdf.js")
+proj_js_file = File.join(bookmaker_assets_dir, "pdfmaker", "scripts", resource_dir, "pdf.js")
+fallback_js_file = File.join(bookmaker_assets_dir, "pdfmaker", "scripts", "torDOTcom", "pdf.js")
 pdf_js_file = File.join(Bkmkr::Paths.project_tmp_dir, "pdf.js")
 
 # get JS file for pdf and edit title info to match our book
 setupPdfJSfile(proj_js_file, fallback_js_file, pdf_js_file, booktitle, authorname, 'setup_pdf_JS_file')
 
-#check the xml in tmp for toc_value
-toc_value = setTOCvalFromXml(xml_file, 'set_TOC_value_From_xml')
+# check the html or xml for toc_value depending on doctemplatetype
+if doctemplatetype == 'pre-sectionstart'
+  toc_value = setTOCvalFromXml(xml_file, 'set_TOC_value_From_xml')
+else
+  toc_value = setTOCvalFromHTML('set_TOC_value_From_html')
+end
 
 # Generating the json metadata
 
@@ -558,6 +610,8 @@ end
 unless podtitlepage.nil?
   datahash.merge!(podtitlepage: podtitlepage)
 end
+datahash.merge!(doctemplate_version: doctemplate_version)
+datahash.merge!(doctemplatetype: doctemplatetype)
 
 # write to config.json file
 writeConfigJson(datahash, configfile, 'write_config_jsonfile')

@@ -26,7 +26,7 @@ fs.readFile(file, function editContent (err, contents) {
   // add extra paragraph to copyright page
   $('section[data-type="copyright-page"] p:last-child').removeClass( "CopyrightTextsinglespacecrtx" ).addClass( "CopyrightTextdoublespacecrtxd" );
 
-  //remove existing bulk order notice from copyright page 
+  //remove existing bulk order notice from copyright page
   var notice_criteria = [
   '(?=.*MacmillanSpecialMarkets@macmillan.com)',
   '(?=.*Macmillan Corporate and Premium Sales Department)',
@@ -60,8 +60,8 @@ fs.readFile(file, function editContent (err, contents) {
   $("h1[data-labeltext]").each(function () {
     var labeltext = $(this).attr('data-labeltext');
     if (labeltext.trim()) {
-      $(this).prepend(labeltext + ": "); 
-    };   
+      $(this).prepend(labeltext + ": ");
+    };
   });
 
   // remove any reference to printing in the copyright page
@@ -105,7 +105,7 @@ fs.readFile(file, function editContent (err, contents) {
       newlink = newlink.replace("href='", "href='mailto:");
     }
     $(this).empty();
-    $(this).prepend(newlink); 
+    $(this).prepend(newlink);
   });
 
   // fix link destinations
@@ -127,7 +127,7 @@ fs.readFile(file, function editContent (err, contents) {
     text = text.toUpperCase();
     console.log(text);
     $(this).empty();
-    $(this).prepend(text); 
+    $(this).prepend(text);
   });
 
   // replace content in spacebreak paras
@@ -154,6 +154,9 @@ fs.readFile(file, function editContent (err, contents) {
 
   // suppress toc entries for certain sections
   $('div[data-type="part"] + section[data-type="chapter"]:has(h1.ChapTitleNonprintingctnp) + *:not(section[data-type="chapter"])').prev().addClass("notoc");
+
+  // suppress toc entries for bobad, Section-Excerpt-Chaptersec
+  $('section.bobad, section.excerptchapter').addClass("notoc");
 
   var output = $.html();
 	  fs.writeFile(file, output, function(err) {
