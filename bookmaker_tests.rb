@@ -4,9 +4,16 @@ require_relative '../bookmaker/core/header.rb'
 require_relative '../bookmaker/core/metadata.rb'
 require_relative '../bookmaker/core/utilities/mcmlln-tools.rb'
 
-epub_tmp_html = File.join(Bkmkr::Paths.project_tmp_dir, "epub_tmp.html")
-pdf_tmp_html = File.join(Bkmkr::Paths.project_tmp_dir, "pdf_tmp.html")
-tmp_xml = File.join(Bkmkr::Paths.project_tmp_dir, "#{Bkmkr::Project.filename}.xml")
+# adding this bit because for some reason workingdir is getting incorrectly calculated for this script sometimes
+headless_project_tmp_dir = Bkmkr::Paths.project_tmp_dir.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact))[1...4].join(File::SEPARATOR)
+if File.file?(File.join("C:",headless_project_tmp_dir,"epub_tmp.html"))
+	project_tmp_dir = File.join("C:",headless_project_tmp_dir)
+else
+	project_tmp_dir = File.join("S:",headless_project_tmp_dir)		
+end	
+epub_tmp_html = File.join(project_tmp_dir, "epub_tmp.html")
+pdf_tmp_html = File.join(project_tmp_dir, "pdf_tmp.html")
+tmp_xml = File.join(project_tmp_dir, "#{Bkmkr::Project.filename}.xml")
 
 new_path = Bkmkr::Project.working_dir
 project_path = Bkmkr::Project.working_dir.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
