@@ -47,6 +47,8 @@ fs.readFile(file, function editContent (err, contents) {
 
   // remove ebook-only sections
   $('*[data-format="ebook"]').remove();
+  // remove ebook-only paragraphs
+  $('p.Ebook-Only-TextEonly').remove();
 
   var output = $.html();
     fs.writeFile(file, output, function(err) {

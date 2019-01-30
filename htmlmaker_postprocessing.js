@@ -50,7 +50,7 @@ fs.readFile(file, function editContent(err, contents) {
   //  this class, chapopener \/ does not appear to be in use in any active CSS, so is moot..
   //  leaving in, even though is not apropos for rsuite, as example of selecting/tagging chapopener.
   //  would need to edit this ChapOpeningText selector if we want it to work.
-  $("p[class^='ChapOpeningText']").each(function (i) {
+  $("section > p[class^='Body-Text']:first-of-type").each(function (i) {
    $(this).children("span." + smallcaps_cs).each(function () {
         var that = this.previousSibling;
         var testing = $(that).hasClass(smallcaps_cs);
