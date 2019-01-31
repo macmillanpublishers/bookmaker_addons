@@ -33,7 +33,7 @@ fs.readFile(file, function editContent(err, contents) {
     hyperlink_cs = "Hyperlink"
     smallcaps_cs = "smallcapssc"
     designnote_style = "Design-NoteDn"
-    chap_opening_selector = "section > p[class^='Body-Text']:first-of-type"
+    chap_opening_selector = "section[data-type='chapter'] > p[class^='Body-Text']:first-of-type"
   } else {
     bold_cs = "spanboldfacecharactersbf"
     ital_cs = "spanitaliccharactersital"
