@@ -1,11 +1,44 @@
 var fs = require('fs');
 var cheerio = require('cheerio');
 var file = process.argv[2];
+var doctemplatetype = process.argv[3];
 
 fs.readFile(file, function editContent (err, contents) {
   $ = cheerio.load(contents, {
           xmlMode: true
         });
+
+  //vars for target styles based on doctemplatetype
+  if (doctemplatetype == 'rsuite') {
+    ital_cs = "itali"
+    hyperlink_cs = "Hyperlink";
+    smallcaps_cs = "smallcapssc";
+    smallcapsbold_cs = "smallcaps-boldscb";
+    smallcapsital_cs = "smallcaps-italsci";
+    smallcapsboldital_cs = "smallcaps-bold-italscbi";
+    illus_source_style = "Credit-LineCrd"
+    copyrightblurb_style = "Body-TextTx"
+    logo_selector = '[section[data-type="titlepage"] p.Logo-PlacementLogo';
+    // add extra paragraph to copyright page
+    var newseparator_para = '<p class="SeparatorSep">Separator</p>'';
+    $('section[data-type="copyright-page"] p:last-child').append(newseparator_para);
+    // replace content in spacebreak paras
+    $("p.Blank-Space-BreakBsbrk, p.Ornamental-Space-BreakOsbrk").empty().append("* * *");
+  } else {
+    ital_cs = "spanitaliccharactersital"
+    hyperlink_cs = "spanhyperlinkurl";
+    smallcaps_cs = "spansmallcapscharacterssc";
+    smallcapsbold_cs = "spansmcapboldscbold";
+    smallcapsital_cs = "spansmcapitalscital";
+    smallcapsboldital_cs = "spansmcapbolditalscbi";
+    illus_source_style = "IllustrationSourceis"
+    copyrightblurb_style = "CopyrightTextdoublespacecrtxd"
+    logo_selector = "p.TitlepageLogologo";
+    // add extra paragraph to copyright page
+    $('section[data-type="copyright-page"] p:last-child').removeClass( "CopyrightTextsinglespacecrtx" ).addClass( "CopyrightTextdoublespacecrtxd" );
+    // replace content in spacebreak paras
+    $("p[class^='SpaceBreak']:not(.SpaceBreak-Internalint)").empty().append("* * *");
+  }
 
 // add titlepage image if applicable
   if ($('section[data-titlepage="yes"]').length) {
@@ -21,12 +54,9 @@ fs.readFile(file, function editContent (err, contents) {
 
   // replace logo with image
   var logo = '<img src="logo.jpg"/>'
-  $('p.TitlepageLogologo').empty().prepend(logo);
+  $(logo_selector).empty().prepend(logo);
 
-  // add extra paragraph to copyright page
-  $('section[data-type="copyright-page"] p:last-child').removeClass( "CopyrightTextsinglespacecrtx" ).addClass( "CopyrightTextdoublespacecrtxd" );
-
-  //remove existing bulk order notice from copyright page
+  // remove existing bulk order notice from copyright page
   var notice_criteria = [
   '(?=.*MacmillanSpecialMarkets@macmillan.com)',
   '(?=.*Macmillan Corporate and Premium Sales Department)',
@@ -49,7 +79,7 @@ fs.readFile(file, function editContent (err, contents) {
   };
 
   //Add our own bulk purchase blurb
-  var new_notice = '<p class="CopyrightTextdoublespacecrtxd">Our eBooks may be purchased in bulk for promotional, educational, or business use. Please contact the Macmillan Corporate and Premium Sales Department at 1-800-221-7945, ext. 5442, or by e-mail at <a href="mailto:MacmillanSpecialMarkets@macmillan.com">MacmillanSpecialMarkets@macmillan.com</a>.</p>';
+  var new_notice = '<p class="' + copyrightblurb_style + '">Our eBooks may be purchased in bulk for promotional, educational, or business use. Please contact the Macmillan Corporate and Premium Sales Department at 1-800-221-7945, ext. 5442, or by e-mail at <a href="mailto:MacmillanSpecialMarkets@macmillan.com">MacmillanSpecialMarkets@macmillan.com</a>.</p>';
 
   $('section[data-type="copyright-page"]').append(new_notice);
 
@@ -87,7 +117,7 @@ fs.readFile(file, function editContent (err, contents) {
   });
 
   // turn links into real hyperlinks
-  $("span.spanhyperlinkurl:not(:has(a))").each(function () {
+  $("span." + hyperlink_cs + ":not(:has(a))").each(function () {
     var newlink = "<a href='" + $(this).text() + "'>" + $(this).text() + "</a>";
     var mypattern1 = new RegExp( "https?://", "g");
     var result1 = mypattern1.test($(this).text());
@@ -122,7 +152,7 @@ fs.readFile(file, function editContent (err, contents) {
   });
 
   // convert small caps text to uppercase
-  $("span.spansmallcapscharacterssc, span.spansmcapboldscbold, span.spansmcapitalscital, span.spansmcapbolditalscbi").each(function () {
+  $("span." + smallcaps_cs + ", span." + smallcapsbold_cs + ", span." + smallcapsital_cs + ", span." + smallcapsboldital_cs).each(function () {
     var text = $( this ).text();
     text = text.toUpperCase();
     console.log(text);
@@ -130,18 +160,15 @@ fs.readFile(file, function editContent (err, contents) {
     $(this).prepend(text);
   });
 
-  // replace content in spacebreak paras
-  $("p[class^='SpaceBreak']:not(.SpaceBreak-Internalint)").empty().append("* * *");
-
   // remove links from illustration sources
-  $("p.IllustrationSourceis a.fig-link").each(function () {
+  $("p." + illus_source_style + " a.fig-link").each(function () {
     var myContents = $(this).contents();
     $(this).parent().append(myContents);
     $(this).remove();
   });
 
   // remove classes from span elements
-  $("em.spanitaliccharactersital").removeClass().removeAttr( "class" );
+  $("em." + ital_cs).removeClass().removeAttr( "class" );
 
   // remove forced breaks
   $("br:empty").remove();

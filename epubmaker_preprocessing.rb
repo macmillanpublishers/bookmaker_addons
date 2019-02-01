@@ -142,8 +142,8 @@ ensure
 end
 
 ## wrapping Bkmkr::Tools.compileJS in a new method for this script; to return a result for json_logfile
-def localCompileJS(file, logkey='')
-  Bkmkr::Tools.compileJS(file)
+def localCompileJS(file, link_stylename, logkey='')
+  Bkmkr::Tools.compileJS(file, link_stylename)
 rescue => logstring
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
@@ -204,13 +204,13 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setNewsletterAuthorLinksSingle(linkauthorarr, linkauthorid, myhash, jsfile, htmlfile, logkey='')
+def setNewsletterAuthorLinksSingle(linkauthorarr, linkauthorid, myhash, jsfile, htmlfile, newsletter_pstyle, logkey='')
   # for books with just one author
   # add author link to ATA section
   filecontents = File.read(htmlfile)
   linkauthornametxt = Metadata.bookauthor.downcase.gsub(/\s/,"").gsub(/\W/,"").to_ascii
   linkauthornameall = Metadata.bookauthor.downcase.gsub(/\s/,"").to_ascii
-  Bkmkr::Tools.runnode(jsfile, htmlfile)
+  Bkmkr::Tools.runnode(jsfile, "#{htmlfile} #{newsletter_pstyle}")
   if myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['PERSON_PARTNERID'].nil? or myhash['book']['PERSON_PARTNERID'].empty? or !myhash['book']['PERSON_PARTNERID']
     filecontents = File.read(htmlfile).gsub(/\{\{AUTHORNAMETXT\}\}/,"#{linkauthornametxt}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthornameall}")
   else
@@ -224,7 +224,7 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setNewsletterAuthorLinksMultiple(linkauthorarr, linkauthorid, myhash, jsfile, htmlfile, logkey='')
+def setNewsletterAuthorLinksMultiple(linkauthorarr, linkauthorid, myhash, jsfile, htmlfile, newsletter_pstyle,logkey='')
   # for books with multiple authors,
   # make mini toc entry plural,
   # insert new author links in newsletter,
@@ -238,7 +238,7 @@ def setNewsletterAuthorLinksMultiple(linkauthorarr, linkauthorid, myhash, jsfile
     linkauthornametxt = a.downcase.gsub(/\s/,"").gsub(/\W/,"").to_ascii
     linkauthornameall = a.downcase.gsub(/\s/,"").to_ascii
     thisauthorid = linkauthorid[i]
-    Bkmkr::Tools.runnode(jsfile, "\"#{htmlfile}\" \"#{linkauthorname}\" \"#{linkauthorfirst}\" \"#{linkauthorlast}\" \"#{linkauthornameall}\" \"#{linkauthornametxt}\" \"#{thisauthorid}\"")
+    Bkmkr::Tools.runnode(jsfile, "\"#{htmlfile}\" \"#{linkauthorname}\" \"#{linkauthorfirst}\" \"#{linkauthorlast}\" \"#{linkauthornameall}\" \"#{linkauthornametxt}\" \"#{thisauthorid}\" \"#{newsletter_pstyle}\"")
   end
   # set newsletter button link to use first author
   linkauthornametxt = linkauthorarr[0].downcase.gsub(/\s/,"").gsub(/\W/,"").to_ascii
@@ -279,7 +279,11 @@ resource_dir = data_hash['resourcedir']
 doctemplatetype = data_hash['doctemplatetype']
 # set bookmaker_assets path based on presence of rsuite styles
 if doctemplatetype == "rsuite"
-  assets_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "rsuite_assets", "epubmaker")
+  hyperlink_cs = "Hyperlink"
+  newsletter_pstyle = "Body-TextTx"
+else
+  hyperlink_cs = "spanhyperlinkurl"
+  newsletter_pstyle = "BMTextbmtx"
 end
 
 
@@ -306,7 +310,7 @@ copyLogofile(logo_img, epub_img_dir, 'copy_logo_file_if_no_epubtitlepage')
 
 # do content conversions
 epubmakerpreprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "epubmaker_preprocessing.js")
-localRunNode(epubmakerpreprocessingjs, epub_tmp_html, 'epubmaker_preprocessing_js')
+localRunNode(epubmakerpreprocessingjs, epub_tmp_html, doctemplatetype, 'epubmaker_preprocessing_js')
 
 # replace titlepage info with image IF image exists in submission dir
 # js: replace titlepage innerhtml, prepend h1 w class nonprinting
@@ -353,7 +357,7 @@ localMoveSection(epub_tmp_html, sectionjson, "copyrightpage", "1", "endofbook", 
 localInsertAddons(epub_tmp_html, sectionjson, addonjson, 'insert_extra_epub_content')
 
 # evaluate templates
-localCompileJS(epub_tmp_html, 'evaluate_templates')
+localCompileJS(epub_tmp_html, hyperlink_cs, 'evaluate_templates')
 
 # do content conversions
 addonstransformationsjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "epubmaker_preprocessing-addonstransformations.js")
@@ -390,9 +394,9 @@ overwriteFile(epub_tmp_html, filecontents, 'overwrite_epubhtml_final')
 
 # update newsletter author links, for single or multiple authors
 if linkauthorarr.count > 1
-  filecontents = setNewsletterAuthorLinksMultiple(linkauthorarr, linkauthorid, myhash, newsletterjs, epub_tmp_html, 'set_newsletter_auth_links_multiple')
+  filecontents = setNewsletterAuthorLinksMultiple(linkauthorarr, linkauthorid, myhash, newsletterjs, epub_tmp_html, newsletter_pstyle, 'set_newsletter_auth_links_multiple')
 else
-  filecontents = setNewsletterAuthorLinksSingle(linkauthorarr, linkauthorid, myhash, newslettersinglejs, epub_tmp_html, 'set_newsletter_auth_links_single')
+  filecontents = setNewsletterAuthorLinksSingle(linkauthorarr, linkauthorid, myhash, newslettersinglejs, epub_tmp_html, newsletter_pstyle, 'set_newsletter_auth_links_single')
 end
 
 #replace imprint, eisbn placeholders
