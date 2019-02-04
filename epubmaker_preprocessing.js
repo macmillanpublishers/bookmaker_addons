@@ -20,7 +20,7 @@ fs.readFile(file, function editContent (err, contents) {
     copyrightblurb_style = "Body-TextTx"
     logo_selector = '[section[data-type="titlepage"] p.Logo-PlacementLogo';
     // add extra paragraph to copyright page
-    var newseparator_para = '<p class="SeparatorSep">Separator</p>'';
+    var newseparator_para = '<p class="SeparatorSep">Separator</p>';
     $('section[data-type="copyright-page"] p:last-child').append(newseparator_para);
     // replace content in spacebreak paras
     $("p.Blank-Space-BreakBsbrk, p.Ornamental-Space-BreakOsbrk").empty().append("* * *");

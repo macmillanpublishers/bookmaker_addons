@@ -310,7 +310,7 @@ copyLogofile(logo_img, epub_img_dir, 'copy_logo_file_if_no_epubtitlepage')
 
 # do content conversions
 epubmakerpreprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "epubmaker_preprocessing.js")
-localRunNode(epubmakerpreprocessingjs, epub_tmp_html, doctemplatetype, 'epubmaker_preprocessing_js')
+localRunNode(epubmakerpreprocessingjs, "#{epub_tmp_html} #{doctemplatetype}", 'epubmaker_preprocessing_js')
 
 # replace titlepage info with image IF image exists in submission dir
 # js: replace titlepage innerhtml, prepend h1 w class nonprinting
