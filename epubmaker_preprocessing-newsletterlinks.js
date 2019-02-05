@@ -7,6 +7,7 @@ var linkauthorlast = process.argv[5];
 var linkauthornameall = process.argv[6];
 var linkauthornametxt = process.argv[7];
 var thisauthorid = process.argv[8];
+var para_class = process.argv[9];
 
 fs.readFile(file, function editContent (err, contents) {
   $ = cheerio.load(contents, {
@@ -16,7 +17,7 @@ fs.readFile(file, function editContent (err, contents) {
   var newString = "About the Authors";
   $("a#abouttheauthor").empty().append(newString);
 
-  var aulink = "<p class='BMTextbmtx'>You can sign up for email updates <a href='http://us.macmillan.com/authoralerts?authorName=" + linkauthornametxt + "&amp;authorRefId=" + thisauthorid + "&amp;utm_source=ebook&amp;utm_medium=adcard&amp;utm_term=ebookreaders&amp;utm_content=" + linkauthornameall + "_authoralertsignup_macdotcom&amp;utm_campaign={{EISBN}}'>here</a>.</p>";
+  var aulink = "<p class='" + para_class + "'>You can sign up for email updates <a href='http://us.macmillan.com/authoralerts?authorName=" + linkauthornametxt + "&amp;authorRefId=" + thisauthorid + "&amp;utm_source=ebook&amp;utm_medium=adcard&amp;utm_term=ebookreaders&amp;utm_content=" + linkauthornameall + "_authoralertsignup_macdotcom&amp;utm_campaign={{EISBN}}'>here</a>.</p>";
   $("section.abouttheauthor:contains(" + linkauthorfirst + "):contains(" + linkauthorlast + ")").append(aulink);
 
   // On the newsletter signup page,

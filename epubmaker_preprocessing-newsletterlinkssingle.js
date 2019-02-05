@@ -1,13 +1,14 @@
 var fs = require('fs');
 var cheerio = require('cheerio');
 var file = process.argv[2];
+var para_class = process.argv[3];
 
 fs.readFile(file, function editContent (err, contents) {
   $ = cheerio.load(contents, {
           xmlMode: true
         });
 
-  var aulink = "<p class='BMTextbmtx'>You can sign up for email updates <a href='http://us.macmillan.com/authoralerts?authorName={{AUTHORNAMETXT}}&amp;authorRefId={{AUTHORID}}&amp;utm_source=ebook&amp;utm_medium=adcard&amp;utm_term=ebookreaders&amp;utm_content={{AUTHORNAME}}_authoralertsignup_macdotcom&amp;utm_campaign={{EISBN}}'>here</a>.</p>";
+  var aulink = "<p class='" + para_class + "'>You can sign up for email updates <a href='http://us.macmillan.com/authoralerts?authorName={{AUTHORNAMETXT}}&amp;authorRefId={{AUTHORID}}&amp;utm_source=ebook&amp;utm_medium=adcard&amp;utm_term=ebookreaders&amp;utm_content={{AUTHORNAME}}_authoralertsignup_macdotcom&amp;utm_campaign={{EISBN}}'>here</a>.</p>";
   $("section.abouttheauthor").append(aulink);
 
 var output = $.html();
