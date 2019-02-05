@@ -10,14 +10,14 @@ fs.readFile(file, function editContent (err, contents) {
 
   //vars for target styles based on doctemplatetype
   if (doctemplatetype == 'rsuite') {
-    ital_cs = "itali"
+    ital_cs = "itali";
     hyperlink_cs = "Hyperlink";
     smallcaps_cs = "smallcapssc";
     smallcapsbold_cs = "smallcaps-boldscb";
     smallcapsital_cs = "smallcaps-italsci";
     smallcapsboldital_cs = "smallcaps-bold-italscbi";
-    illus_source_style = "Credit-LineCrd"
-    copyrightblurb_style = "Body-TextTx"
+    illus_source_style = "Credit-LineCrd";
+    copyrightblurb_style = "Body-TextTx";
     logo_selector = 'section[data-type="titlepage"] p.Logo-PlacementLogo';
     // add extra paragraph to copyright page
     var newseparator_para = '<p class="SeparatorSep">Separator</p>';
@@ -25,14 +25,14 @@ fs.readFile(file, function editContent (err, contents) {
     // replace content in spacebreak paras
     $("p.Blank-Space-BreakBsbrk, p.Ornamental-Space-BreakOsbrk").empty().append("* * *");
   } else {
-    ital_cs = "spanitaliccharactersital"
+    ital_cs = "spanitaliccharactersital";
     hyperlink_cs = "spanhyperlinkurl";
     smallcaps_cs = "spansmallcapscharacterssc";
     smallcapsbold_cs = "spansmcapboldscbold";
     smallcapsital_cs = "spansmcapitalscital";
     smallcapsboldital_cs = "spansmcapbolditalscbi";
-    illus_source_style = "IllustrationSourceis"
-    copyrightblurb_style = "CopyrightTextdoublespacecrtxd"
+    illus_source_style = "IllustrationSourceis";
+    copyrightblurb_style = "CopyrightTextdoublespacecrtxd";
     logo_selector = "p.TitlepageLogologo";
     // add extra paragraph to copyright page
     $('section[data-type="copyright-page"] p:last-child').removeClass( "CopyrightTextsinglespacecrtx" ).addClass( "CopyrightTextdoublespacecrtxd" );
@@ -53,7 +53,7 @@ fs.readFile(file, function editContent (err, contents) {
   }
 
   // replace logo with image
-  var logo = '<img src="logo.jpg"/>'
+  var logo = '<img src="logo.jpg"/>';
   $(logo_selector).empty().prepend(logo);
 
   // remove existing bulk order notice from copyright page
@@ -71,7 +71,7 @@ fs.readFile(file, function editContent (err, contents) {
   var notice_regex = new RegExp(regexpstring);
 
   var notice = $('section[data-type="copyright-page"] p').filter(function () {
-    return notice_regex.test($(this).text())
+    return notice_regex.test($(this).text());
   });
 
   if (notice.length > 0) {
