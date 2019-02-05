@@ -18,7 +18,7 @@ fs.readFile(file, function editContent (err, contents) {
     smallcapsboldital_cs = "smallcaps-bold-italscbi";
     illus_source_style = "Credit-LineCrd"
     copyrightblurb_style = "Body-TextTx"
-    logo_selector = '[section[data-type="titlepage"] p.Logo-PlacementLogo';
+    logo_selector = 'section[data-type="titlepage"] p.Logo-PlacementLogo';
     // add extra paragraph to copyright page
     var newseparator_para = '<p class="SeparatorSep">Separator</p>';
     $('section[data-type="copyright-page"] p:last-child').append(newseparator_para);
