@@ -20,8 +20,9 @@ fs.readFile(file, function editContent (err, contents) {
     copyrightblurb_style = "Body-TextTx";
     logo_selector = 'section[data-type="titlepage"] p.Logo-PlacementLogo';
     // add extra paragraph to copyright page
-    var newseparator_para = '<p class="SeparatorSep">Separator</p>';
-    $('section[data-type="copyright-page"] p:last-child').append(newseparator_para);
+    separator_style = 'SeparatorSep';
+    var newseparator_para = '<p class="' + separator_style + '">Separator</p>';
+    $('section[data-type="copyright-page"] p:last-child').after(newseparator_para);
     // replace content in spacebreak paras
     $("p.Blank-Space-BreakBsbrk, p.Ornamental-Space-BreakOsbrk").empty().append("* * *");
   } else {
@@ -40,7 +41,7 @@ fs.readFile(file, function editContent (err, contents) {
     $("p[class^='SpaceBreak']:not(.SpaceBreak-Internalint)").empty().append("* * *");
   }
 
-// add titlepage image if applicable
+  // add titlepage image if applicable
   if ($('section[data-titlepage="yes"]').length) {
   	//remove content
   	$('section[data-type="titlepage"]').empty();
@@ -75,6 +76,13 @@ fs.readFile(file, function editContent (err, contents) {
   });
 
   if (notice.length > 0) {
+    // If rsuite doc, delete following separator para
+    if (doctemplatetype == 'rsuite') {
+      var extraseparator = notice.next('p').filter("." + separator_style);
+      if (extraseparator.length > 0) {
+        extraseparator.remove();
+      }
+    }
     notice.remove();
   };
 
@@ -98,8 +106,22 @@ fs.readFile(file, function editContent (err, contents) {
   // and insert the correct copyright symbol on copyright page
   $("section[data-type='copyright-page'] p").each(function () {
     var myHTML = $( this ).html().replace(/Printed in [a-zA-Z\s]+\./g, '').replace(/([C|c]opyright)(\s|&.*?;)+/g, '$1 &#169; ');
-    $(this).empty();
-    $(this).append(myHTML);
+    // if this is an rsuite doc we want to remove 'print' element and trailing separator entirely
+    if (doctemplatetype == 'rsuite') {
+      if (myHTML == "") {
+        var extraseparator = $(this).next('p').filter("." + separator_style);
+        if (extraseparator.length > 0) {
+          extraseparator.remove();
+        }
+        $(this).remove();
+      } else {
+        $(this).empty();
+        $(this).append(myHTML);
+      }
+    } else {
+      $(this).empty();
+      $(this).append(myHTML);
+    }
   });
 
   // replace heading text if there is only one chapter;
