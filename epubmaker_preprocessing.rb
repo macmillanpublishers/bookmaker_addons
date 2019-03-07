@@ -231,18 +231,20 @@ def setNewsletterAuthorLinksMultiple(linkauthorarr, linkauthorid, myhash, jsfile
   # add author links to ATA sections
   filecontents = File.read(htmlfile)
   newslinkarr = []
+  # fix any unhandleable characters from other encodings
+  linkauthorarr.map! { |name| name.encode('UTF-8', invald: :replace, undef: :replace).to_ascii }
   linkauthorarr.each_with_index do |a, i|
     linkauthorname = a
     linkauthorfirst = a.split(" ").shift
     linkauthorlast = a.split(" ").pop
-    linkauthornametxt = a.downcase.gsub(/\s/,"").gsub(/\W/,"").to_ascii
-    linkauthornameall = a.downcase.gsub(/\s/,"").to_ascii
+    linkauthornametxt = a.downcase.gsub(/\s/,"").gsub(/\W/,"")
+    linkauthornameall = a.downcase.gsub(/\s/,"")
     thisauthorid = linkauthorid[i]
     Bkmkr::Tools.runnode(jsfile, "\"#{htmlfile}\" \"#{linkauthorname}\" \"#{linkauthorfirst}\" \"#{linkauthorlast}\" \"#{linkauthornameall}\" \"#{linkauthornametxt}\" \"#{thisauthorid}\" \"#{newsletter_pstyle}\"")
   end
   # set newsletter button link to use first author
-  linkauthornametxt = linkauthorarr[0].downcase.gsub(/\s/,"").gsub(/\W/,"").to_ascii
-  linkauthornameall = linkauthorarr[0].downcase.gsub(/\s/,"").to_ascii
+  linkauthornametxt = linkauthorarr[0].downcase.gsub(/\s/,"").gsub(/\W/,"")
+  linkauthornameall = linkauthorarr[0].downcase.gsub(/\s/,"")
   authorid = linkauthorid[0]
   # we have to read the html file again to get the post-js updates
   filecontents = File.read(htmlfile).gsub(/\{\{AUTHORNAMETXT\}\}/,"#{linkauthornametxt}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthornameall}").gsub(/\{\{AUTHORID\}\}/,"#{authorid}")
