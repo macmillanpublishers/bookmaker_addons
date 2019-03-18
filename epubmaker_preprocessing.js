@@ -21,11 +21,11 @@ fs.readFile(file, function editContent (err, contents) {
     logo_selector = 'section[data-type="titlepage"] p.Logo-PlacementLogo';
     // add extra paragraph to copyright page
     separator_style = 'SeparatorSep';
-    var newseparator_para = '<p class="' + separator_style + '">&nbsp;</p>';
+    var newseparator_para = '<p class="' + separator_style + '">&#160;</p>';
     $('section[data-type="copyright-page"] p:last-child').after(newseparator_para);
     // replace content in spacebreak paras
     $("p.Blank-Space-BreakBsbrk, p.Ornamental-Space-BreakOsbrk").empty().append("* * *");
-    $("p."+ separator_style).empty().append("&nbsp;");
+    $("p."+ separator_style).empty().html('&#160;');
   } else {
     ital_cs = "spanitaliccharactersital";
     hyperlink_cs = "spanhyperlinkurl";
