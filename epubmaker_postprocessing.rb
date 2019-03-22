@@ -157,9 +157,9 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def listSpacebreakImages(file, logkey='')
+def listSpacebreakImages(file, imageclassname, logkey='')
   # An array of all the image files referenced in the source html file
-  imgarr = File.read(file).scan(/(figure class="Illustrationholderill customimage"><img src="images\/)(\S*)(")/)
+  imgarr = File.read(file).scan(/(figure class="#{imageclassname} customimage"><img src="images\/)(\S*)(")/)
   imgnames = []
   imgarr.each do |o|
     imgnames << o[1]
@@ -282,6 +282,12 @@ data_hash = readJson(Metadata.configfile, 'read_config_json')
 #local definition(s) based on config.json
 stage_dir = data_hash['stage']
 doctemplatetype = data_hash['doctemplatetype']
+# set bookmaker_assets path based on presence of rsuite styles
+if doctemplatetype == "rsuite"
+  imageclassname = "Image-PlacementImg"
+else
+  imageclassname = "Illustrationholderill"
+end
 
 styleconfig_hash = readJson(styleconfig_json, 'read_styleconfig_json')
 
@@ -317,7 +323,7 @@ podtitlepagetmp = File.join(oebps_dir, "titlepage.jpg")
 deleteFileIfPresent(podtitlepagetmp, 'delete_podtitlepagetmp')
 
 # run method: listImages
-imgarr = listSpacebreakImages(Bkmkr::Paths.outputtmp_html, 'list_spacebreak_images')
+imgarr = listSpacebreakImages(Bkmkr::Paths.outputtmp_html, imageclassname, 'list_spacebreak_images')
 # adjust size of custom space break images
 convertSpacebreakImgs(imgarr, oebps_dir, 'convert_spacebreak_imgs')
 
