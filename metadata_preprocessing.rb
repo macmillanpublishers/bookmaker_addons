@@ -51,8 +51,8 @@ ensure
 end
 
 def findBookISBNs_metadataPreprocessing(isbn_stylename, logkey='')
-  pisbn, eisbn, allworks = findBookISBNs(Bkmkr::Paths.outputtmp_html, Bkmkr::Project.filename, isbn_stylename)
-  return pisbn, eisbn, allworks
+  pisbn, eisbn, allworks, lead_edition, typeset_from = findBookISBNs(Bkmkr::Paths.outputtmp_html, Bkmkr::Project.filename, isbn_stylename)
+  return pisbn, eisbn, allworks, lead_edition, typeset_from
 rescue => logstring
   return '','',''
 ensure
@@ -499,7 +499,7 @@ else
   subtitle_selector = ".TitlepageBookSubtitlestit"
 end
 
-pisbn, eisbn, allworks = findBookISBNs_metadataPreprocessing(isbn_stylename, 'find_book_ISBNs')
+pisbn, eisbn, allworks, lead_edition, typeset_from = findBookISBNs_metadataPreprocessing(isbn_stylename, 'find_book_ISBNs')
 
 allimg = File.join(Bkmkr::Paths.submitted_images, "*")
 finalimg = File.join(Bkmkr::Paths.done_dir, pisbn, "images", "*")
