@@ -22,6 +22,15 @@ replace_wsym_py = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "repla
 
 # ---------------------- METHODS
 
+def readConfigJson(configfile, logkey='')
+  data_hash = Mcmlln::Tools.readjson(configfile)
+  return data_hash
+rescue => logstring
+  return {}
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
 def convertDocToDocxPSscript(filetype, logkey='')
   unless filetype == "html"
     doctodocx = "S:\\resources\\bookmaker_scripts\\bookmaker_addons\\htmlmaker_preprocessing.ps1"
@@ -158,6 +167,8 @@ ensure
 end
 
 # ---------------------- PROCESSES
+# read in config.json if it exists
+prev_cfg_hash = readConfigJson(configfile, 'read_config_json')
 
 #convert .doc to .docx via powershell script, ignore html files
 convertDocToDocxPSscript(filetype, 'convert_doc_to_docx')
@@ -197,11 +208,23 @@ end
 #     the desired format is the 'C/C++/Java source code' including the doublequotes
 replace_wsym(filetype, replace_wsym_py, 'F0D3', "\u00A9", 'replace_w:sym_copyright_symbol')
 
-# Create a temp JSON file
+# Create a temp JSON file, keeping select values from submitted config.json if present
 datahash = {}
-datahash.merge!(title: "TK")
-datahash.merge!(subtitle: "TK")
-datahash.merge!(author: "TK")
+if prev_cfg_hash["title"] and prev_cfg_hash["title"] != "TK" and !prev_cfg_hash["title"].empty?
+  datahash.merge!(title: prev_cfg_hash["title"])
+else
+  datahash.merge!(title: "TK")
+end
+if prev_cfg_hash["subtitle"] and prev_cfg_hash["subtitle"] != "TK" and !prev_cfg_hash["subtitle"].empty?
+  datahash.merge!(subtitle: prev_cfg_hash["subtitle"])
+else
+  datahash.merge!(subtitle: "TK")
+end
+if prev_cfg_hash["author"] and prev_cfg_hash["author"] != "TK" and !prev_cfg_hash["author"].empty?
+  datahash.merge!(author: prev_cfg_hash["author"])
+else
+  datahash.merge!(author: "TK")
+end
 datahash.merge!(productid: "TK")
 datahash.merge!(printid: "TK")
 datahash.merge!(ebookid: "TK")

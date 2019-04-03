@@ -17,6 +17,7 @@ bookmaker_assets_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets")
 oneoff_45x7 = File.join(bookmaker_assets_dir, "pdfmaker", "css", "picador", "oneoff_45x7.css")
 oneoff_45x7_sans = File.join(bookmaker_assets_dir, "pdfmaker", "css", "picador", "oneoff_45x7_sans.css")
 
+override_js_file = File.join(Bkmkr::Paths.project_tmp_dir, "override_pdf.js")
 
 # ---------------------- METHODS
 
@@ -152,6 +153,15 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
+def copyOverrideJStoDone(override_js_file, tmp_layout_dir, logkey='')
+  if File.file?(override_js_file)
+    dest_path = File.join(tmp_layout_dir, "override_pdf.js")
+    FileUtils.cp(override_js_file, dest_path)
+  end
+rescue => logstring
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
 
 # ---------------------- PROCESSES
 data_hash = readConfigJson('read_config_json')
@@ -183,6 +193,9 @@ appendPdfCss(pdf_css_file, chapterheads, pod_toc, toc_override, trimcss, 'append
 # hide chaptertitle for epubs with only 1 chapter
 # also eval any one-off-css files for epub
 appendEpubCss(epub_css_file, chapterheads, 'append_pdf_css')
+
+# copy override_pdf_js file to done/layout for re-use/pickup
+copyOverrideJStoDone(override_js_file, tmp_layout_dir, 'copy_override_js_file_to_Done')
 
 # ---------------------- LOGGING
 
