@@ -157,6 +157,8 @@ def copyOverrideJStoDone(override_js_file, tmp_layout_dir, logkey='')
   if File.file?(override_js_file)
     dest_path = File.join(tmp_layout_dir, "override_pdf.js")
     FileUtils.cp(override_js_file, dest_path)
+  else
+    logstring = "n-a"  
   end
 rescue => logstring
 ensure

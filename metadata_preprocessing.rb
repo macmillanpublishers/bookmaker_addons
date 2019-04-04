@@ -407,6 +407,8 @@ def moveOverridePdfJS(submitted_override_js, existing_override_js, override_js_f
     Mcmlln::Tools.moveFile(submitted_override_js, override_js_file)
   elsif File.file?(existing_override_js)
     Mcmlln::Tools.moveFile(existing_override_js, override_js_file)
+  else
+    logstring = "n=a"
   end
 rescue => logstring
 ensure
