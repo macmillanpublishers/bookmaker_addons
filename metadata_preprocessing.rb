@@ -402,9 +402,25 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
+def moveOverridePdfJS(submitted_override_js, existing_override_js, override_js_file, logkey='')
+  if File.file?(submitted_override_js)
+    Mcmlln::Tools.moveFile(submitted_override_js, override_js_file)
+  elsif File.file?(existing_override_js)
+    Mcmlln::Tools.moveFile(existing_override_js, override_js_file)
+  else
+    logstring = "n=a"
+  end
+rescue => logstring
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
 # get JS file for pdf and edit title info to match our book
-def setupPdfJSfile(proj_js_file, fallback_js_file, pdf_js_file, booktitle, authorname, logkey='')
-  if File.file?(proj_js_file)
+def setupPdfJSfile(override_js_file, proj_js_file, fallback_js_file, pdf_js_file, booktitle, authorname, logkey='')
+  if File.file?(override_js_file)
+    js_file = override_js_file
+    logstring = "override_pdf.js found, using that for pdf.js"
+  elsif File.file?(proj_js_file)
     js_file = proj_js_file
   elsif File.file?(fallback_js_file)
     js_file = fallback_js_file
@@ -481,10 +497,10 @@ end
 # for logging purposes
 puts "RUNNING METADATA_PREPROCESSING"
 
-data_hash = readConfigJson('read_config_json')
+prev_cfg_hash = readConfigJson('read_config_json')
 #local definition(s) based on config.json
-doctemplate_version = data_hash['doctemplate_version']
-doctemplatetype = data_hash['doctemplatetype']
+doctemplate_version = prev_cfg_hash['doctemplate_version']
+doctemplatetype = prev_cfg_hash['doctemplatetype']
 # set bookmaker_assets path based on presence of rsuite styles
 if doctemplatetype == "rsuite"
   bookmaker_assets_dir = File.join(bookmaker_assets_dir, "rsuite_assets")
@@ -564,13 +580,18 @@ epub_css_file = setEpubCssFile(metatemplate, template, epub_css_dir, stage_dir, 
 @log_hash['epub_css_file'] = epub_css_file
 puts "Epub CSS file: #{epub_css_file}"
 
-
+submitted_override_js = File.join(Bkmkr::Paths.submitted_images, "override_pdf.js")
+existing_override_js = File.join(Bkmkr::Paths.done_dir, pisbn, "layout", "override_pdf.js")
+override_js_file = File.join(Bkmkr::Paths.project_tmp_dir, "override_pdf.js")
 proj_js_file = File.join(bookmaker_assets_dir, "pdfmaker", "scripts", resource_dir, "pdf.js")
 fallback_js_file = File.join(bookmaker_assets_dir, "pdfmaker", "scripts", "torDOTcom", "pdf.js")
 pdf_js_file = File.join(Bkmkr::Paths.project_tmp_dir, "pdf.js")
 
+# put override js file in tmp if it exists
+moveOverridePdfJS(submitted_override_js, existing_override_js, override_js_file, 'move_override_jsfile')
+
 # get JS file for pdf and edit title info to match our book
-setupPdfJSfile(proj_js_file, fallback_js_file, pdf_js_file, booktitle, authorname, 'setup_pdf_JS_file')
+setupPdfJSfile(override_js_file, proj_js_file, fallback_js_file, pdf_js_file, booktitle, authorname, 'setup_pdf_JS_file')
 
 # check the html or xml for toc_value depending on doctemplatetype
 if doctemplatetype == 'pre-sectionstart'
