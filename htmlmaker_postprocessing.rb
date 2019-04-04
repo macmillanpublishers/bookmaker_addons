@@ -10,6 +10,7 @@ local_log_hash, @log_hash = Bkmkr::Paths.setLocalLoghash
 
 htmlmakerpostprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "htmlmaker_postprocessing.js")
 
+add_metatag_js = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "add_metatag.js")
 
 # ---------------------- METHODS
 def readConfigJson(logkey='')
@@ -76,6 +77,20 @@ filecontents = readOutputHtml('read_output_html')
 filecontents = fixNoteCallouts(filecontents, super_cs, 'fix_note_callouts')
 
 overwriteFile(Bkmkr::Paths.outputtmp_html, filecontents, 'overwrite_html')
+
+# add meta tags to html with any custom info from submitted config.json
+submitted_meta_items = [
+  "author",
+  "title",
+  "subtitle",
+  "imprint",
+  "publisher"
+]
+for item in submitted_meta_items
+  if data_hash[item] and data_hash[item] != "TK" and !data_hash[item].empty?
+    localRunNode(add_metatag_js, "#{Bkmkr::Paths.outputtmp_html} \"#{item}\" \"#{data_hash[item]}\"", "add_#{item}_meta_tag")
+  end
+end
 
 # ---------------------- LOGGING
 

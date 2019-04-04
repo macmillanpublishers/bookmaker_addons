@@ -228,8 +228,16 @@ end
 datahash.merge!(productid: "TK")
 datahash.merge!(printid: "TK")
 datahash.merge!(ebookid: "TK")
-datahash.merge!(imprint: "TK")
-datahash.merge!(publisher: "TK")
+if prev_cfg_hash["imprint"] and prev_cfg_hash["imprint"] != "TK" and !prev_cfg_hash["imprint"].empty?
+  datahash.merge!(imprint: prev_cfg_hash["imprint"])
+else
+  datahash.merge!(imprint: "TK")
+end
+if prev_cfg_hash["publisher"] and prev_cfg_hash["publisher"] != "TK" and !prev_cfg_hash["publisher"].empty?
+  datahash.merge!(publisher: prev_cfg_hash["publisher"])
+else
+  datahash.merge!(publisher: "TK")
+end
 datahash.merge!(project: "TK")
 datahash.merge!(stage: "TK")
 datahash.merge!(printcss: "TK")

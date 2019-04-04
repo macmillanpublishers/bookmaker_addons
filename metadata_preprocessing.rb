@@ -607,22 +607,9 @@ end
 
 # load up our new config.json, preferring previous entries from submitted config.json for select items
 datahash = {}
-if prev_cfg_hash["title"] and prev_cfg_hash["title"] != "TK" and !prev_cfg_hash["title"].empty?
-  datahash.merge!(title: prev_cfg_hash["title"])
-  booktitle = prev_cfg_hash["title"]
-else
-  datahash.merge!(title: booktitle)
-end
-if prev_cfg_hash["subtitle"] and prev_cfg_hash["subtitle"] != "TK" and !prev_cfg_hash["subtitle"].empty?
-  datahash.merge!(subtitle: prev_cfg_hash["subtitle"])
-else
-  datahash.merge!(subtitle: booksubtitle)
-end
-if prev_cfg_hash["author"] and prev_cfg_hash["author"] != "TK" and !prev_cfg_hash["author"].empty?
-  datahash.merge!(author: prev_cfg_hash["author"])
-else
-  datahash.merge!(author: authorname)
-end
+datahash.merge!(title: booktitle)
+datahash.merge!(subtitle: booksubtitle)
+datahash.merge!(author: authorname)
 datahash.merge!(productid: pisbn)
 datahash.merge!(printid: pisbn)
 datahash.merge!(ebookid: eisbn)
