@@ -417,6 +417,7 @@ end
 def setupPdfJSfile(override_js_file, proj_js_file, fallback_js_file, pdf_js_file, booktitle, authorname, logkey='')
   if File.file?(override_js_file)
     js_file = override_js_file
+    logstring = "override_pdf.js found, using that for pdf.js"
   elsif File.file?(proj_js_file)
     js_file = proj_js_file
   elsif File.file?(fallback_js_file)
@@ -605,7 +606,6 @@ else
   frontcoverval = frontcover
 end
 
-# load up our new config.json, preferring previous entries from submitted config.json for select items
 datahash = {}
 datahash.merge!(title: booktitle)
 datahash.merge!(subtitle: booksubtitle)
