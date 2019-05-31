@@ -517,7 +517,7 @@ end
 
 pisbn, eisbn, allworks = findBookISBNs_metadataPreprocessing(isbn_stylename, 'find_book_ISBNs')
 
-allimg = File.join(Bkmkr::Paths.submitted_images, "*")
+allimg = File.join(Bkmkr::Paths.project_tmp_dir_submitted, "*")
 finalimg = File.join(Bkmkr::Paths.done_dir, pisbn, "images", "*")
 
 # find titlepage images
@@ -580,7 +580,7 @@ epub_css_file = setEpubCssFile(metatemplate, template, epub_css_dir, stage_dir, 
 @log_hash['epub_css_file'] = epub_css_file
 puts "Epub CSS file: #{epub_css_file}"
 
-submitted_override_js = File.join(Bkmkr::Paths.submitted_images, "override_pdf.js")
+submitted_override_js = File.join(Bkmkr::Paths.project_tmp_dir_submitted, "override_pdf.js")
 existing_override_js = File.join(Bkmkr::Paths.done_dir, pisbn, "layout", "override_pdf.js")
 override_js_file = File.join(Bkmkr::Paths.project_tmp_dir, "override_pdf.js")
 proj_js_file = File.join(bookmaker_assets_dir, "pdfmaker", "scripts", resource_dir, "pdf.js")

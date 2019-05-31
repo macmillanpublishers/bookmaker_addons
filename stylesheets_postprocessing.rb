@@ -84,7 +84,7 @@ end
 
 def evalOneoffs(file, path, logkey='')
 	tmp_layout_dir = File.join(Bkmkr::Project.working_dir, "done", Metadata.pisbn, "layout")
-	oneoffcss_new = File.join(Bkmkr::Paths.submitted_images, file)
+	oneoffcss_new = File.join(Bkmkr::Paths.project_tmp_dir_submitted, file)
 	oneoffcss_pickup = File.join(tmp_layout_dir, file)
 
 	if File.file?(oneoffcss_new)
@@ -158,7 +158,7 @@ def copyOverrideJStoDone(override_js_file, tmp_layout_dir, logkey='')
     dest_path = File.join(tmp_layout_dir, "override_pdf.js")
     FileUtils.cp(override_js_file, dest_path)
   else
-    logstring = "n-a"  
+    logstring = "n-a"
   end
 rescue => logstring
 ensure
