@@ -517,8 +517,8 @@ end
 
 pisbn, eisbn, allworks = findBookISBNs_metadataPreprocessing(isbn_stylename, 'find_book_ISBNs')
 
-# this depends on the ISBN; must follow the isbn_finder
-final_dir = getFinalDir(Bkmkr::Paths.project_tmp_dir, Bkmkr::Paths.done_dir, pisbn, Bkmkr::Paths.unique_run_id 'get_final_dir')
+# this all depends on the ISBN; must follow the isbn_finder
+final_dir, @log_hash = Metadata.setupFinalDir(Bkmkr::Paths.project_tmp_dir, Bkmkr::Paths.done_dir, pisbn, Bkmkr::Paths.unique_run_id, @log_hash, 'metadata.rb-setup_final_dir')
 
 allimg = File.join(Bkmkr::Paths.project_tmp_dir_submitted, "*")
 finalimg = File.join(final_dir, "images", "*")

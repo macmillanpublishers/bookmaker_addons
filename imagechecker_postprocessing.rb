@@ -9,12 +9,12 @@ local_log_hash, @log_hash = Bkmkr::Paths.setLocalLoghash
 # The locations to check for images
 imagedir = Bkmkr::Paths.project_tmp_dir_submitted
 
-final_dir_images = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "images")
+final_dir_images = File.join(Metadata.final_dir, "images")
 
-final_cover = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "cover", Metadata.frontcover)
+final_cover = File.join(Metadata.final_dir, "cover", Metadata.frontcover)
 
 # full path to the image error file
-image_error = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "IMAGE_ERROR.txt")
+image_error = File.join(Metadata.final_dir, "IMAGE_ERROR.txt")
 
 # path to placeholder image
 missing_jpg = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker", "images", "generic", "missing.jpg")
