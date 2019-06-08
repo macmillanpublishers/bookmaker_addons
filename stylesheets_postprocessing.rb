@@ -8,7 +8,7 @@ require_relative '../bookmaker/core/metadata.rb'
 local_log_hash, @log_hash = Bkmkr::Paths.setLocalLoghash
 
 # Local path vars, css files
-tmp_layout_dir = File.join(Bkmkr::Project.working_dir, "done", Metadata.pisbn, "layout")
+tmp_layout_dir = File.join(Metadata.final_dir, "layout")
 
 pdf_css_file = File.join(tmp_layout_dir, "pdf.css")
 epub_css_file = File.join(tmp_layout_dir, "epub.css")
@@ -83,7 +83,7 @@ ensure
 end
 
 def evalOneoffs(file, path, logkey='')
-	tmp_layout_dir = File.join(Bkmkr::Project.working_dir, "done", Metadata.pisbn, "layout")
+	tmp_layout_dir = File.join(Metadata.final_dir, "layout")
 	oneoffcss_new = File.join(Bkmkr::Paths.project_tmp_dir_submitted, file)
 	oneoffcss_pickup = File.join(tmp_layout_dir, file)
 
