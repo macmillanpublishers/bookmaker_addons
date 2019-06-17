@@ -10,7 +10,7 @@ require_relative '../utilities/ftp_functions.rb'
 local_log_hash, @log_hash = Bkmkr::Paths.setLocalLoghash
 
 # full path to the image error file
-image_error = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "IMAGE_ERROR.txt")
+image_error = File.join(Metadata.final_dir, "IMAGE_ERROR.txt")
 
 # specs for image resizing
 maxheight = 5.5
@@ -22,7 +22,7 @@ pdftmp_dir = File.join(Bkmkr::Paths.project_tmp_dir_img, "pdftmp")
 pdfmaker_dir = File.join(Bkmkr::Paths.core_dir, "pdfmaker")
 pdf_tmp_html = File.join(Bkmkr::Paths.project_tmp_dir, "pdf_tmp.html")
 assets_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets", "pdfmaker")
-finalimagedir = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "images")
+finalimagedir = File.join(Metadata.final_dir, "images")
 
 
 # ---------------------- METHODS

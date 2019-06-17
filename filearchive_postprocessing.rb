@@ -9,7 +9,7 @@ require_relative '../bookmaker/core/metadata.rb'
 local_log_hash, @log_hash = Bkmkr::Paths.setLocalLoghash
 
 # Find supplemental titlepages
-finalimagedir = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "images")
+finalimagedir = File.join(Metadata.final_dir, "images")
 
 # example: ["pre-sectionstart","sectionstart"]
 # listed items, when found, will generate TEMPLATE_ERROR file in final_dir
@@ -19,7 +19,7 @@ obsolete_doctemplate_types = []
 helpurl = 'https://confluence.macmillan.com/display/PWG/Stylecheck+Help'
 
 # full path to the version error file
-version_error = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "TEMPLATE_VERSION_ERROR.txt")
+version_error = File.join(Metadata.final_dir, "TEMPLATE_VERSION_ERROR.txt")
 
 
 # ---------------------- METHODS

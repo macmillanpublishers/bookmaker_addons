@@ -39,7 +39,7 @@ epubmakerpostprocessingTOCjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_ad
 testing_value_file = File.join(Bkmkr::Paths.resource_dir, "staging.txt")
 
 # full path of epubcheck error file
-epubcheck_errfile = File.join(Bkmkr::Paths.done_dir, Metadata.pisbn, "EPUBCHECK_ERROR.txt")
+epubcheck_errfile = File.join(Metadata.final_dir, "EPUBCHECK_ERROR.txt")
 
 unless (ENV['TRAVIS_TEST']) == 'true'
   @smtp_address = Mcmlln::Tools.readFile("#{$scripts_dir}/bookmaker_authkeys/smtp.txt")
@@ -221,7 +221,7 @@ end
 
 def renameFinalEpub(filename, stage_dir, logkey='')
   if stage_dir.include? "egalley" or stage_dir.include? "galley" or stage_dir.include? "firstpass"
-    Mcmlln::Tools.moveFile("#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{filename}.epub", "#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{Metadata.pisbn}_EPUBfirstpass.epub")
+    Mcmlln::Tools.moveFile("#{Metadata.final_dir}/#{filename}.epub", "#{Metadata.final_dir}/#{Metadata.pisbn}_EPUBfirstpass.epub")
     filename = "#{Metadata.pisbn}_EPUBfirstpass"
   end
   return filename
@@ -336,13 +336,13 @@ copyFile(font, oebps_dir, 'copy_fallback_font_to_pkg')
 localRunPython(zipepub_py, "#{csfilename}.epub #{Bkmkr::Paths.project_tmp_dir}", 'zip_epub_pyscript')
 
 # copy epub to archival dir
-copyFile("#{Bkmkr::Paths.project_tmp_dir}/#{csfilename}.epub", "#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}", 'copy_epub_to_Done_dir')
+copyFile("#{Bkmkr::Paths.project_tmp_dir}/#{csfilename}.epub", Metadata.final_dir, 'copy_epub_to_Done_dir')
 
 # Renames final epub for firstpass
 csfilename = renameFinalEpub(csfilename, stage_dir, 'rename_final_epub_for_firstpass')
 
 # validate epub file
-epubcheck_output = localRunJar(epubcheck, "#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{csfilename}.epub")
+epubcheck_output = localRunJar(epubcheck, "#{Metadata.final_dir}/#{csfilename}.epub")
 @log_hash['epubcheck_output'] = epubcheck_output
 puts epubcheck_output  #for log (so warnings are still visible)
 
@@ -354,7 +354,7 @@ To: Workflows <workflows@macmillan.com>
 Subject: ERROR: epubcheck errors for #{csfilename}.epub
 
 Epubcheck validation found errors for file:
-#{Bkmkr::Paths.done_dir}/#{Metadata.pisbn}/#{csfilename}.epub
+#{Metadata.final_dir}/#{csfilename}.epub
 
 Epubcheck output:
 #{epubcheck_output}

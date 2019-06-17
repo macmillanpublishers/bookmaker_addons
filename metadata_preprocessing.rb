@@ -96,8 +96,8 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def findFrontCover(pisbn, allimg, allworks, logkey='')
-  coverdir = File.join(Bkmkr::Paths.done_dir, pisbn, "cover")
+def findFrontCover(final_dir, allimg, allworks, logkey='')
+  coverdir = File.join(final_dir, "cover")
   allcover = File.join(coverdir, "*")
   # first find any cover files in the submitted images dir
   fcarr1 = Dir[allimg].select { |f| f.include?('_FC.')}
@@ -517,8 +517,11 @@ end
 
 pisbn, eisbn, allworks = findBookISBNs_metadataPreprocessing(isbn_stylename, 'find_book_ISBNs')
 
-allimg = File.join(Bkmkr::Paths.submitted_images, "*")
-finalimg = File.join(Bkmkr::Paths.done_dir, pisbn, "images", "*")
+# this all depends on the ISBN; must follow the isbn_finder
+final_dir, @log_hash = Metadata.setupFinalDir(Bkmkr::Paths.project_tmp_dir, Bkmkr::Paths.done_dir, pisbn, Bkmkr::Paths.unique_run_id, @log_hash, 'metadata.rb-setup_final_dir')
+
+allimg = File.join(Bkmkr::Paths.project_tmp_dir_submitted, "*")
+finalimg = File.join(final_dir, "images", "*")
 
 # find titlepage images
 epubtitlepage, podtitlepage = findTitlepageImages(allimg, finalimg, 'find_titlepage_images')
@@ -526,7 +529,7 @@ epubtitlepage, podtitlepage = findTitlepageImages(allimg, finalimg, 'find_titlep
 @log_hash['podtitlepage'] = podtitlepage
 
 # Find front cover
-frontcover = findFrontCover(pisbn, allimg, allworks, 'find_frontcover')
+frontcover = findFrontCover(final_dir, allimg, allworks, 'find_frontcover')
 @log_hash['frontcover'] = frontcover
 
 # connect to DB for all other metadata
@@ -580,8 +583,8 @@ epub_css_file = setEpubCssFile(metatemplate, template, epub_css_dir, stage_dir, 
 @log_hash['epub_css_file'] = epub_css_file
 puts "Epub CSS file: #{epub_css_file}"
 
-submitted_override_js = File.join(Bkmkr::Paths.submitted_images, "override_pdf.js")
-existing_override_js = File.join(Bkmkr::Paths.done_dir, pisbn, "layout", "override_pdf.js")
+submitted_override_js = File.join(Bkmkr::Paths.project_tmp_dir_submitted, "override_pdf.js")
+existing_override_js = File.join(final_dir, "layout", "override_pdf.js")
 override_js_file = File.join(Bkmkr::Paths.project_tmp_dir, "override_pdf.js")
 proj_js_file = File.join(bookmaker_assets_dir, "pdfmaker", "scripts", resource_dir, "pdf.js")
 fallback_js_file = File.join(bookmaker_assets_dir, "pdfmaker", "scripts", "torDOTcom", "pdf.js")
