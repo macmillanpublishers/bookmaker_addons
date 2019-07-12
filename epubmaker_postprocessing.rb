@@ -219,18 +219,6 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def renameFinalEpub(filename, stage_dir, logkey='')
-  if stage_dir.include? "egalley" or stage_dir.include? "galley" or stage_dir.include? "firstpass"
-    Mcmlln::Tools.moveFile("#{Metadata.final_dir}/#{filename}.epub", "#{Metadata.final_dir}/#{Metadata.pisbn}_EPUBfirstpass.epub")
-    filename = "#{Metadata.pisbn}_EPUBfirstpass"
-  end
-  return filename
-rescue => logstring
-  return filename
-ensure
-  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
-end
-
 ## wrapping Bkmkr::Tools.runJar in a new method for this script; to return a result for json_logfile
 def localRunJar(jar_script, input_file, logkey='')
 	Bkmkr::Tools.runjar(jar_script, input_file)
@@ -327,19 +315,24 @@ imgarr = listSpacebreakImages(Bkmkr::Paths.outputtmp_html, imageclassname, 'list
 # adjust size of custom space break images
 convertSpacebreakImgs(imgarr, oebps_dir, 'convert_spacebreak_imgs')
 
-csfilename = "#{Metadata.eisbn}_EPUB"
-
 # copy fallback font to package
 copyFile(font, oebps_dir, 'copy_fallback_font_to_pkg')
+
+# determine name of epub we're zipping based on project
+if stage_dir.include? "egalley" or stage_dir.include? "galley" or stage_dir.include? "firstpass"
+  csfilename = "#{Metadata.pisbn}_EPUBfirstpass"
+  # rm non-firstpass epub from final_dir (dropped there from epubmaker.rb)
+  nonfirstpass_epubfile = File.join(Metadata.final_dir ,"#{Metadata.eisbn}_EPUB.epub")
+  deleteFileIfPresent(nonfirstpass_epubfile, 'rm_non-firstpass_epub')
+else
+  csfilename = "#{Metadata.eisbn}_EPUB"
+end
 
 # zip epub
 localRunPython(zipepub_py, "#{csfilename}.epub #{Bkmkr::Paths.project_tmp_dir}", 'zip_epub_pyscript')
 
 # copy epub to archival dir
 copyFile("#{Bkmkr::Paths.project_tmp_dir}/#{csfilename}.epub", Metadata.final_dir, 'copy_epub_to_Done_dir')
-
-# Renames final epub for firstpass
-csfilename = renameFinalEpub(csfilename, stage_dir, 'rename_final_epub_for_firstpass')
 
 # validate epub file
 epubcheck_output = localRunJar(epubcheck, "#{Metadata.final_dir}/#{csfilename}.epub")
