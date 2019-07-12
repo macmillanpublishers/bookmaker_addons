@@ -321,6 +321,9 @@ copyFile(font, oebps_dir, 'copy_fallback_font_to_pkg')
 # determine name of epub we're zipping based on project
 if stage_dir.include? "egalley" or stage_dir.include? "galley" or stage_dir.include? "firstpass"
   csfilename = "#{Metadata.pisbn}_EPUBfirstpass"
+  # rm non-firstpass epub from final_dir (dropped there from epubmaker.rb)
+  nonfirstpass_epubfile = File.join(Metadata.final_dir ,"#{Metadata.eisbn}_EPUB.epub")
+  deleteFileIfPresent(nonfirstpass_epubfile, 'rm_non-firstpass_epub')
 else
   csfilename = "#{Metadata.eisbn}_EPUB"
 end
