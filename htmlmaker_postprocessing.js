@@ -130,9 +130,11 @@ fs.readFile(file, function editContent(err, contents) {
     var span_txt = $(this).text();
     var myRegexp = /(\D*)(978(\D?\d){10})(.*)/;
     var match = myRegexp.exec(span_txt);
-    $(this).text(match[2]);
-    $(this).before(match[1]);
-    $(this).after(match[4]);
+    if (match) {
+      $(this).text(match[2]);
+      $(this).before(match[1]);
+      $(this).after(match[4]);
+    }
   });
 
   if (doctemplatetype == 'sectionstart') {
