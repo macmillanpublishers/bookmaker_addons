@@ -499,7 +499,6 @@ puts "RUNNING METADATA_PREPROCESSING"
 
 prev_cfg_hash = readConfigJson('read_config_json')
 #local definition(s) based on config.json
-doctemplate_version = prev_cfg_hash['doctemplate_version']
 doctemplatetype = prev_cfg_hash['doctemplatetype']
 # set bookmaker_assets path based on presence of rsuite styles
 if doctemplatetype == "rsuite"
@@ -634,8 +633,9 @@ end
 unless podtitlepage.nil?
   datahash.merge!(podtitlepage: podtitlepage)
 end
-datahash.merge!(doctemplate_version: doctemplate_version)
+datahash.merge!(doctemplate_version: prev_cfg_hash['doctemplate_version'])
 datahash.merge!(doctemplatetype: doctemplatetype)
+datahash.merge!(from_rsuite: prev_cfg_hash['from_rsuite'])
 
 # write to config.json file
 writeConfigJson(datahash, configfile, 'write_config_jsonfile')

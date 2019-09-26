@@ -212,8 +212,9 @@ replace_wsym(filetype, replace_wsym_py, 'F0D3', "\u00A9", 'replace_w:sym_copyrig
 if File.exist?(Bkmkr::Paths.fromrsuite_Metadata_json)
   from_rsuite = true
 else
-  from_rsuite = false    
+  from_rsuite = false
 end
+@log_hash['from_rsuite'] = from_rsuite
 
 # Create a temp JSON file, keeping select values from submitted config.json if present
 datahash = {}
