@@ -65,11 +65,14 @@ data_hash = readConfigJson('read_config_json')
 project_dir = data_hash['project']
 stage_dir = data_hash['stage']
 
-# clean up the ftp site if files were uploaded
-fileexist = localCheckFileExist(uploaded_image_log, 'ftp_upload_image_log_exist?')
-fileempty = localCheckFileEmpty(uploaded_image_log, 'ftp_upload_image_log_empty?')
-
-ftpDeleteDir("#{project_dir}_#{stage_dir}", Metadata.pisbn, 'delete_images_off_ftp')
+### Commenting these out, since nothing is going to FTP.
+### mvDocxToDone is really the only item left here for the RSuite toolchain. For now keeping separate,
+###   but eventually may combine with cleanup or other addons-repo script
+# # clean up the ftp site if files were uploaded
+# fileexist = localCheckFileExist(uploaded_image_log, 'ftp_upload_image_log_exist?')
+# fileempty = localCheckFileEmpty(uploaded_image_log, 'ftp_upload_image_log_empty?')
+#
+# ftpDeleteDir("#{project_dir}_#{stage_dir}", Metadata.pisbn, 'delete_images_off_ftp')
 
 mvDocxToDone(data_hash, Bkmkr::Paths.project_docx_file, Metadata.final_dir, logkey='')
 
