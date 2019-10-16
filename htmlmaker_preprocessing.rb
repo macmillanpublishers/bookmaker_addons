@@ -208,6 +208,14 @@ end
 #     the desired format is the 'C/C++/Java source code' including the doublequotes
 replace_wsym(filetype, replace_wsym_py, 'F0D3', "\u00A9", 'replace_w:sym_copyright_symbol')
 
+# find out if this file came from (and its output returns to) rsuite
+if File.exist?(Bkmkr::Paths.fromrsuite_Metadata_json)
+  from_rsuite = true
+else
+  from_rsuite = false
+end
+@log_hash['from_rsuite'] = from_rsuite
+
 # Create a temp JSON file, keeping select values from submitted config.json if present
 datahash = {}
 if prev_cfg_hash["title"] and prev_cfg_hash["title"] != "TK" and !prev_cfg_hash["title"].empty?
@@ -249,6 +257,7 @@ datahash.merge!(epubtitlepage: "TK")
 datahash.merge!(podtitlepage: "TK")
 datahash.merge!(doctemplate_version: doctemplate_version)
 datahash.merge!(doctemplatetype: doctemplatetype)
+datahash.merge!(from_rsuite: from_rsuite)
 
 # Printing the final JSON object
 writeConfigJson(datahash, configfile, 'write_config_jsonfile')

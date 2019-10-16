@@ -13,8 +13,8 @@ $logDir="S:/resources/logs/"
 $tmpDir="/bookmaker_tmp"
 
 # getting the path inputs
-$currVolPath=Get-Location
-$currVol=split-path $currVolPath -Qualifier	#C: or S:
+#$currVolPath=Get-Location
+$currVol='S:'#split-path $currVolPath -Qualifier	#C: or S:
 $filenameSplit=split-path $inputFile -Leaf			#file name without path
 $uniqueTmpDir=split-path(split-path $inputFile -Parent) -Leaf
 Write-Host "Input file is $filenameSplit"
