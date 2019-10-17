@@ -71,7 +71,7 @@ def addRsuitePIs(rsmetadata_hash, rsuite_pis_js, logkey='')
     localRunNode(rsuite_pis_js, "#{Bkmkr::Paths.outputtmp_html} size #{trimvalue}", 'write_rsuite_pi-preset_trim')
   end
   if rsmetadata_hash.key?('rs_design_template')
-    templatevalue = rsmetadata_hash['rs_design_template'].rpartition('_')[2]
+    templatevalue = rsmetadata_hash['rs_design_template'].rpartition('_')[2].gsub('.css','')
     localRunNode(rsuite_pis_js, "#{Bkmkr::Paths.outputtmp_html} template #{templatevalue}", 'write_rsuite_pi-design_template')
   end
   return trimvalue, templatevalue
