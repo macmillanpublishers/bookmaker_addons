@@ -368,6 +368,21 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
+def setRSuiteTemplate(template, resource_dir, logkey='')
+  if template.include?('__')
+    resource_dir, template = template.split('__')
+    resource_dir = resource_dir.downcase()
+    logstring = "set pdf_resourcedir to #{resource_dir}, template to #{template}"
+  else
+    logstring = 'n-a'
+  end
+  return template, resource_dir
+rescue => logstring
+  return '', ''
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
 def setPdfCssFile(metatemplate, template, pdf_css_dir, stage_dir, resource_dir, logkey='')
   if !metatemplate.nil? and File.file?("#{pdf_css_dir}/#{resource_dir}/#{template}.css")
     pdf_css_file = "#{pdf_css_dir}/#{resource_dir}/#{template}.css"
@@ -574,7 +589,9 @@ resource_dir = getResourceDir(imprint, imprint_json, 'get_resource_dir')
 @log_hash['resource_dir'] = resource_dir
 puts "Resource dir: #{resource_dir}"
 
-pdf_css_file = setPdfCssFile(metatemplate, template, pdf_css_dir, stage_dir, resource_dir, 'set_pdf_CSS_file')
+pdf_resource_dir, template = setRSuiteTemplate(template, resource_dir, 'RS-recheck_template_and_resourcedir_values')
+
+pdf_css_file = setPdfCssFile(metatemplate, template, pdf_css_dir, stage_dir, pdf_resource_dir, 'set_pdf_CSS_file')
 @log_hash['pdf_css_file'] = pdf_css_file
 puts "PDF CSS file: #{pdf_css_file}"
 
@@ -585,7 +602,7 @@ puts "Epub CSS file: #{epub_css_file}"
 submitted_override_js = File.join(Bkmkr::Paths.project_tmp_dir_submitted, "override_pdf.js")
 existing_override_js = File.join(final_dir, "layout", "override_pdf.js")
 override_js_file = File.join(Bkmkr::Paths.project_tmp_dir, "override_pdf.js")
-proj_js_file = File.join(bookmaker_assets_dir, "pdfmaker", "scripts", resource_dir, "pdf.js")
+proj_js_file = File.join(bookmaker_assets_dir, "pdfmaker", "scripts", pdf_resource_dir, "pdf.js")
 fallback_js_file = File.join(bookmaker_assets_dir, "pdfmaker", "scripts", "torDOTcom", "pdf.js")
 pdf_js_file = File.join(Bkmkr::Paths.project_tmp_dir, "pdf.js")
 
@@ -622,6 +639,7 @@ datahash.merge!(publisher: publisher)
 datahash.merge!(project: project_dir)
 datahash.merge!(stage: stage_dir)
 datahash.merge!(resourcedir: resource_dir)
+datahash.merge!(pdf_resourcedir: pdf_resource_dir)
 datahash.merge!(printcss: pdf_css_file)
 datahash.merge!(printjs: pdf_js_file)
 datahash.merge!(ebookcss: epub_css_file)
