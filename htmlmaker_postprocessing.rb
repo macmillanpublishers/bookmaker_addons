@@ -64,11 +64,11 @@ def addRsuitePIs(rsmetadata_hash, rsuite_pis_js, logkey='')
   # if we have custom width & height value ignore standard trim value, write these as size PI
   if rsmetadata_hash.key?('trim-width') && rsmetadata_hash.key?('trim-height')
     trimvalue = "#{rsmetadata_hash['trim-width']}in #{rsmetadata_hash['trim-height']}in"
-    localRunNode(rsuite_pis_js, "#{Bkmkr::Paths.outputtmp_html} size #{trimvalue}", 'write_rsuite_pi-custom_trim')
+    localRunNode(rsuite_pis_js, "#{Bkmkr::Paths.outputtmp_html} size \"#{trimvalue}\"", 'write_rsuite_pi-custom_trim')
   # if we have trim value without substring 'default', cleanup value and write as pi
   elsif rsmetadata_hash.key?('trim') && !rsmetadata_hash['trim'].include?('default')
     trimvalue = rsmetadata_hash['trim'].split('(')[0].strip().gsub('x ','')
-    localRunNode(rsuite_pis_js, "#{Bkmkr::Paths.outputtmp_html} size #{trimvalue}", 'write_rsuite_pi-preset_trim')
+    localRunNode(rsuite_pis_js, "#{Bkmkr::Paths.outputtmp_html} size \"#{trimvalue}\"", 'write_rsuite_pi-preset_trim')
   end
   if rsmetadata_hash.key?('rs_design_template')
     templatevalue = rsmetadata_hash['rs_design_template'].gsub('.css','')

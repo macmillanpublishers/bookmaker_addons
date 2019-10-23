@@ -337,7 +337,7 @@ def setTemplate(myhash, htmlfile, logkey='')
     template = ""
     logstring = "default"
   end
-  puts logstring
+  puts "template: #{logstring}"
   return metatemplate, template
 rescue => logstring
   return '',''
@@ -376,16 +376,16 @@ def setRSuiteTemplate(template, resource_dir, logkey='')
   else
     logstring = 'n-a'
   end
-  return template, resource_dir
+  return resource_dir, template
 rescue => logstring
   return '', ''
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setPdfCssFile(metatemplate, template, pdf_css_dir, stage_dir, resource_dir, logkey='')
-  if !metatemplate.nil? and File.file?("#{pdf_css_dir}/#{resource_dir}/#{template}.css")
-    pdf_css_file = "#{pdf_css_dir}/#{resource_dir}/#{template}.css"
+def setPdfCssFile(metatemplate, template, pdf_css_dir, stage_dir, resource_dir, pdf_resource_dir, logkey='')
+  if !metatemplate.nil? and File.file?("#{pdf_css_dir}/#{pdf_resource_dir}/#{template}.css")
+    pdf_css_file = "#{pdf_css_dir}/#{pdf_resource_dir}/#{template}.css"
   elsif File.file?("#{pdf_css_dir}/#{resource_dir}/#{stage_dir}.css")
     pdf_css_file = "#{pdf_css_dir}/#{resource_dir}/#{stage_dir}.css"
   elsif File.file?("#{pdf_css_dir}/#{resource_dir}/pdf.css")
@@ -591,7 +591,7 @@ puts "Resource dir: #{resource_dir}"
 
 pdf_resource_dir, template = setRSuiteTemplate(template, resource_dir, 'RS-recheck_template_and_resourcedir_values')
 
-pdf_css_file = setPdfCssFile(metatemplate, template, pdf_css_dir, stage_dir, pdf_resource_dir, 'set_pdf_CSS_file')
+pdf_css_file = setPdfCssFile(metatemplate, template, pdf_css_dir, stage_dir, resource_dir, pdf_resource_dir, 'set_pdf_CSS_file')
 @log_hash['pdf_css_file'] = pdf_css_file
 puts "PDF CSS file: #{pdf_css_file}"
 
@@ -640,6 +640,7 @@ datahash.merge!(project: project_dir)
 datahash.merge!(stage: stage_dir)
 datahash.merge!(resourcedir: resource_dir)
 datahash.merge!(pdf_resourcedir: pdf_resource_dir)
+datahash.merge!(design_template: template)
 datahash.merge!(printcss: pdf_css_file)
 datahash.merge!(printjs: pdf_js_file)
 datahash.merge!(ebookcss: epub_css_file)

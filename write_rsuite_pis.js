@@ -16,7 +16,7 @@ fs.readFile(file, function processTemplates (err, contents) {
 
   // append new meta-tag to head with attribute-name
   var meta_pi = '<meta name="' + pi_name + '" content="' + pi_value + '"/>';
-  $('head').append(meta_pi_obj);
+  $('head').append(meta_pi);
 
 
   var output = $.html();
