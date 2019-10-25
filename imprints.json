@@ -51,6 +51,16 @@
   "searchkey": "St Martin Press"
   },
   {
+  "formalname": "St. Martin's Essentials",
+  "shortname": "smp_essentials",
+  "searchkey": "St Martin Essentials"
+  },
+  {
+  "formalname": "All Points Books",
+  "shortname": "allpoints",
+  "searchkey": "All Points Books"
+  },
+  {
   "formalname": "Square Fish",
   "shortname": "squarefish",
   "searchkey": "Square Fish"
@@ -154,6 +164,16 @@
   "formalname": "Tor Teen",
   "shortname": "tor_teen",
   "searchkey": "Tor Teen"
+  },
+  {
+  "formalname": "Tor Nightfire",
+  "shortname": "nightfire",
+  "searchkey": "Tor Nightfire"
+  },
+  {
+  "formalname": "Wednesday Books",
+  "shortname": "wednesday",
+  "searchkey": "Wednesday Books"
   }
   ]
 }
