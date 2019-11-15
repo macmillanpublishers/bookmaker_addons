@@ -12,7 +12,7 @@ firstpass_epub = File.join(Metadata.final_dir, "#{Metadata.pisbn}_EPUBfirstpass.
 final_epub = File.join(Metadata.final_dir, "#{Metadata.pisbn}_EPUB.epub")
 errfiles_regexp = File.join(Metadata.final_dir, "*_ERROR.txt")
 message_txtfile = File.join(Metadata.final_dir, "user_email.txt")
-sendmail_py = File.join(scripts_dir, "utilities", "python_utils", "sendmail.py")
+sendmail_py = File.join(Bkmkr::Paths.scripts_dir, "utilities", "python_utils", "sendmail.py")
 workflows_email = 'workflows@macmillan.com'
 attachment_quota = 20.0
 staging_file = File.join("C:", "staging.txt")
@@ -109,53 +109,6 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-
-#
-# def rescuemail(orig_to,orig_ccs,orig_header,from_email)
-#   message = <<MESSAGE_END
-# From: Workflows <#{from_email}>
-# To: Workflows <#{from_email}>
-# Subject: ALERT: automated mail failed to send!
-# This mail is an alert that an automated mail failed to send.
-# Original addressee was: #{orig_to}
-# Original cc addresses were: #{orig_ccs}
-# Original header was: #{orig_header}
-# MESSAGE_END
-#   message
-# end
-#
-# def sendrescue_mail(orig_to,orig_ccs,orig_header,from_email, logkey='')
-#   logstring = "\"sendmail\" failed, attempting new alertmail to workflows"
-#   message = rescuemail(orig_to,orig_ccs,orig_header)
-#   Net::SMTP.start(smtp_address) do |smtp|
-#     smtp.send_message message, from_email,
-#                                 from_email
-# end
-# rescue => logstring
-# ensure
-#   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
-# end
-#
-# def sendmail(message, to_email, cc_emails, from_email, logkey='')
-#   if cc_emails.empty?
-#       Net::SMTP.start(smtp_address) do |smtp|
-#         smtp.send_message message, from_email,
-#                                   to_email
-#       end
-#   else
-#       Net::SMTP.start(smtp_address) do |smtp|
-#         smtp.send_message message, from_email,
-#                                   to_email, cc_emails
-#       end
-#   end
-# rescue => logstring
-#   sendrescue_mail(to_email,cc_emails,message.lines[0..3],from_email, 'send_email-rescue_mail')
-# ensure
-#   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
-# end
-
-
-
 # ---------------------- PROCESSES
 # default values for local vars
 submittermail = workflows_email
@@ -233,7 +186,7 @@ attachments_argstring = '\"' + all_attachments.join('\" \"') + '\"'
 
 # send our notification
 results = localRunPython(sendmail_py, "\"#{submittermail}\" \"#{workflows_email}\" \"#{message_txtfile}\" #{attachments_argstring}", "invoke_sendmail-py")
-# sendmail(message, submittermail, [workflows_email], workflows_email, "send_email--#{mail_logkey}")
+@log_hash['sendmail_py-results'] = results
 
 
 # ---------------------- LOGGING
