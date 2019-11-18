@@ -61,8 +61,8 @@ def messageBuilder(firstname, title, isbn, errfiles, err_attached, good_attached
   message = "Subject: Bookmaker completed for \"#{title}\"\n\n"
   message += "Hello #{firstname},\n\n"
   message += "Bookmaker processing has completed for \"#{title}\" (#{isbn}).\n\n"
-  message += "You can retrieve Bookmaker epub and pdf output in RSuite, in the ‘Interior/Bookmaker/Done’ folder for\
-   the WIP impression of this edition (#{isbn}).\n"
+  message += "You can retrieve Bookmaker output (epub and pdf files) in RSuite: in the ‘Interior/Bookmaker/Done’ folder for\
+  the WIP impression of this edition (#{isbn}).\n"
   if errfiles == true
     message += "\nPLEASE NOTE:\nSome alerts were encountered while processing your file. See attached .txt files for details:\n"
     errfilelist = err_attached.map {|file| " - #{File.basename(file)}\n"}.compact
@@ -71,7 +71,7 @@ def messageBuilder(firstname, title, isbn, errfiles, err_attached, good_attached
     end
   end
   if !good_attached.empty?
-    message += "\nFor your convenience, these bookmaker output files are also attached to this email:\n"
+    message += "\nFor your convenience, these bookmaker output files should be attached to this email as well:\n"
     goodfilelist = good_attached.map {|file| " - #{File.basename(file)}\n"}.compact
     for goodfile in goodfilelist
       message += goodfile
@@ -114,7 +114,7 @@ end
 submittermail = workflows_email
 firstname = "Unknown"
 title = 'title unavailable'
-isbn = ''
+isbn = 'isbn unavailable'
 bookmaker_send_result = ''
 output_ok = ''
 in_rsuite = ''
@@ -182,7 +182,7 @@ writeFile(message, message_txtfile, "write_emailtxt_to_file")
 # consolidate attachments
 all_attachments = good_attached + err_attached
 # prepare arglist for python call
-attachments_argstring = '\"' + all_attachments.join('\" \"') + '\"'
+attachments_argstring = '"' +all_attachments.join('" "') + '"'
 
 # send our notification
 results = localRunPython(sendmail_py, "\"#{submittermail}\" \"#{workflows_email}\" \"#{message_txtfile}\" #{attachments_argstring}", "invoke_sendmail-py")
