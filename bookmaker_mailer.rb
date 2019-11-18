@@ -80,7 +80,7 @@ def messageBuilder(firstname, title, isbn, errfiles, err_attached, good_attached
     end
   end
   if !toolarge_files.empty?
-    message += "These bookmaker output file(s) were too large to attach here, but are available in RSuite:)\n"
+    message += "\nThese bookmaker output file(s) were too large to attach here, but are available in RSuite:\n"
     toolargefilelist = toolarge_files.map {|file| " - #{File.basename(file)}\n"}.compact
     for toolargefile in toolargefilelist
       message += toolargefile
