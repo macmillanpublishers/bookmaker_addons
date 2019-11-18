@@ -155,8 +155,13 @@ else
   end
 end
 
-# Check output file(s), attach if present (and not too big)
-if File.exists?(finalpdf) && (File.exists?(firstpass_epub) || File.exists?(final_epub))
+# see if upload to rsuite was successful
+if bookmaker_send_result.match(/^success/)
+  in_rsuite = true
+end
+
+# Check output file(s), attach if present (and not too big)... And if upload to rsuite was successful.
+if in_rsuite == true && (File.exists?(finalpdf) && (File.exists?(firstpass_epub) || File.exists?(final_epub)))
   output_ok = true
   if File.exists?(final_epub)
     attachment_quota, good_attached, toolarge_files = addAttachment(final_epub, attachment_quota, good_attached, toolarge_files, "attach_#{File.basename(final_epub)}")
@@ -166,10 +171,6 @@ if File.exists?(finalpdf) && (File.exists?(firstpass_epub) || File.exists?(final
   if File.exists?(finalpdf)
     attachment_quota, good_attached, toolarge_files = addAttachment(finalpdf, attachment_quota, good_attached, toolarge_files, "attach_#{File.basename(finalpdf)}")
   end
-end
-
-if bookmaker_send_result.match(/^success/)
-  in_rsuite = true
 end
 
 if output_ok == true && in_rsuite == true #&& errfiles == false
