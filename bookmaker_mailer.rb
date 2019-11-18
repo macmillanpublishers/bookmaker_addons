@@ -44,12 +44,15 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def getErrMessage(firstname, title, isbn, workflows_email, logkey='')
+def getErrMessage(firstname, title, isbn, workflows_email, staging_file, logkey='')
   message = "Subject: Bookmaker update: \"#{title}\"\n\n"
   message += "Hello #{firstname},\n\n"
   message += "Bookmaker encountered an error while processing your file, \"#{title}\" (#{isbn}).\n"
   message += "The workflows team has been notified of this error.\n\n"
   message += "If you don't hear from us within 2 hours, please email \"#{workflows_email}\" for further assistance."
+  if File.exist?(staging_file)
+    message += "\n\n --- This automated message was sent from TESTING SERVER ---"
+  end
   return message
 rescue => logstring
   return ""
@@ -57,7 +60,7 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def messageBuilder(firstname, title, isbn, errfiles, err_attached, good_attached, toolarge_files, logkey='')
+def messageBuilder(firstname, title, isbn, errfiles, err_attached, good_attached, toolarge_files, staging_file, logkey='')
   message = "Subject: Bookmaker completed for \"#{title}\"\n\n"
   message += "Hello #{firstname},\n\n"
   message += "Bookmaker processing has completed for \"#{title}\" (#{isbn}).\n\n"
@@ -83,6 +86,9 @@ def messageBuilder(firstname, title, isbn, errfiles, err_attached, good_attached
     for toolargefile in toolargefilelist
       message += toolargefile
     end
+  end
+  if File.exist?(staging_file)
+    message += "\n\n --- This automated message was sent from TESTING SERVER ---"
   end
   return message
 rescue => logstring
@@ -168,24 +174,23 @@ if bookmaker_send_result.match(/^success/)
 end
 
 if output_ok == true && in_rsuite == true #&& errfiles == false
-  message = messageBuilder(firstname, title, isbn, errfiles, err_attached, good_attached, toolarge_files, 'build_success_message')
+  message = messageBuilder(firstname, title, isbn, errfiles, err_attached, good_attached, toolarge_files, staging_file, 'build_success_message')
+  # consolidate attachments
+  all_attachments = good_attached + err_attached
+  # prepare arglist for python call
+  attachments_argstring = '"' +all_attachments.join('" "') + '"'
 else
-  message = getErrMessage(firstname, title, isbn, workflows_email, 'build_error_message')
-end
-
-if File.exist?(staging_file)
-  message += "\n\n --- This automated message was sent from TESTING SERVER ---"
+  message = getErrMessage(firstname, title, isbn, workflows_email, staging_file, 'build_error_message')
 end
 
 writeFile(message, message_txtfile, "write_emailtxt_to_file")
 
-# consolidate attachments
-all_attachments = good_attached + err_attached
-# prepare arglist for python call
-attachments_argstring = '"' +all_attachments.join('" "') + '"'
-
 # send our notification
-results = localRunPython(sendmail_py, "\"#{submittermail}\" \"#{workflows_email}\" \"#{message_txtfile}\" #{attachments_argstring}", "invoke_sendmail-py")
+if all_attachments.empty?
+  results = localRunPython(sendmail_py, "\"#{submittermail}\" \"#{workflows_email}\" \"#{message_txtfile}\"", "invoke_sendmail-py_noattach")
+else
+  results = localRunPython(sendmail_py, "\"#{submittermail}\" \"#{workflows_email}\" \"#{message_txtfile}\" #{attachments_argstring}", "invoke_sendmail-py_attachments")
+end
 @log_hash['sendmail_py-results'] = results
 
 
