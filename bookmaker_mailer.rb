@@ -73,14 +73,14 @@ def messageBuilder(firstname, title, isbn, errfiles, err_attached, good_attached
     end
   end
   if !good_attached.empty?
-    message += "\nFor your convenience, these bookmaker output files should be attached to this email as well:\n"
+    message += "\nFor your convenience, the following bookmaker output files should be attached to this email:\n"
     goodfilelist = good_attached.map {|file| " - #{File.basename(file)}\n"}.compact
     for goodfile in goodfilelist
       message += goodfile
     end
   end
   if !toolarge_files.empty?
-    message += "(The following bookmaker output files were too large to attach here, but are available in RSuite)\n"
+    message += "These bookmaker output file(s) were too large to attach here, but are available in RSuite:)\n"
     toolargefilelist = toolarge_files.map {|file| " - #{File.basename(file)}\n"}.compact
     for toolargefile in toolargefilelist
       message += toolargefile
