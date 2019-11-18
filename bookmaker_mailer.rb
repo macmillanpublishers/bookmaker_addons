@@ -1,5 +1,3 @@
-# require 'net/smtp'
-
 require_relative '../bookmaker/core/header.rb'
 require_relative '../bookmaker/core/metadata.rb'
 
@@ -173,6 +171,7 @@ if in_rsuite == true && (File.exists?(finalpdf) && (File.exists?(firstpass_epub)
   end
 end
 
+# build message text for success or error, for success get a list of attachment paths
 if output_ok == true && in_rsuite == true #&& errfiles == false
   message = messageBuilder(firstname, title, isbn, errfiles, err_attached, good_attached, toolarge_files, staging_file, 'build_success_message')
   # consolidate attachments
@@ -183,6 +182,7 @@ else
   message = getErrMessage(firstname, title, isbn, workflows_email, staging_file, 'build_error_message')
 end
 
+# write the text of the mail to file, for pickup by python mailer.
 writeFile(message, message_txtfile, "write_emailtxt_to_file")
 
 # send our notification
