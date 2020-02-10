@@ -363,7 +363,7 @@ localMoveSection(epub_tmp_html, sectionjson, "toc", "1", "endofbook", "1", 'move
 localMoveSection(epub_tmp_html, sectionjson, "copyrightpage", "1", "endofbook", "1", 'move_copyright_to_back')
 
 # insert extra epub content
-localInsertAddons(epub_tmp_html, sectionjson, addonjson, epub_project 'insert_extra_epub_content')
+localInsertAddons(epub_tmp_html, sectionjson, addonjson, epub_project, 'insert_extra_epub_content')
 
 # evaluate templates
 localCompileJS(epub_tmp_html, hyperlink_cs, 'evaluate_templates')
