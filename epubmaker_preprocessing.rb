@@ -23,8 +23,8 @@ newslettersinglejs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "ep
 
 # ---------------------- METHODS
 
-def readConfigJson(logkey='')
-  data_hash = Mcmlln::Tools.readjson(Metadata.configfile)
+def readJson(jsonfile, logkey='')
+  data_hash = Mcmlln::Tools.readjson(jsonfile)
   return data_hash
 rescue => logstring
   return {}
@@ -134,8 +134,8 @@ ensure
 end
 
 ## wrapping Bkmkr::Tools.insertaddons in a new method for this script; to return a result for json_logfile
-def localInsertAddons(inputfile, sectionparams, addonparams, logkey='')
-  Bkmkr::Tools.insertaddons(inputfile, sectionparams, addonparams)
+def localInsertAddons(inputfile, sectionparams, addonparams, epub_project, logkey='')
+  Bkmkr::Tools.insertaddons(inputfile, sectionparams, addonparams, epub_project)
 rescue => logstring
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
@@ -275,11 +275,18 @@ end
 
 # ---------------------- PROCESSES
 
-data_hash = readConfigJson('read_config_json')
-#local definition(s) based on config.json
+data_hash = readJson(Metadata.configfile, 'read_config_json')
+rsmetadata_hash = readJson(Bkmkr::Paths.fromrsuite_Metadata_json, 'read_rsuite_metadata_json')
+#local definition(s) based on json-data
 resource_dir = data_hash['resourcedir']
 doctemplatetype = data_hash['doctemplatetype']
-# set bookmaker_assets path based on presence of rsuite styles
+if rsmetadata_hash.key?('epub_type')
+  epub_project = rsmetadata_hash['epub_type']
+else
+  epub_project = ''
+end
+
+# set hardcoded stylenames based on doctemplatetype
 if doctemplatetype == "rsuite"
   hyperlink_cs = "Hyperlink"
   newsletter_pstyle = "Body-TextTx"
@@ -356,7 +363,7 @@ localMoveSection(epub_tmp_html, sectionjson, "toc", "1", "endofbook", "1", 'move
 localMoveSection(epub_tmp_html, sectionjson, "copyrightpage", "1", "endofbook", "1", 'move_copyright_to_back')
 
 # insert extra epub content
-localInsertAddons(epub_tmp_html, sectionjson, addonjson, 'insert_extra_epub_content')
+localInsertAddons(epub_tmp_html, sectionjson, addonjson, epub_project, 'insert_extra_epub_content')
 
 # evaluate templates
 localCompileJS(epub_tmp_html, hyperlink_cs, 'evaluate_templates')
