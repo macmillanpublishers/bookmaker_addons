@@ -209,7 +209,7 @@ end
 replace_wsym(filetype, replace_wsym_py, 'F0D3', "\u00A9", 'replace_w:sym_copyright_symbol')
 
 # find out if this file came from (and its output returns to) rsuite
-if File.exist?(Bkmkr::Paths.fromrsuite_Metadata_json)
+if File.exist?(Bkmkr::Paths.api_Metadata_json)
   from_rsuite = true
 else
   from_rsuite = false

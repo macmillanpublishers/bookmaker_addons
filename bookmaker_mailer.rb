@@ -129,13 +129,13 @@ toolarge_files = []
 
 # read in jsons
 data_hash = readJson(Metadata.configfile, 'read_config_json')
-rsmetadata_hash = readJson(Bkmkr::Paths.fromrsuite_Metadata_json, 'read_rsuite_metadata_json')
+api_metadata_hash = readJson(Bkmkr::Paths.api_Metadata_json, 'read_api_metadata_json')
 jsonlog_hash = readJson(Bkmkr::Paths.json_log, 'read_jsonlog')
 
 # conditional local definition(s) based on config.json
-submittermail = rsmetadata_hash["submitter_email"] if rsmetadata_hash.key?("submitter_email")
-title = rsmetadata_hash["work_cover_title"] if rsmetadata_hash.key?("work_cover_title")
-isbn = rsmetadata_hash["edition_eanisbn13"] if rsmetadata_hash.key?("edition_eanisbn13")
+submittermail = api_metadata_hash["submitter_email"] if api_metadata_hash.key?("submitter_email")
+title = api_metadata_hash["work_cover_title"] if api_metadata_hash.key?("work_cover_title")
+isbn = api_metadata_hash["edition_eanisbn13"] if api_metadata_hash.key?("edition_eanisbn13")
 firstname = submittermail.to_s.partition(/[@.]/)[0].capitalize if !submittermail.empty?
 if jsonlog_hash.key?("bookmaker_to_rsuite.rb") && jsonlog_hash["bookmaker_to_rsuite.rb"].key?("api_POST_result")
   bookmaker_send_result = jsonlog_hash["bookmaker_to_rsuite.rb"]["api_POST_result"]
