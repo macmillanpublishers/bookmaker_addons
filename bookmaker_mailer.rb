@@ -58,11 +58,15 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def messageBuilder(firstname, title, isbn, errfiles, err_attached, good_attached, toolarge_files, staging_file, logkey='')
+def messageBuilder(firstname, title, isbn, errfiles, err_attached, good_attached, toolarge_files, staging_file, runtype, logkey='')
   message = "Subject: Bookmaker completed for \"#{title}\"\n\n"
   message += "Hello #{firstname},\n\n"
   message += "Bookmaker processing has completed for \"#{title}\".\n\n"
-  message += "You can retrieve Bookmaker output (epub and pdf files) in RSuite: in the ‘Interior/Bookmaker/Done’ folder for the WIP impression of this edition (#{isbn}).\n"
+  if runtype == 'direct'
+    message += "You can retrieve Bookmaker output (epub and pdf files) from the Bookmaker 'OUT' folder in Google Drive.\n"
+  else
+    message += "You can retrieve Bookmaker output (epub and pdf files) in RSuite: in the 'Interior/Bookmaker/Done' folder for the WIP impression of this edition (#{isbn}).\n"
+  end
   if errfiles == true
     message += "\nPLEASE NOTE:\nSome alerts were encountered while processing your file. See attached .txt files for details:\n"
     errfilelist = err_attached.map {|file| " - #{File.basename(file)}\n"}.compact
@@ -78,7 +82,11 @@ def messageBuilder(firstname, title, isbn, errfiles, err_attached, good_attached
     end
   end
   if !toolarge_files.empty?
-    message += "\nThese bookmaker output file(s) were too large to attach here, but are available in RSuite:\n"
+    if runtype == 'direct'
+      message += "\nThese bookmaker output file(s) were too large to attach here, but are available in the Bookmaker 'OUT' folder:\n"
+    else
+      message += "\nThese bookmaker output file(s) were too large to attach here, but are available in RSuite:\n"
+    end
     toolargefilelist = toolarge_files.map {|file| " - #{File.basename(file)}\n"}.compact
     for toolargefile in toolargefilelist
       message += toolargefile
@@ -120,7 +128,7 @@ title = 'title unavailable'
 isbn = 'isbn unavailable'
 bookmaker_send_result = ''
 output_ok = ''
-in_rsuite = ''
+file_return_api_ok = ''
 errfiles = ''
 err_attached = []
 good_attached = []
@@ -137,11 +145,14 @@ submittermail = api_metadata_hash["submitter_email"] if api_metadata_hash.key?("
 title = api_metadata_hash["work_cover_title"] if api_metadata_hash.key?("work_cover_title")
 isbn = api_metadata_hash["edition_eanisbn13"] if api_metadata_hash.key?("edition_eanisbn13")
 firstname = submittermail.to_s.partition(/[@.]/)[0].capitalize if !submittermail.empty?
-if jsonlog_hash.key?("bookmaker_to_rsuite.rb") && jsonlog_hash["bookmaker_to_rsuite.rb"].key?("api_POST_result")
-  bookmaker_send_result = jsonlog_hash["bookmaker_to_rsuite.rb"]["api_POST_result"]
+if jsonlog_hash.key?("bookmaker_to_rsuite.rb") && jsonlog_hash["bookmaker_to_rsuite.rb"].key?("api_POST_results")
+  bookmaker_send_result = jsonlog_hash["bookmaker_to_rsuite.rb"]["api_POST_results"]
+elsif jsonlog_hash.key?("bookmaker-direct_return.rb") && jsonlog_hash["bookmaker-direct_return.rb"].key?("api_POST_results")
+  bookmaker_send_result = jsonlog_hash["bookmaker-direct_return.rb"]["api_POST_results"]
 else
   bookmaker_send_result = 'value not present'
 end
+runtype = api_metadata_hash['runtype']
 
 # Check errfiles, attach if present
 if Dir.glob(errfiles_regexp).empty?
@@ -154,12 +165,12 @@ else
 end
 
 # see if upload to rsuite was successful
-if bookmaker_send_result.match(/^success/)
-  in_rsuite = true
+if bookmaker_send_result.downcase.match(/^success/)
+  file_return_api_ok = true
 end
 
 # Check output file(s), attach if present (and not too big)... And if upload to rsuite was successful.
-if in_rsuite == true && (File.exists?(finalpdf) && (File.exists?(firstpass_epub) || File.exists?(final_epub)))
+if file_return_api_ok == true && (File.exists?(finalpdf) && (File.exists?(firstpass_epub) || File.exists?(final_epub)))
   output_ok = true
   if File.exists?(final_epub)
     attachment_quota, good_attached, toolarge_files = addAttachment(final_epub, attachment_quota, good_attached, toolarge_files, "attach_#{File.basename(final_epub)}")
@@ -172,8 +183,8 @@ if in_rsuite == true && (File.exists?(finalpdf) && (File.exists?(firstpass_epub)
 end
 
 # build message text for success or error, for success get a list of attachment paths
-if output_ok == true && in_rsuite == true #&& errfiles == false
-  message = messageBuilder(firstname, title, isbn, errfiles, err_attached, good_attached, toolarge_files, staging_file, 'build_success_message')
+if output_ok == true && file_return_api_ok == true #&& errfiles == false
+  message = messageBuilder(firstname, title, isbn, errfiles, err_attached, good_attached, toolarge_files, staging_file, runtype, 'build_success_message')
   # consolidate attachments
   all_attachments = good_attached + err_attached
   # prepare arglist for python call
