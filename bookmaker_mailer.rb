@@ -14,6 +14,7 @@ sendmail_py = File.join(Bkmkr::Paths.scripts_dir, "utilities", "python_utils", "
 workflows_email = 'workflows@macmillan.com'
 attachment_quota = 20.0
 staging_file = File.join("C:", "staging.txt")
+runtype = Bkmkr::Project.runtype
 
 # ---------------------- METHODS
 def readJson(jsonfile, logkey='')
@@ -62,6 +63,7 @@ def messageBuilder(firstname, title, isbn, errfiles, err_attached, good_attached
   message = "Subject: Bookmaker completed for \"#{title}\"\n\n"
   message += "Hello #{firstname},\n\n"
   message += "Bookmaker processing has completed for \"#{title}\".\n\n"
+  puts "RUUUNNNTTYYYPE runtyp: #{runtype}"
   if runtype == 'direct'
     message += "You can retrieve Bookmaker output (epub and pdf files) from the Bookmaker 'OUT' folder in Google Drive.\n"
   else
@@ -142,9 +144,17 @@ jsonlog_hash = readJson(Bkmkr::Paths.json_log, 'read_jsonlog')
 
 # conditional local definition(s) based on config.json
 submittermail = api_metadata_hash["submitter_email"] if api_metadata_hash.key?("submitter_email")
-title = api_metadata_hash["work_cover_title"] if api_metadata_hash.key?("work_cover_title")
-isbn = api_metadata_hash["edition_eanisbn13"] if api_metadata_hash.key?("edition_eanisbn13")
 firstname = submittermail.to_s.partition(/[@.]/)[0].capitalize if !submittermail.empty?
+if api_metadata_hash.key?("work_cover_title")
+  title = api_metadata_hash["work_cover_title"]
+elsif data_hash.key?("title")
+  title = data_hash["title"]
+end
+if api_metadata_hash.key?("edition_eanisbn13")
+  isbn = api_metadata_hash["edition_eanisbn13"]
+elsif data_hash.key?("productid")
+  isbn = data_hash["productid"]
+end
 if jsonlog_hash.key?("bookmaker_to_rsuite.rb") && jsonlog_hash["bookmaker_to_rsuite.rb"].key?("api_POST_results")
   bookmaker_send_result = jsonlog_hash["bookmaker_to_rsuite.rb"]["api_POST_results"]
 elsif jsonlog_hash.key?("bookmaker-direct_return.rb") && jsonlog_hash["bookmaker-direct_return.rb"].key?("api_POST_results")
@@ -152,7 +162,6 @@ elsif jsonlog_hash.key?("bookmaker-direct_return.rb") && jsonlog_hash["bookmaker
 else
   bookmaker_send_result = 'value not present'
 end
-runtype = api_metadata_hash['runtype']
 
 # Check errfiles, attach if present
 if Dir.glob(errfiles_regexp).empty?
