@@ -6,7 +6,7 @@ require_relative '../bookmaker/core/metadata.rb'
 local_log_hash, @log_hash = Bkmkr::Paths.setLocalLoghash
 
 finalpdf = File.join(Metadata.final_dir, "#{Metadata.pisbn}_POD.pdf")
-firstpass_epub = File.join(Metadata.final_dir, "#{Metadata.eisbn}_EPUBfirstpass.epub")
+firstpass_epub = File.join(Metadata.final_dir, "#{Metadata.pisbn}_EPUBfirstpass.epub")
 final_epub = File.join(Metadata.final_dir, "#{Metadata.eisbn}_EPUB.epub")
 errfiles_regexp = File.join(Metadata.final_dir, "*_ERROR.txt")
 message_txtfile = File.join(Metadata.final_dir, "user_email.txt")
