@@ -59,19 +59,19 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def addRsuitePIs(rsmetadata_hash, rsuite_pis_js, logkey='')
+def addRsuitePIs(api_metadata_hash, rsuite_pis_js, logkey='')
   trimvalue, templatevalue = '', ''
   # if we have custom width & height value ignore standard trim value, write these as size PI
-  if rsmetadata_hash.key?('trim-width') && rsmetadata_hash.key?('trim-height')
-    trimvalue = "#{rsmetadata_hash['trim-width']}in #{rsmetadata_hash['trim-height']}in"
+  if api_metadata_hash.key?('trim-width') && api_metadata_hash.key?('trim-height')
+    trimvalue = "#{api_metadata_hash['trim-width']}in #{api_metadata_hash['trim-height']}in"
     localRunNode(rsuite_pis_js, "#{Bkmkr::Paths.outputtmp_html} size \"#{trimvalue}\"", 'write_rsuite_pi-custom_trim')
   # if we have trim value without substring 'default', cleanup value and write as pi
-  elsif rsmetadata_hash.key?('trim') && !rsmetadata_hash['trim'].include?('default')
-    trimvalue = rsmetadata_hash['trim'].split('(')[0].strip().gsub('x ','')
+  elsif api_metadata_hash.key?('trim') && !api_metadata_hash['trim'].include?('default')
+    trimvalue = api_metadata_hash['trim'].split('(')[0].strip().gsub('x ','')
     localRunNode(rsuite_pis_js, "#{Bkmkr::Paths.outputtmp_html} size \"#{trimvalue}\"", 'write_rsuite_pi-preset_trim')
   end
-  if rsmetadata_hash.key?('rs_design_template')
-    templatevalue = rsmetadata_hash['rs_design_template'].gsub('.css','')
+  if api_metadata_hash.key?('rs_design_template')
+    templatevalue = api_metadata_hash['rs_design_template'].gsub('.css','')
     localRunNode(rsuite_pis_js, "#{Bkmkr::Paths.outputtmp_html} template #{templatevalue}", 'write_rsuite_pi-design_template')
   end
   return trimvalue, templatevalue
@@ -84,7 +84,7 @@ end
 # ---------------------- PROCESSES
 # read in external json info
 data_hash = readJson(Metadata.configfile, 'read_config_json')
-rsmetadata_hash = readJson(Bkmkr::Paths.fromrsuite_Metadata_json, 'read_rsuite_metadata_json')
+api_metadata_hash = readJson(Bkmkr::Paths.api_Metadata_json, 'read_api_metadata_json')
 #local definition(s) based on config.json
 doctemplatetype = data_hash['doctemplatetype']
 # setting names of hardcoded styles by template:
@@ -98,7 +98,7 @@ end
 localRunNode(htmlmakerpostprocessingjs, "#{Bkmkr::Paths.outputtmp_html} #{doctemplatetype}", 'post-processing_js')
 
 # add doc-level processing instructions from RSuite UI as meta-tags in html <head> (removes any existing)
-trimvalue, templatevalue = addRsuitePIs(rsmetadata_hash, rsuite_pis_js, logkey='')
+trimvalue, templatevalue = addRsuitePIs(api_metadata_hash, rsuite_pis_js, logkey='')
 if !trimvalue.empty? || !templatevalue.empty?
   @log_hash['rs_trimvalue_inserted']=trimvalue
   @log_hash['rs_templatevalue_inserted']=templatevalue

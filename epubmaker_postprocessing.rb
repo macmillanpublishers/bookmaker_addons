@@ -269,6 +269,7 @@ deleteFileIfPresent(epubcheck_errfile, 'delete_epubcheck_errfile')
 data_hash = readJson(Metadata.configfile, 'read_config_json')
 #local definition(s) based on config.json
 stage_dir = data_hash['stage']
+project_name = data_hash['project']
 doctemplatetype = data_hash['doctemplatetype']
 # set bookmaker_assets path based on presence of rsuite styles
 if doctemplatetype == "rsuite"
@@ -319,7 +320,8 @@ convertSpacebreakImgs(imgarr, oebps_dir, 'convert_spacebreak_imgs')
 copyFile(font, oebps_dir, 'copy_fallback_font_to_pkg')
 
 # determine name of epub we're zipping based on project
-if stage_dir.include? "egalley" or stage_dir.include? "galley" or stage_dir.include? "firstpass"
+if stage_dir.include?("egalley") || stage_dir.include?("galley") || stage_dir.include?("firstpass") || \
+  (project_name == 'validator' && stage_dir == 'direct')
   csfilename = "#{Metadata.pisbn}_EPUBfirstpass"
   # rm non-firstpass epub from final_dir (dropped there from epubmaker.rb)
   nonfirstpass_epubfile = File.join(Metadata.final_dir ,"#{Metadata.eisbn}_EPUB.epub")
