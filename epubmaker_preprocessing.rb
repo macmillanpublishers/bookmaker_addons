@@ -279,6 +279,14 @@ data_hash = readConfigJson('read_config_json')
 #local definition(s) based on config.json
 resource_dir = data_hash['resourcedir']
 doctemplatetype = data_hash['doctemplatetype']
+stage_dir = data_hash['stage']
+project_name = data_hash['project']
+if stage_dir.include?("egalley") || stage_dir.include?("galley") || stage_dir.include?("firstpass") || \
+  (project_name == 'validator' && stage_dir == 'direct')
+  galley_run = true
+else
+  galley_run = false
+end
 # set bookmaker_assets path based on presence of rsuite styles
 if doctemplatetype == "rsuite"
   hyperlink_cs = "Hyperlink"
@@ -331,23 +339,26 @@ anthology = isAnthology(epub_tmp_html, 'isAnthology')
 # move sections to the back, per ebooks SOP
 # note that the order in which these moves occur is IMPORTANT
 
-unless anthology == true
-  # move about the author to back
-  localMoveSection(epub_tmp_html, sectionjson, "abouttheauthor", "", "endofbook", "1", 'move_ata_to_back')
-end
+# New note: 5/5/20: preserving existing frontmatter ordering for galley runs (except TOC & copyright)
+if galley_run == false
+  unless anthology == true
+    # move about the author to back
+    localMoveSection(epub_tmp_html, sectionjson, "abouttheauthor", "", "endofbook", "1", 'move_ata_to_back')
+  end
 
-unless anthology == true
-  # move bobad to back
-  localMoveSection(epub_tmp_html, sectionjson, "bobad", "", "endofbook", "1", 'move_bobad_to_back')
-end
+  unless anthology == true
+    # move bobad to back
+    localMoveSection(epub_tmp_html, sectionjson, "bobad", "", "endofbook", "1", 'move_bobad_to_back')
+  end
 
-unless anthology == true
-  # move adcard to back
-  localMoveSection(epub_tmp_html, sectionjson, "adcard", "", "endofbook", "1", 'move_adcard_to_back')
-end
+  unless anthology == true
+    # move adcard to back
+    localMoveSection(epub_tmp_html, sectionjson, "adcard", "", "endofbook", "1", 'move_adcard_to_back')
+  end
 
-# move front sales to back
-localMoveSection(epub_tmp_html, sectionjson, "frontsales", "", "endofbook", "1", 'move_frontsales_to_back')
+  # move front sales to back
+  localMoveSection(epub_tmp_html, sectionjson, "frontsales", "", "endofbook", "1", 'move_frontsales_to_back')
+end
 
 # move toc to back
 localMoveSection(epub_tmp_html, sectionjson, "toc", "1", "endofbook", "1", 'move_toc_to_back')
