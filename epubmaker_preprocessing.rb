@@ -341,7 +341,7 @@ anthology = isAnthology(epub_tmp_html, 'isAnthology')
 
 # New note: 5/5/20: preserving existing frontmatter ordering for galley runs (except TOC & copyright)
 if galley_run == true
-unless anthology == true
+  unless anthology == true
     # move about the author to back
     localMoveSection(epub_tmp_html, sectionjson, "abouttheauthor", "", "endofbook", "1", 'move_ata_to_back')
   end
