@@ -12,7 +12,9 @@ filetype = Bkmkr::Project.filename_split.split(".").pop
 
 configfile = File.join(Bkmkr::Paths.project_tmp_dir, "config.json")
 
-get_template_version_py = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "getTemplateVersion.py")
+get_custom_doc_prop_py = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "getCustomDocProp.py")
+
+custom_doc_property_name = 'Version'
 
 sectionstart_template_version = Bkmkr::Tools.sectionstart_template_version
 
@@ -86,11 +88,11 @@ end
 #   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 # end
 
-def checkDocTemplateVersion(filetype, get_template_version_py, logkey='')
+def checkDocTemplateVersion(filetype, get_custom_doc_prop_py, custom_doc_property_name, logkey='')
   doctemplate_version = ''
   unless filetype == "html"
-    # the get_template_version_py script reads custom.xml inside the .docx to return custom doc property 'Version'
-    doctemplate_version = Bkmkr::Tools.runpython(get_template_version_py, "#{Bkmkr::Paths.project_docx_file}").strip()
+    # the get_custom_doc_prop_py script reads custom.xml inside the .docx to return custom doc property 'Version'
+    doctemplate_version = Bkmkr::Tools.runpython(get_custom_doc_prop_py, "#{Bkmkr::Paths.project_docx_file} #{custom_doc_property_name}").strip()
   else
     logstring = 'input file is html, skipping'
   end
@@ -180,7 +182,7 @@ if filetype == "html"
   doctemplate_version = checkHTMLforTemplateVersion(filecontents, 'check_html_for_doctemplate_version')
 # ...get document version template number if it from .dox xml with python
 else
-  doctemplate_version = checkDocTemplateVersion(filetype, get_template_version_py, 'check_docx_doctemplate_version')
+  doctemplate_version = checkDocTemplateVersion(filetype, get_custom_doc_prop_py, custom_doc_property_name, 'check_docx_doctemplate_version')
 end
 @log_hash['doctemplate_version'] = doctemplate_version
 

@@ -1,7 +1,7 @@
 from sys import argv
 
 docxfile = argv[1]
-custom_doc_property_name = 'Version'
+custom_doc_property_name = argv[2]
 xmlfile = 'docProps/custom.xml'
 
 import os
