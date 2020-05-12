@@ -74,7 +74,7 @@ stage_dir = data_hash['stage']
 #
 # ftpDeleteDir("#{project_dir}_#{stage_dir}", Metadata.pisbn, 'delete_images_off_ftp')
 
-mvDocxToDone(data_hash, Bkmkr::Paths.project_docx_file, Metadata.final_dir, logkey='')
+mvDocxToDone(data_hash, Bkmkr::Paths.project_docx_file, Metadata.final_dir, 'mv_rsuite_docx_to_done')
 
 # ---------------------- LOGGING
 
