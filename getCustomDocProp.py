@@ -1,7 +1,7 @@
 from sys import argv
 
 docxfile = argv[1]
-custom_doc_property_name = 'Version'
+custom_doc_property_name = argv[2]
 xmlfile = 'docProps/custom.xml'
 
 import os
@@ -24,24 +24,24 @@ def read_xml_in_docx(docx, xmlfile):
 
 def check_xml_for_version(xmlstring, custom_doc_property_name):
 	root = ET.fromstring(xmlstring)
-	template_version=''
+	custom_doc_prop_value=''
 
 	for child in root:
 		if child.attrib['name'] == custom_doc_property_name:
-			template_version = child[0].text
+			custom_doc_prop_value = child[0].text
 
-	if not template_version:
-		template_version = ''
+	if not custom_doc_prop_value:
+		custom_doc_prop_value = ''
 
-	return template_version
+	return custom_doc_prop_value
 
 
 xmlstring = read_xml_in_docx(docxfile, xmlfile)
 
 if not xmlstring:
-	template_version = ''
+	custom_doc_prop_value = ''
 else:
-	template_version = check_xml_for_version(xmlstring, custom_doc_property_name)
+	custom_doc_prop_value = check_xml_for_version(xmlstring, custom_doc_property_name)
 
 # pass value back to parent script
-print template_version
+print custom_doc_prop_value
