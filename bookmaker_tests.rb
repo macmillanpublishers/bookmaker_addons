@@ -9,10 +9,10 @@ pdf_tmp_html = File.join(Bkmkr::Paths.project_tmp_dir, "pdf_tmp.html")
 tmp_xml = File.join(Bkmkr::Paths.project_tmp_dir, "#{Bkmkr::Project.filename}.xml")
 
 new_path = Bkmkr::Project.working_dir
-project_path = Bkmkr::Project.working_dir.split(Regexp.union(*[File::SEPARATOR, File::ALT_SEPARATOR].compact)).pop
-verified_path = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_tests", "verified_files", project_path)
-holding_path = File.join(Bkmkr::Project.working_dir, "verified_files")
-testdir = File.join(new_path, "test_tmpdir")
+test_ms_dirname = File.basename(Bkmkr::Project.filename, File.extname(Bkmkr::Project.filename))
+verified_path = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_tests", "verified_files", test_ms_dirname)
+holding_path = File.join(Bkmkr::Project.working_dir, "verified_files", test_ms_dirname)
+testdir = File.join(new_path, "test_tmpdir", test_ms_dirname)
 
 vxml = File.join(verified_path, "#{Bkmkr::Project.filename}.xml")
 holding_xml = File.join(holding_path, "#{Bkmkr::Project.filename}.xml")
@@ -43,6 +43,12 @@ vjsonlog_tmp = File.join(testdir, "#{Bkmkr::Project.filename}_tmp.json")
 njsonlog = Bkmkr::Paths.json_log
 holding_jsonlog = File.join(holding_path, "#{Bkmkr::Project.filename}.json")
 
+def mkDirAsNeeded(dirpath)
+  unless File.directory?(dirpath)
+    Mcmlln::Tools.makeDir(dirpath)
+  end
+end
+
 def prettyprintHTML(file, dir, prefix)
   contents = File.read(file)
   contents = contents.gsub(/(<[a-z])/, "\n\\0").gsub(/\sid="[\w-]*"/, "\s").gsub(/href="#[\w-]*"/, "")
@@ -61,69 +67,83 @@ def prettyprintJSON(file, dir, prefix)
   return newfile
 end
 
-# check xml for differences
-nxml = prettyprintHTML(tmp_xml, testdir, "N")
+#create required dirs
+mkDirAsNeeded(holding_path)
+mkDirAsNeeded(testdir)
 
-diff_xml = `diff '#{vxml}' '#{nxml}'`
+# skip diffs if verified files don't exist:
+if File.directory?(verified_path)
+  # check xml for differences
+  nxml = prettyprintHTML(tmp_xml, testdir, "N")
 
-#Mcmlln::Tools.copyFile(tmp_xml, verified_path)
+  diff_xml = `diff '#{vxml}' '#{nxml}'`
 
-# check pdf html for differences
-vpdf = prettyprintHTML(vpdf, testdir, "V")
-npdf = prettyprintHTML(pdf_tmp_html, testdir, "N")
+  #Mcmlln::Tools.copyFile(tmp_xml, verified_path)
 
-diff_pdf = `diff '#{vpdf}' '#{npdf}'`
+  # check pdf html for differences
+  vpdf = prettyprintHTML(vpdf, testdir, "V")
+  npdf = prettyprintHTML(pdf_tmp_html, testdir, "N")
 
-# check epub html for differences
-vepub = prettyprintHTML(vepub, testdir, "V")
-nepub = prettyprintHTML(epub_tmp_html, testdir, "N")
+  diff_pdf = `diff '#{vpdf}' '#{npdf}'`
 
-diff_epub = `diff '#{vepub}' '#{nepub}'`
+  # check epub html for differences
+  vepub = prettyprintHTML(vepub, testdir, "V")
+  nepub = prettyprintHTML(epub_tmp_html, testdir, "N")
 
-# check layout html for differences
-vhtml = prettyprintHTML(vhtml, testdir, "V")
-nhtml = prettyprintHTML(nhtml, testdir, "N")
+  diff_epub = `diff '#{vepub}' '#{nepub}'`
 
-diff_html = `diff '#{vhtml}' '#{nhtml}'`
+  # check layout html for differences
+  vhtml = prettyprintHTML(vhtml, testdir, "V")
+  nhtml = prettyprintHTML(nhtml, testdir, "N")
 
-# check layout json for differences
-vjson = prettyprintJSON(vjson, testdir, "V")
-njson = prettyprintJSON(njson, testdir, "N")
+  diff_html = `diff '#{vhtml}' '#{nhtml}'`
 
-diff_json = `diff '#{vjson}' '#{njson}'`
+  # check layout json for differences
+  vjson = prettyprintJSON(vjson, testdir, "V")
+  njson = prettyprintJSON(njson, testdir, "N")
 
-# check epub css for differences
-diff_ecss = `diff '#{vecss}' '#{necss}'`
+  diff_json = `diff '#{vjson}' '#{njson}'`
 
-# check pdf css for differences
-diff_pcss = `diff '#{vpcss}' '#{npcss}'`
+  # check epub css for differences
+  diff_ecss = `diff '#{vecss}' '#{necss}'`
 
-# strip the cleanup scripts outputs from jsonlog for a clean diff
-jsonlog_hash = Mcmlln::Tools.readjson(vjsonlog)
-jsonlog_hash.delete('cleanup_preprocessing.rb')
-jsonlog_hash.delete('cleanup.rb')
-Mcmlln::Tools.write_json(jsonlog_hash, vjsonlog_tmp)
+  # check pdf css for differences
+  diff_pcss = `diff '#{vpcss}' '#{npcss}'`
 
-# check json log for differences - excluding timestamp lines (with "begun" or "completed" strings as specified)
-diff_jsonlog = `diff -I '"begun": "2' -I '"completed": "2' '#{vjsonlog_tmp}' '#{njsonlog}'`
+  # strip the cleanup scripts outputs from jsonlog for a clean diff
+  jsonlog_hash = Mcmlln::Tools.readjson(vjsonlog)
+  jsonlog_hash.delete('cleanup_preprocessing.rb')
+  jsonlog_hash.delete('cleanup.rb')
+  Mcmlln::Tools.write_json(jsonlog_hash, vjsonlog_tmp)
 
-File.open(testoutput, 'w') do |output|
-  output.puts "----------CHECKING XML-----------"
-  output.puts diff_xml
-  output.puts "----------CHECKING PDF HTML-----------"
-  output.puts diff_pdf
-  output.puts "----------CHECKING EPUB HTML-----------"
-  output.puts diff_epub
-  output.puts "----------CHECKING LAYOUT HTML-----------"
-  output.puts diff_html
-  output.puts "----------CHECKING JSON-----------"
-  output.puts diff_json
-  output.puts "----------CHECKING EPUB CSS-----------"
-  output.puts diff_ecss
-  output.puts "----------CHECKING PDF CSS-----------"
-  output.puts diff_pcss
-  output.puts "----------CHECKING JSON LOGFILE-----------"
-  output.puts diff_jsonlog
+  # check json log for differences - excluding timestamp lines (with "begun" or "completed" strings as specified)
+  diff_jsonlog = `diff -I '"begun": "2' -I '"completed": "2' '#{vjsonlog_tmp}' '#{njsonlog}'`
+
+  File.open(testoutput, 'w') do |output|
+    output.puts "----------CHECKING XML-----------"
+    output.puts diff_xml
+    output.puts "----------CHECKING PDF HTML-----------"
+    output.puts diff_pdf
+    output.puts "----------CHECKING EPUB HTML-----------"
+    output.puts diff_epub
+    output.puts "----------CHECKING LAYOUT HTML-----------"
+    output.puts diff_html
+    output.puts "----------CHECKING JSON-----------"
+    output.puts diff_json
+    output.puts "----------CHECKING EPUB CSS-----------"
+    output.puts diff_ecss
+    output.puts "----------CHECKING PDF CSS-----------"
+    output.puts diff_pcss
+    output.puts "----------CHECKING JSON LOGFILE-----------"
+    output.puts diff_jsonlog
+  end
+else
+  File.open(testoutput, 'w') do |output|
+    output.puts "No existing verified files for this document, skipping diffs."
+    output.puts "New verified files for this doc can be found here:"
+    output.puts "  #{holding_path}"
+    output.puts "Commit them to bookmaker_tests repo so they are available for future use."
+  end
 end
 
 # Copy all new verified files to holding folder
