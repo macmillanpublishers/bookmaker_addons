@@ -28,6 +28,8 @@ xml_file = File.join(Bkmkr::Paths.project_tmp_dir, "#{Bkmkr::Project.filename}.x
 
 title_js = File.join(Bkmkr::Paths.core_dir, "htmlmaker", "title.js")
 
+check_for_element_js = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "check_for_element.js")
+
 bookmaker_assets_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets")
 
 # ---------------------- METHODS
@@ -456,17 +458,19 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setTOCvalFromHTML(logkey='')
-  if Mcmlln::Tools.checkFileExist(Bkmkr::Paths.outputtmp_html)
-    check_toc = File.read(Bkmkr::Paths.outputtmp_html).scan(/class=".*?texttoc.*?"/)
-    if check_toc.any?
-      toc_value = "true"
-    else
-      toc_value = "false"
-    end
-  else
-    toc_value = "false"
-  end
+## wrapping Bkmkr::Tools.runnode in a new method for this script; to return a result for json_logfile
+def localRunNode(jsfile, args, logkey='')
+	Bkmkr::Tools.runnode(jsfile, args)
+rescue => logstring
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
+def setTOCvalFromHTML(check_for_element_js, logkey='')
+  target_el = 'section'
+  target_class = 'texttoc'
+  toc_value = localRunNode(check_for_element_js, "#{Bkmkr::Paths.outputtmp_html} #{target_el} #{target_class}", 'run-check_for_element_js-for_TOC')
+  toc_value = toc_value.strip
   return toc_value
 rescue => logstring
   return ''
@@ -495,14 +499,6 @@ end
 
 def writeConfigJson(hash, json, logkey='')
   Mcmlln::Tools.write_json(hash, json)
-rescue => logstring
-ensure
-  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
-end
-
-## wrapping Bkmkr::Tools.runnode in a new method for this script; to return a result for json_logfile
-def localRunNode(jsfile, args, logkey='')
-	Bkmkr::Tools.runnode(jsfile, args)
 rescue => logstring
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
@@ -616,7 +612,7 @@ setupPdfJSfile(override_js_file, proj_js_file, fallback_js_file, pdf_js_file, bo
 if doctemplatetype == 'pre-sectionstart'
   toc_value = setTOCvalFromXml(xml_file, 'set_TOC_value_From_xml')
 else
-  toc_value = setTOCvalFromHTML('set_TOC_value_From_html')
+  toc_value = setTOCvalFromHTML(check_for_element_js, 'set_TOC_value_From_html')
 end
 
 # Generating the json metadata
