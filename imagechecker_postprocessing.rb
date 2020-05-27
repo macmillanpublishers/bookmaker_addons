@@ -133,7 +133,7 @@ def insertPlaceholders(arr, html, placeholder, dest, logkey='')
   filecontents = html
   if arr.any?
     arr.each do |r|
-      filecontents = filecontents.gsub(/#{r}/,"missing.jpg")
+      filecontents = filecontents.sub(/images\/#{r}"/,"images/missing.jpg\"")
     end
     Mcmlln::Tools.copyFile(placeholder, dest)
   else
