@@ -49,6 +49,11 @@ def mkDirAsNeeded(dirpath)
   end
 end
 
+def readConfigJson(logkey='')
+  data_hash = Mcmlln::Tools.readjson(Metadata.configfile)
+  return data_hash
+end
+
 def prettyprintHTML(file, dir, prefix)
   contents = File.read(file)
   contents = contents.gsub(/(<[a-z])/, "\n\\0").gsub(/\sid="[\w-]*"/, "\s").gsub(/href="#[\w-]*"/, "")
@@ -73,10 +78,12 @@ mkDirAsNeeded(testdir)
 
 # skip diffs if verified files don't exist:
 if File.directory?(verified_path)
-  # check xml for differences
-  nxml = prettyprintHTML(tmp_xml, testdir, "N")
-
-  diff_xml = `diff '#{vxml}' '#{nxml}'`
+  # check xml for differences (if this was not rsuite-styled, wherein xml is not present):
+  data_hash = readConfigJson('read_config_json')
+  unless data_hash['doctemplatetype'] == 'rsuite'
+    nxml = prettyprintHTML(tmp_xml, testdir, "N")
+    diff_xml = `diff '#{vxml}' '#{nxml}'`
+  end
 
   #Mcmlln::Tools.copyFile(tmp_xml, verified_path)
 
