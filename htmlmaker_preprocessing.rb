@@ -24,8 +24,9 @@ replace_wsym_py = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "repla
 
 # ---------------------- METHODS
 
-def readConfigJson(configfile, logkey='')
-  data_hash = Mcmlln::Tools.readjson(configfile)
+## wrapping a Mcmlln::Tools method in a new method for this script; to return a result for json_logfile
+def readJson(jsonfile, logkey='')
+  data_hash = Mcmlln::Tools.readjson(jsonfile)
   return data_hash
 rescue => logstring
   return {}
@@ -170,7 +171,7 @@ end
 
 # ---------------------- PROCESSES
 # read in config.json if it exists
-prev_cfg_hash = readConfigJson(configfile, 'read_config_json')
+prev_cfg_hash = readJson(configfile, 'read_config_json')
 
 #convert .doc to .docx via powershell script, ignore html files
 convertDocToDocxPSscript(filetype, 'convert_doc_to_docx')
@@ -211,58 +212,112 @@ end
 replace_wsym(filetype, replace_wsym_py, 'F0D3', "\u00A9", 'replace_w:sym_copyright_symbol')
 
 # find out if this file came from (and its output returns to) rsuite
+from_rsuite = false
 if File.exist?(Bkmkr::Paths.api_Metadata_json)
-  from_rsuite = true
-else
-  from_rsuite = false
+  rs_metadata_hash = readJson(Bkmkr::Paths.api_Metadata_json, 'read_api-metadata_json')
+  if rs_metadata_hash.has_key?('edition_eanisbn13') #< this key must exist or something is very wrong.
+    from_rsuite = true
+  end
 end
 @log_hash['from_rsuite'] = from_rsuite
 
-# Create a temp JSON file, keeping select values from submitted config.json if present
-datahash = {}
-if prev_cfg_hash["title"] and prev_cfg_hash["title"] != "TK" and !prev_cfg_hash["title"].empty?
-  datahash.merge!(title: prev_cfg_hash["title"])
-else
-  datahash.merge!(title: "TK")
+# Create a temp JSON file, keeping select values from submitted config.json if present,
+# => then picking up values from rsuite bookmakermetadata file if available
+if !prev_cfg_hash['title'] || prev_cfg_hash["title"] == 'TK' || prev_cfg_hash["title"].empty?
+  if from_rsuite == true && rs_metadata_hash['work_cover_title']
+    prev_cfg_hash.merge!(title: rs_metadata_hash['work_cover_title'])
+  else
+    prev_cfg_hash.merge!(title: "TK")
+  end
 end
-if prev_cfg_hash["subtitle"] and prev_cfg_hash["subtitle"] != "TK" and !prev_cfg_hash["subtitle"].empty?
-  datahash.merge!(subtitle: prev_cfg_hash["subtitle"])
-else
-  datahash.merge!(subtitle: "TK")
+if !prev_cfg_hash['subtitle'] || prev_cfg_hash["subtitle"] == 'TK' || prev_cfg_hash["subtitle"].empty?
+  if from_rsuite == true && rs_metadata_hash['work_sub_title']
+    prev_cfg_hash.merge!(subtitle: rs_metadata_hash['work_sub_title'])
+  else
+    prev_cfg_hash.merge!(subtitle: "TK")
+  end
 end
-if prev_cfg_hash["author"] and prev_cfg_hash["author"] != "TK" and !prev_cfg_hash["author"].empty?
-  datahash.merge!(author: prev_cfg_hash["author"])
-else
-  datahash.merge!(author: "TK")
+if !prev_cfg_hash['author'] || prev_cfg_hash["author"] == 'TK' || prev_cfg_hash["author"].empty?
+  if from_rsuite == true && rs_metadata_hash['roles_author']
+    prev_cfg_hash.merge!(author: rs_metadata_hash['roles_author'])
+  else
+    prev_cfg_hash.merge!(author: "TK")
+  end
 end
-datahash.merge!(productid: "TK")
-datahash.merge!(printid: "TK")
-datahash.merge!(ebookid: "TK")
-if prev_cfg_hash["imprint"] and prev_cfg_hash["imprint"] != "TK" and !prev_cfg_hash["imprint"].empty?
-  datahash.merge!(imprint: prev_cfg_hash["imprint"])
-else
-  datahash.merge!(imprint: "TK")
+if !prev_cfg_hash['imprint'] || prev_cfg_hash["imprint"] == 'TK' || prev_cfg_hash["imprint"].empty?
+  if from_rsuite == true && rs_metadata_hash['edition_imprint']
+    prev_cfg_hash.merge!(imprint: rs_metadata_hash['edition_imprint'])
+  else
+    prev_cfg_hash.merge!(imprint: "TK")
+  end
 end
-if prev_cfg_hash["publisher"] and prev_cfg_hash["publisher"] != "TK" and !prev_cfg_hash["publisher"].empty?
-  datahash.merge!(publisher: prev_cfg_hash["publisher"])
-else
-  datahash.merge!(publisher: "TK")
+if !prev_cfg_hash['publisher'] || prev_cfg_hash["publisher"] == 'TK' || prev_cfg_hash["publisher"].empty?
+  if from_rsuite == true && rs_metadata_hash['imprint_publisher']
+    prev_cfg_hash.merge!(publisher: rs_metadata_hash['imprint_publisher'])
+  else
+    prev_cfg_hash.merge!(publisher: "TK")
+  end
 end
-datahash.merge!(project: "TK")
-datahash.merge!(stage: "TK")
-datahash.merge!(printcss: "TK")
-datahash.merge!(printjs: "TK")
-datahash.merge!(ebookcss: "TK")
-datahash.merge!(pod_toc: "TK")
-datahash.merge!(frontcover: "TK")
-datahash.merge!(epubtitlepage: "TK")
-datahash.merge!(podtitlepage: "TK")
-datahash.merge!(doctemplate_version: doctemplate_version)
-datahash.merge!(doctemplatetype: doctemplatetype)
-datahash.merge!(from_rsuite: from_rsuite)
+prev_cfg_hash.merge!(project: "TK")
+prev_cfg_hash.merge!(stage: "TK")
+prev_cfg_hash.merge!(printcss: "TK")
+prev_cfg_hash.merge!(printjs: "TK")
+prev_cfg_hash.merge!(ebookcss: "TK")
+prev_cfg_hash.merge!(pod_toc: "TK")
+prev_cfg_hash.merge!(frontcover: "TK")
+prev_cfg_hash.merge!(epubtitlepage: "TK")
+prev_cfg_hash.merge!(podtitlepage: "TK")
+prev_cfg_hash.merge!(doctemplate_version: doctemplate_version)
+prev_cfg_hash.merge!(doctemplatetype: doctemplatetype)
+prev_cfg_hash.merge!(from_rsuite: from_rsuite)
+# datahash = {}
+# if prev_cfg_hash["title"] and prev_cfg_hash["title"] != "TK" and !prev_cfg_hash["title"].empty?
+#   datahash.merge!(title: prev_cfg_hash["title"])
+# else
+#   datahash.merge!(title: "TK")
+# end
+# if prev_cfg_hash["subtitle"] and prev_cfg_hash["subtitle"] != "TK" and !prev_cfg_hash["subtitle"].empty?
+#   datahash.merge!(subtitle: prev_cfg_hash["subtitle"])
+# else
+#   datahash.merge!(subtitle: "TK")
+# end
+# if prev_cfg_hash["author"] and prev_cfg_hash["author"] != "TK" and !prev_cfg_hash["author"].empty?
+#   datahash.merge!(author: prev_cfg_hash["author"])
+# else
+#   datahash.merge!(author: "TK")
+# end
+# datahash.merge!(productid: "TK")
+# datahash.merge!(printid: "TK")
+# datahash.merge!(ebookid: "TK")
+# if prev_cfg_hash["imprint"] and prev_cfg_hash["imprint"] != "TK" and !prev_cfg_hash["imprint"].empty?
+#   datahash.merge!(imprint: prev_cfg_hash["imprint"])
+# else
+#   datahash.merge!(imprint: "TK")
+# end
+# if prev_cfg_hash["publisher"] and prev_cfg_hash["publisher"] != "TK" and !prev_cfg_hash["publisher"].empty?
+#   datahash.merge!(publisher: prev_cfg_hash["publisher"])
+# else
+#   datahash.merge!(publisher: "TK")
+# end
+# datahash.merge!(project: "TK")
+# datahash.merge!(stage: "TK")
+# datahash.merge!(printcss: "TK")
+# datahash.merge!(printjs: "TK")
+# datahash.merge!(ebookcss: "TK")
+# datahash.merge!(pod_toc: "TK")
+# datahash.merge!(frontcover: "TK")
+# datahash.merge!(epubtitlepage: "TK")
+# datahash.merge!(podtitlepage: "TK")
+# datahash.merge!(doctemplate_version: doctemplate_version)
+# datahash.merge!(doctemplatetype: doctemplatetype)
+# datahash.merge!(from_rsuite: from_rsuite)
+
+# # Printing the final JSON object
+# writeConfigJson(datahash, configfile, 'write_config_jsonfile')
 
 # Printing the final JSON object
-writeConfigJson(datahash, configfile, 'write_config_jsonfile')
+writeConfigJson(prev_cfg_hash, configfile, 'write_config_jsonfile')
+
 
 # ---------------------- LOGGING
 # Write json log:

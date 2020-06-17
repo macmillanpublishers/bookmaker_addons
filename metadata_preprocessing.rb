@@ -64,6 +64,8 @@ def findBookISBNs_metadataPreprocessing(config_hash, isbn_stylename, logkey='')
   end
   if config_hash.has_key?('ebookid') && config_hash['ebookid'] != 'TK'
     eisbn = config_hash['ebookid']
+  elsif eisbn == ''
+    eisbn = pisbn
   end
   return pisbn, eisbn, allworks
 rescue => logstring
