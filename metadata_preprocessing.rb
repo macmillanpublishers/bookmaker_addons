@@ -96,11 +96,13 @@ def findTitlepageImages(allimg, finalimg, logkey='')
   end
 
   # find podtitlepage matching name 'titlepage' exactly, prefer submitted images to those from prior runs
+  podtitlepage = ""
   if ptparr1.any?
     podtitlepage = ptparr1.find { |e| /[\/|\\]titlepage\./ =~ e }
   elsif ptparr2.any?
     podtitlepage = ptparr2.find { |e| /[\/|\\]titlepage\./ =~ e }
-  else
+  end
+  if !podtitlepage
     podtitlepage = ""
   end
 
