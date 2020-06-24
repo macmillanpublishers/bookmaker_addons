@@ -659,7 +659,7 @@ end
 # Generating the json metadata
 
 if frontcover.empty? && (stage_dir == "firstpass" || stage_dir.include?("galley") || stage_dir.include?("arc-") || stage_dir == "RBM" \
-  || stage_dir == "test" || (project_dir == 'validator' && stage_dir == 'direct'))
+  || stage_dir == "tests" || (project_dir == 'validator' && stage_dir == 'direct'))
   frontcoverval = "#{pisbn}_FC.jpg"
 else
   frontcoverval = frontcover
