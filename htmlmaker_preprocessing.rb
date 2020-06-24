@@ -1,5 +1,4 @@
 require 'fileutils'
-# require 'nokogiri'
 
 require_relative '../bookmaker/core/header.rb'
 
@@ -24,8 +23,9 @@ replace_wsym_py = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "repla
 
 # ---------------------- METHODS
 
-def readConfigJson(configfile, logkey='')
-  data_hash = Mcmlln::Tools.readjson(configfile)
+## wrapping a Mcmlln::Tools method in a new method for this script; to return a result for json_logfile
+def readJson(jsonfile, logkey='')
+  data_hash = Mcmlln::Tools.readjson(jsonfile)
   return data_hash
 rescue => logstring
   return {}
@@ -69,24 +69,6 @@ rescue => logstring
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
-
-# def checktemplate_versionHTML(htmlfile, logkey='')
-#   template_version = ''
-#   page = Nokogiri::HTML(open(htmlfile))
-#   # get meta info from html if it exists
-#   meta_templateversion = page.xpath('//meta[@name="templateversion"]/@content')
-#   if !meta_templateversion.empty?
-#     logstring = "template-version from meta-tag: #{meta_templateversion}"
-#     template_version = meta_templateversion #HTMLEntities.new.decode(metaimprint)
-#   else
-#     logstring = 'no meta-tag with templateversion (or no templateversion value)'
-#   end
-#   return template_version
-# rescue => logstring
-#   return ''
-# ensure
-#   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
-# end
 
 def checkDocTemplateVersion(filetype, get_custom_doc_prop_py, custom_doc_property_name, logkey='')
   doctemplate_version = ''
@@ -170,7 +152,7 @@ end
 
 # ---------------------- PROCESSES
 # read in config.json if it exists
-prev_cfg_hash = readConfigJson(configfile, 'read_config_json')
+cfg_hash = readJson(configfile, 'read_config_json')
 
 #convert .doc to .docx via powershell script, ignore html files
 convertDocToDocxPSscript(filetype, 'convert_doc_to_docx')
@@ -211,58 +193,84 @@ end
 replace_wsym(filetype, replace_wsym_py, 'F0D3', "\u00A9", 'replace_w:sym_copyright_symbol')
 
 # find out if this file came from (and its output returns to) rsuite
+from_rsuite = false
 if File.exist?(Bkmkr::Paths.api_Metadata_json)
-  from_rsuite = true
-else
-  from_rsuite = false
+  rs_metadata_hash = readJson(Bkmkr::Paths.api_Metadata_json, 'read_api-metadata_json')
+  if rs_metadata_hash.has_key?('edition_eanisbn13') #< this key must exist or something is very wrong.
+    from_rsuite = true
+  end
 end
 @log_hash['from_rsuite'] = from_rsuite
 
-# Create a temp JSON file, keeping select values from submitted config.json if present
-datahash = {}
-if prev_cfg_hash["title"] and prev_cfg_hash["title"] != "TK" and !prev_cfg_hash["title"].empty?
-  datahash.merge!(title: prev_cfg_hash["title"])
-else
-  datahash.merge!(title: "TK")
+# Create a temp JSON file,
+# => 1st looking to keep select values from submitted config.json if present,
+# => then picking up values from rsuite metadata file if present
+if !cfg_hash['printid'] || cfg_hash["printid"] == 'TK' || cfg_hash["printid"].empty?
+  if from_rsuite == true && rs_metadata_hash['edition_eanisbn13']
+    cfg_hash.merge!(printid: rs_metadata_hash['edition_eanisbn13'])
+  else
+    cfg_hash.merge!(printid: "TK")
+  end
 end
-if prev_cfg_hash["subtitle"] and prev_cfg_hash["subtitle"] != "TK" and !prev_cfg_hash["subtitle"].empty?
-  datahash.merge!(subtitle: prev_cfg_hash["subtitle"])
-else
-  datahash.merge!(subtitle: "TK")
+# no value is currently getting passed from rsuite for ebook isbn : 'ebook_eanisbn13' is a placeholder in case that's added
+if !cfg_hash['ebookid'] || cfg_hash["ebookid"] == 'TK' || cfg_hash["ebookid"].empty?
+  if from_rsuite == true && rs_metadata_hash['ebook_eanisbn13']
+    cfg_hash.merge!(ebookid: rs_metadata_hash['ebook_eanisbn13'])
+  else
+    cfg_hash.merge!(ebookid: "TK")
+  end
 end
-if prev_cfg_hash["author"] and prev_cfg_hash["author"] != "TK" and !prev_cfg_hash["author"].empty?
-  datahash.merge!(author: prev_cfg_hash["author"])
-else
-  datahash.merge!(author: "TK")
+if !cfg_hash['title'] || cfg_hash["title"] == 'TK' || cfg_hash["title"].empty?
+  if from_rsuite == true && rs_metadata_hash['work_cover_title']
+    cfg_hash.merge!(title: rs_metadata_hash['work_cover_title'])
+  else
+    cfg_hash.merge!(title: "TK")
+  end
 end
-datahash.merge!(productid: "TK")
-datahash.merge!(printid: "TK")
-datahash.merge!(ebookid: "TK")
-if prev_cfg_hash["imprint"] and prev_cfg_hash["imprint"] != "TK" and !prev_cfg_hash["imprint"].empty?
-  datahash.merge!(imprint: prev_cfg_hash["imprint"])
-else
-  datahash.merge!(imprint: "TK")
+if !cfg_hash['subtitle'] || cfg_hash["subtitle"] == 'TK' || cfg_hash["subtitle"].empty?
+  if from_rsuite == true && rs_metadata_hash['work_sub_title']
+    cfg_hash.merge!(subtitle: rs_metadata_hash['work_sub_title'])
+  else
+    cfg_hash.merge!(subtitle: "TK")
+  end
 end
-if prev_cfg_hash["publisher"] and prev_cfg_hash["publisher"] != "TK" and !prev_cfg_hash["publisher"].empty?
-  datahash.merge!(publisher: prev_cfg_hash["publisher"])
-else
-  datahash.merge!(publisher: "TK")
+if !cfg_hash['author'] || cfg_hash["author"] == 'TK' || cfg_hash["author"].empty?
+  if from_rsuite == true && rs_metadata_hash['roles_author']
+    cfg_hash.merge!(author: rs_metadata_hash['roles_author'])
+  else
+    cfg_hash.merge!(author: "TK")
+  end
 end
-datahash.merge!(project: "TK")
-datahash.merge!(stage: "TK")
-datahash.merge!(printcss: "TK")
-datahash.merge!(printjs: "TK")
-datahash.merge!(ebookcss: "TK")
-datahash.merge!(pod_toc: "TK")
-datahash.merge!(frontcover: "TK")
-datahash.merge!(epubtitlepage: "TK")
-datahash.merge!(podtitlepage: "TK")
-datahash.merge!(doctemplate_version: doctemplate_version)
-datahash.merge!(doctemplatetype: doctemplatetype)
-datahash.merge!(from_rsuite: from_rsuite)
+if !cfg_hash['imprint'] || cfg_hash["imprint"] == 'TK' || cfg_hash["imprint"].empty?
+  if from_rsuite == true && rs_metadata_hash['edition_imprint']
+    cfg_hash.merge!(imprint: rs_metadata_hash['edition_imprint'])
+  else
+    cfg_hash.merge!(imprint: "TK")
+  end
+end
+if !cfg_hash['publisher'] || cfg_hash["publisher"] == 'TK' || cfg_hash["publisher"].empty?
+  if from_rsuite == true && rs_metadata_hash['imprint_publisher']
+    cfg_hash.merge!(publisher: rs_metadata_hash['imprint_publisher'])
+  else
+    cfg_hash.merge!(publisher: "TK")
+  end
+end
+cfg_hash.merge!(project: "TK")
+cfg_hash.merge!(stage: "TK")
+cfg_hash.merge!(printcss: "TK")
+cfg_hash.merge!(printjs: "TK")
+cfg_hash.merge!(ebookcss: "TK")
+cfg_hash.merge!(pod_toc: "TK")
+cfg_hash.merge!(frontcover: "TK")
+cfg_hash.merge!(epubtitlepage: "TK")
+cfg_hash.merge!(podtitlepage: "TK")
+cfg_hash.merge!(doctemplate_version: doctemplate_version)
+cfg_hash.merge!(doctemplatetype: doctemplatetype)
+cfg_hash.merge!(from_rsuite: from_rsuite)
 
 # Printing the final JSON object
-writeConfigJson(datahash, configfile, 'write_config_jsonfile')
+writeConfigJson(cfg_hash, configfile, 'write_config_jsonfile')
+
 
 # ---------------------- LOGGING
 # Write json log:

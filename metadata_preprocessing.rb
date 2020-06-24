@@ -52,8 +52,26 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def findBookISBNs_metadataPreprocessing(isbn_stylename, logkey='')
-  pisbn, eisbn, allworks = findBookISBNs(Bkmkr::Paths.outputtmp_html, Bkmkr::Project.filename, isbn_stylename)
+def findBookISBNs_metadataPreprocessing(config_hash, isbn_stylename, logkey='')
+  eisbn = ''
+  allworks = []
+  # if we already have a printid or productid in config.json, use that for pisbn
+  if config_hash.has_key?('printid') && config_hash['printid'] != 'TK'
+    pisbn = config_hash['printid']
+  # else do a lookup
+  else
+    pisbn, eisbn, allworks = findBookISBNs(Bkmkr::Paths.outputtmp_html, Bkmkr::Project.filename, isbn_stylename)
+  end
+  # if we already have an ebookid in config.json, use that for eisbn
+  if config_hash.has_key?('ebookid') && config_hash['ebookid'] != 'TK'
+    eisbn = config_hash['ebookid']
+  # if we didn't already have an eisbn from config.json or pisbn lookup, lookup from DW here
+  elsif eisbn == ''
+    eisbn, allworks = getEbookIsbn(pisbn)
+  end
+  if allworks.empty?
+    allworks.push(pisbn, eisbn)
+  end
   return pisbn, eisbn, allworks
 rescue => logstring
   return '','',''
@@ -83,11 +101,13 @@ def findTitlepageImages(allimg, finalimg, logkey='')
   end
 
   # find podtitlepage matching name 'titlepage' exactly, prefer submitted images to those from prior runs
+  podtitlepage = ""
   if ptparr1.any?
     podtitlepage = ptparr1.find { |e| /[\/|\\]titlepage\./ =~ e }
   elsif ptparr2.any?
     podtitlepage = ptparr2.find { |e| /[\/|\\]titlepage\./ =~ e }
-  else
+  end
+  if !podtitlepage
     podtitlepage = ""
   end
 
@@ -169,28 +189,32 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setAuthorInfo(myhash, htmlfile, author_selector, logkey='')
-  # get the page tree via nokogiri
-  page = Nokogiri::HTML(open(htmlfile))
-  # get meta info from html if it exists
-  metabookauthor = page.xpath('//meta[@name="author"]/@content')
-  # Finding book title
-  if !metabookauthor.empty?
-    puts "Getting book AUTHOR from meta element"
-    authorname = HTMLEntities.new.decode(metabookauthor).encode('utf-8')
-  elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_COVERTITLE"].nil? or myhash["book"]["WORK_COVERTITLE"].empty? or !myhash["book"]["WORK_COVERTITLE"]
-    puts "Getting book AUTHOR from titlepage"
-    names = []
-    authorname = page.css(author_selector)
-    authorname.each do |t|
-      names << t.text
-    end
-    authorname = names.join(", ")
-    authorname = HTMLEntities.new.decode(authorname).encode('utf-8')
+def setAuthorInfo(config_hash, myhash, htmlfile, author_selector, logkey='')
+  if config_hash.has_key?('author') && config_hash['author'] != 'TK'
+    authorname = config_hash['author']
   else
-    puts "Getting book AUTHOR from config"
-    authorname = myhash['book']['WORK_COVERAUTHOR']
-    authorname = authorname.encode('utf-8')
+    # get the page tree via nokogiri
+    page = Nokogiri::HTML(open(htmlfile))
+    # get meta info from html if it exists
+    metabookauthor = page.xpath('//meta[@name="author"]/@content')
+    # Finding book title
+    if !metabookauthor.empty?
+      puts "Getting book AUTHOR from meta element"
+      authorname = HTMLEntities.new.decode(metabookauthor).encode('utf-8')
+    elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_COVERTITLE"].nil? or myhash["book"]["WORK_COVERTITLE"].empty? or !myhash["book"]["WORK_COVERTITLE"]
+      puts "Getting book AUTHOR from titlepage"
+      names = []
+      authorname = page.css(author_selector)
+      authorname.each do |t|
+        names << t.text
+      end
+      authorname = names.join(", ")
+      authorname = HTMLEntities.new.decode(authorname).encode('utf-8')
+    else
+      puts "Getting book AUTHOR from config"
+      authorname = myhash['book']['WORK_COVERAUTHOR']
+      authorname = authorname.encode('utf-8')
+    end
   end
   return authorname
 rescue => logstring
@@ -199,28 +223,32 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setBookTitle(myhash, htmlfile, title_selector, logkey='')
-  # get the page tree via nokogiri
-  page = Nokogiri::HTML(open(htmlfile))
-  # get meta info from html if it exists
-  metabooktitle = page.xpath('//meta[@name="title"]/@content')
-  # Finding book title
-  if !metabooktitle.empty?
-    puts "Getting book TITLE from meta element"
-    booktitle = HTMLEntities.new.decode(metabooktitle).encode('utf-8')
-  elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_COVERTITLE"].nil? or myhash["book"]["WORK_COVERTITLE"].empty? or !myhash["book"]["WORK_COVERTITLE"]
-    puts "Getting book TITLE from titlepage"
-    titles = []
-    booktitle = page.css(title_selector)
-    booktitle.each do |t|
-      titles << t.text
-    end
-    booktitle = titles.join(" ")
-    booktitle = HTMLEntities.new.decode(booktitle).encode('utf-8')
+def setBookTitle(config_hash, myhash, htmlfile, title_selector, logkey='')
+  if config_hash.has_key?('title') && config_hash['title'] != 'TK'
+    booktitle = config_hash['title']
   else
-    puts "Getting book TITLE from config"
-    booktitle = myhash["book"]["WORK_COVERTITLE"]
-    booktitle = booktitle.encode('utf-8')
+    # get the page tree via nokogiri
+    page = Nokogiri::HTML(open(htmlfile))
+    # get meta info from html if it exists
+    metabooktitle = page.xpath('//meta[@name="title"]/@content')
+    # Finding book title
+    if !metabooktitle.empty?
+      puts "Getting book TITLE from meta element"
+      booktitle = HTMLEntities.new.decode(metabooktitle).encode('utf-8')
+    elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_COVERTITLE"].nil? or myhash["book"]["WORK_COVERTITLE"].empty? or !myhash["book"]["WORK_COVERTITLE"]
+      puts "Getting book TITLE from titlepage"
+      titles = []
+      booktitle = page.css(title_selector)
+      booktitle.each do |t|
+        titles << t.text
+      end
+      booktitle = titles.join(" ")
+      booktitle = HTMLEntities.new.decode(booktitle).encode('utf-8')
+    else
+      puts "Getting book TITLE from config"
+      booktitle = myhash["book"]["WORK_COVERTITLE"]
+      booktitle = booktitle.encode('utf-8')
+    end
   end
   return booktitle
 rescue => logstring
@@ -229,28 +257,32 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setBookSubtitle(myhash, htmlfile, subtitle_selector, logkey='')
-  # get the page tree via nokogiri
-  page = Nokogiri::HTML(open(htmlfile))
-  # get meta info from html if it exists
-  metabooksubtitle = page.xpath('//meta[@name="subtitle"]/@content')
-  # Finding book title
-  if !metabooksubtitle.empty?
-    puts "Getting book SUBTITLE from meta element"
-    booksubtitle = HTMLEntities.new.decode(metabooksubtitle).encode('utf-8')
-  elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_COVERTITLE"].nil? or myhash["book"]["WORK_COVERTITLE"].empty? or !myhash["book"]["WORK_COVERTITLE"]
-    puts "Getting book SUBTITLE from titlepage"
-    subtitles = []
-    booksubtitle = page.css(subtitle_selector)
-    booksubtitle.each do |t|
-      subtitles << t.text
-    end
-    booksubtitle = subtitles.join(" ")
-    booksubtitle = HTMLEntities.new.decode(booksubtitle).encode('utf-8')
+def setBookSubtitle(config_hash, myhash, htmlfile, subtitle_selector, logkey='')
+  if config_hash.has_key?('subtitle') && config_hash['subtitle'] != 'TK'
+    booksubtitle = config_hash['subtitle']
   else
-    puts "Getting book SUBTITLE from config"
-    booksubtitle = myhash["book"]["WORK_SUBTITLE"]
-    booksubtitle = booksubtitle.encode('utf-8')
+    # get the page tree via nokogiri
+    page = Nokogiri::HTML(open(htmlfile))
+    # get meta info from html if it exists
+    metabooksubtitle = page.xpath('//meta[@name="subtitle"]/@content')
+    # Finding book title
+    if !metabooksubtitle.empty?
+      puts "Getting book SUBTITLE from meta element"
+      booksubtitle = HTMLEntities.new.decode(metabooksubtitle).encode('utf-8')
+    elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_COVERTITLE"].nil? or myhash["book"]["WORK_COVERTITLE"].empty? or !myhash["book"]["WORK_COVERTITLE"]
+      puts "Getting book SUBTITLE from titlepage"
+      subtitles = []
+      booksubtitle = page.css(subtitle_selector)
+      booksubtitle.each do |t|
+        subtitles << t.text
+      end
+      booksubtitle = subtitles.join(" ")
+      booksubtitle = HTMLEntities.new.decode(booksubtitle).encode('utf-8')
+    else
+      puts "Getting book SUBTITLE from config"
+      booksubtitle = myhash["book"]["WORK_SUBTITLE"]
+      booksubtitle = booksubtitle.encode('utf-8')
+    end
   end
   return booksubtitle
 rescue => logstring
@@ -283,22 +315,26 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setImprint(myhash, htmlfile, project_dir, imprint_json, logkey='')
-  # get the page tree via nokogiri
-  page = Nokogiri::HTML(open(htmlfile))
-  # get meta info from html if it exists
-  metaimprint = page.xpath('//meta[@name="imprint"]/@content')
-  # Finding imprint name
-  if !metaimprint.empty?
-    puts "Getting book IMPRINT from meta element"
-    imprint = HTMLEntities.new.decode(metaimprint)
-  elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["IMPRINT_DESC"].nil? or myhash["book"]["IMPRINT_DESC"].empty? or !myhash["book"]["IMPRINT_DESC"]
-    puts "Getting book IMPRINT from config json"
-    imprint = getImprint(project_dir, imprint_json, 'get_imprint_from_json')
+def setImprint(config_hash, myhash, htmlfile, project_dir, imprint_json, logkey='')
+  if config_hash.has_key?('imprint') && config_hash['imprint'] != 'TK'
+    imprint = config_hash['imprint']
   else
-    puts "Getting book IMPRINT from database"
-    imprint = myhash["book"]["IMPRINT_DESC"]
-    imprint = imprint.encode('utf-8')
+    # get the page tree via nokogiri
+    page = Nokogiri::HTML(open(htmlfile))
+    # get meta info from html if it exists
+    metaimprint = page.xpath('//meta[@name="imprint"]/@content')
+    # Finding imprint name
+    if !metaimprint.empty?
+      puts "Getting book IMPRINT from meta element"
+      imprint = HTMLEntities.new.decode(metaimprint)
+    elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["IMPRINT_DESC"].nil? or myhash["book"]["IMPRINT_DESC"].empty? or !myhash["book"]["IMPRINT_DESC"]
+      puts "Getting book IMPRINT from config json"
+      imprint = getImprint(project_dir, imprint_json, 'get_imprint_from_json')
+    else
+      puts "Getting book IMPRINT from database"
+      imprint = myhash["book"]["IMPRINT_DESC"]
+      imprint = imprint.encode('utf-8')
+    end
   end
   return imprint
 rescue => logstring
@@ -307,18 +343,22 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setPublisher(myhash, htmlfile, imprint, logkey='')
-  # get the page tree via nokogiri
-  page = Nokogiri::HTML(open(htmlfile))
-  # get meta info from html if it exists
-  metapublisher = page.xpath('//meta[@name="publisher"]/@content')
-  # Finding publisher
-  if !metapublisher.empty?
-    puts "Getting book PUBLISHER from meta element"
-    publisher = HTMLEntities.new.decode(metapublisher)
+def setPublisher(config_hash, myhash, htmlfile, imprint, logkey='')
+  if config_hash.has_key?('publisher') && config_hash['publisher'] != 'TK'
+    publisher = config_hash['publisher']
   else
-    puts "Getting book PUBLISHER from imprint"
-    publisher = imprint
+    # get the page tree via nokogiri
+    page = Nokogiri::HTML(open(htmlfile))
+    # get meta info from html if it exists
+    metapublisher = page.xpath('//meta[@name="publisher"]/@content')
+    # Finding publisher
+    if !metapublisher.empty?
+      puts "Getting book PUBLISHER from meta element"
+      publisher = HTMLEntities.new.decode(metapublisher)
+    else
+      puts "Getting book PUBLISHER from imprint"
+      publisher = imprint
+    end
   end
   return publisher
 rescue => logstring
@@ -327,7 +367,7 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setTemplate(myhash, htmlfile, logkey='')
+def setTemplate(htmlfile, logkey='')
   # get the page tree via nokogiri
   page = Nokogiri::HTML(open(htmlfile))
   # get meta info from html if it exists
@@ -525,7 +565,7 @@ else
   subtitle_selector = ".TitlepageBookSubtitlestit"
 end
 
-pisbn, eisbn, allworks = findBookISBNs_metadataPreprocessing(isbn_stylename, 'find_book_ISBNs')
+pisbn, eisbn, allworks = findBookISBNs_metadataPreprocessing(prev_cfg_hash, isbn_stylename, 'find_book_ISBNs')
 
 # this all depends on the ISBN; must follow the isbn_finder
 final_dir, @log_hash = Metadata.setupFinalDir(Bkmkr::Paths.project_tmp_dir, Bkmkr::Paths.done_dir, pisbn, Bkmkr::Paths.unique_run_id, @log_hash, 'metadata.rb-setup_final_dir')
@@ -542,40 +582,41 @@ epubtitlepage, podtitlepage = findTitlepageImages(allimg, finalimg, 'find_titlep
 frontcover = findFrontCover(final_dir, allimg, allworks, 'find_frontcover')
 @log_hash['frontcover'] = frontcover
 
-# connect to DB for all other metadata
-myhash = databaseLookup(pisbn, eisbn, 'get_Biblio_metadata')
-
-#feedback for plaintext & json log
-unless myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book']
-  logstring = "DB Connection SUCCESS: Found a book record"
+# connect to DB for all other metadata, unless we're coming from RSuite
+if prev_cfg_hash.has_key?('from_rsuite') and prev_cfg_hash['from_rsuite'] == true
+  authorname = prev_cfg_hash['author']
+  booktitle = prev_cfg_hash['title']
+  booksubtitle = prev_cfg_hash['subtitle']
+  imprint = prev_cfg_hash['imprint']
+  publisher = prev_cfg_hash['publisher']
+  logstring = 'RSuite->bookmaker run, skipping DB lookup for book metadata'
+  puts logstring
 else
-  logstring = "No DB record found; falling back to manuscript fields"
+  myhash = databaseLookup(pisbn, eisbn, 'get_Biblio_metadata')
+  #feedback for plaintext & json log
+  unless myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book']
+    logstring = "DB Connection SUCCESS: Found a book record"
+  else
+    logstring = "No DB record found; falling back to manuscript fields"
+  end
+  puts logstring
+  # Setting metadata vars for config.json:
+  # Prioritize metainfo from html, then edition info from biblio, then scan html for tagged data
+  authorname = setAuthorInfo(prev_cfg_hash, myhash, Bkmkr::Paths.outputtmp_html, author_selector, 'set_author_info')
+  booktitle = setBookTitle(prev_cfg_hash, myhash, Bkmkr::Paths.outputtmp_html, title_selector, 'set_book_title')
+  booksubtitle = setBookSubtitle(prev_cfg_hash, myhash, Bkmkr::Paths.outputtmp_html, subtitle_selector, 'set_book_subtitle')
+  imprint = setImprint(prev_cfg_hash, myhash, Bkmkr::Paths.outputtmp_html, project_dir, imprint_json, 'set_imprint')
+  publisher = setPublisher(prev_cfg_hash, myhash, Bkmkr::Paths.outputtmp_html, imprint, 'set_publisher')
 end
-puts logstring
+
 @log_hash['query_status'] = logstring
-
-# read in html for use getting title metadata
-html_contents = readFile(Bkmkr::Paths.outputtmp_html, 'get_outputtmp_html_contents')
-
-# Setting metadata vars for config.json:
-# Prioritize metainfo from html, then edition info from biblio, then scan html for tagged data
-authorname = setAuthorInfo(myhash, Bkmkr::Paths.outputtmp_html, author_selector, 'set_author_info')
 @log_hash['author_name'] = authorname
-
-booktitle = setBookTitle(myhash, Bkmkr::Paths.outputtmp_html, title_selector, 'set_book_title')
 @log_hash['book_title'] = booktitle
-
-booksubtitle = setBookSubtitle(myhash, Bkmkr::Paths.outputtmp_html, subtitle_selector, 'set_book_subtitle')
 @log_hash['book_subtitle'] = booksubtitle
-
-imprint = setImprint(myhash, Bkmkr::Paths.outputtmp_html, project_dir, imprint_json, 'set_imprint')
 @log_hash['imprint'] = imprint
-
-publisher = setPublisher(myhash, Bkmkr::Paths.outputtmp_html, imprint, 'set_publisher')
 @log_hash['publisher'] = publisher
 
-metatemplate, template = setTemplate(myhash, Bkmkr::Paths.outputtmp_html, 'set_design_template')
-
+metatemplate, template = setTemplate(Bkmkr::Paths.outputtmp_html, 'set_design_template')
 
 # print and epub css files
 epub_css_dir = File.join(bookmaker_assets_dir, "epubmaker", "css")
@@ -618,7 +659,7 @@ end
 # Generating the json metadata
 
 if frontcover.empty? && (stage_dir == "firstpass" || stage_dir.include?("galley") || stage_dir.include?("arc-") || stage_dir == "RBM" \
-  || stage_dir == "test" || (project_dir == 'validator' && stage_dir == 'direct'))
+  || stage_dir == "tests" || (project_dir == 'validator' && stage_dir == 'direct'))
   frontcoverval = "#{pisbn}_FC.jpg"
 else
   frontcoverval = frontcover
