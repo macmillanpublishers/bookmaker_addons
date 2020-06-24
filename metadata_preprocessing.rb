@@ -55,17 +55,22 @@ end
 def findBookISBNs_metadataPreprocessing(config_hash, isbn_stylename, logkey='')
   eisbn = ''
   allworks = []
+  # if we already have a printid or productid in config.json, use that for pisbn
   if config_hash.has_key?('printid') && config_hash['printid'] != 'TK'
     pisbn = config_hash['printid']
-  elsif config_hash.has_key?('productid') && config_hash['productid'] != 'TK'
-    pisbn = config_hash['productid']
+  # else do a lookup
   else
     pisbn, eisbn, allworks = findBookISBNs(Bkmkr::Paths.outputtmp_html, Bkmkr::Project.filename, isbn_stylename)
   end
+  # if we already have an ebookid in config.json, use that for eisbn
   if config_hash.has_key?('ebookid') && config_hash['ebookid'] != 'TK'
     eisbn = config_hash['ebookid']
+  # if we didn't already have an eisbn from config.json or pisbn lookup, lookup from DW here
   elsif eisbn == ''
-    eisbn = pisbn
+    eisbn, allworks = getEbookIsbn(pisbn)
+  end
+  if allworks.empty?
+    allworks.push(pisbn, eisbn)
   end
   return pisbn, eisbn, allworks
 rescue => logstring

@@ -208,10 +208,8 @@ end
 if !cfg_hash['printid'] || cfg_hash["printid"] == 'TK' || cfg_hash["printid"].empty?
   if from_rsuite == true && rs_metadata_hash['edition_eanisbn13']
     cfg_hash.merge!(printid: rs_metadata_hash['edition_eanisbn13'])
-    cfg_hash.merge!(productid: rs_metadata_hash['edition_eanisbn13'])
   else
     cfg_hash.merge!(printid: "TK")
-    cfg_hash.merge!(productid: "TK")
   end
 end
 # no value is currently getting passed from rsuite for ebook isbn : 'ebook_eanisbn13' is a placeholder in case that's added
