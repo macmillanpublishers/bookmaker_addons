@@ -11,32 +11,32 @@ fs.readFile(file, function editContent (err, contents) {
 if (doctemplatetype == 'pre-sectionstart') {
     // Add links back to TOC to chapter heads
     $("section[data-type='chapter'] h1").each(function () {
-      var newlink = "<a href='toc01.html'>" + $( this ).text() + "</a>";
+      var newlink = "<a href='toc01.xhtml'>" + $( this ).text() + "</a>";
       $(this).empty();
       $(this).prepend(newlink);
     });
     // Add links back to TOC to appendix heads
     $("section[data-type='appendix'] h1").each(function () {
-      var newlink = "<a href='toc01.html'>" + $( this ).text() + "</a>";
+      var newlink = "<a href='toc01.xhtml'>" + $( this ).text() + "</a>";
       $(this).empty();
       $(this).prepend(newlink);
     });
    // add link back to TOC to preface heads
     $("section[data-type='preface'] h1").each(function () {
-      var newlink = "<a href='toc01.html'>" + $( this ).text() + "</a>";
+      var newlink = "<a href='toc01.xhtml'>" + $( this ).text() + "</a>";
       $(this).empty();
       $(this).prepend(newlink);
     });
    // Add links back to TOC to part heads
     $("div[data-type='part'] h1").each(function () {
-      var newlink = "<a href='toc01.html'>" + $( this ).text() + "</a>";
+      var newlink = "<a href='toc01.xhtml'>" + $( this ).text() + "</a>";
       $(this).empty();
       $(this).prepend(newlink);
     });
 } else {
   // Add links back to TOC to all section heads and part heads
   $("body>section>div>h1, div[data-type='part']>section>h1, div[data-type='part']>h1").each(function () {
-    var newlink = "<a href='toc01.html'>" + $( this ).text() + "</a>";
+    var newlink = "<a href='toc01.xhtml'>" + $( this ).text() + "</a>";
     $(this).empty();
     $(this).prepend(newlink);
   });

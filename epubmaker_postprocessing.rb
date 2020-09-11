@@ -22,7 +22,7 @@ chunk_xsl = File.join(Bkmkr::Paths.scripts_dir, "HTMLBook", "htmlbook-xsl", "chu
 
 oebps_dir = File.join(Bkmkr::Paths.project_tmp_dir, "OEBPS")
 
-toc01_html = File.join(oebps_dir, "toc01.html")
+toc01_html = File.join(oebps_dir, "toc01.xhtml")
 
 zipepub_py = File.join(Bkmkr::Paths.core_dir, "epubmaker", "zipepub.py")
 
@@ -289,7 +289,7 @@ htmlfilenames.concat htmlfileshortnames
 
 # for every html file in OEBPS with one of these filename prefixes, create links to TOC for every heading.
 htmlfilenames.uniq.each { |prefix|
-  addLinkstoTOC(oebps_dir, "#{prefix}[0-9][0-9]*.html", epubmakerpostprocessingjs, doctemplatetype, "add_TOC_links_to_heads_in_#{prefix}.html_files")
+  addLinkstoTOC(oebps_dir, "#{prefix}[0-9][0-9]*.xhtml", epubmakerpostprocessingjs, doctemplatetype, "add_TOC_links_to_heads_in_#{prefix}.html_files")
 }
 
 # fix toc entry in ncx
