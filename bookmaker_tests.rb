@@ -4,7 +4,7 @@ require_relative '../bookmaker/core/header.rb'
 require_relative '../bookmaker/core/metadata.rb'
 require_relative '../bookmaker/core/utilities/mcmlln-tools.rb'
 
-epub_tmp_html = File.join(Bkmkr::Paths.project_tmp_dir, "epub_tmp.html")
+epub_tmp_html = File.join(Bkmkr::Paths.project_tmp_dir, "epub_tmp.xhtml")
 pdf_tmp_html = File.join(Bkmkr::Paths.project_tmp_dir, "pdf_tmp.html")
 tmp_xml = File.join(Bkmkr::Paths.project_tmp_dir, "#{Bkmkr::Project.filename}.xml")
 
@@ -18,8 +18,8 @@ vxml = File.join(verified_path, "#{Bkmkr::Project.filename}.xml")
 holding_xml = File.join(holding_path, "#{Bkmkr::Project.filename}.xml")
 vpdf = File.join(verified_path, "pdf_tmp.html")
 holding_pdf = File.join(holding_path, "pdf_tmp.html")
-vepub = File.join(verified_path, "epub_tmp.html")
-holding_epub = File.join(holding_path, "epub_tmp.html")
+vepub = File.join(verified_path, "epub_tmp.xhtml")
+holding_epub = File.join(holding_path, "epub_tmp.xhtml")
 vhtml = File.join(verified_path, "#{Metadata.pisbn}.html")
 nhtml = File.join(Metadata.final_dir, "layout", "#{Metadata.pisbn}.html")
 final_html = File.join(Metadata.final_dir, "layout", "#{Metadata.pisbn}.html")
