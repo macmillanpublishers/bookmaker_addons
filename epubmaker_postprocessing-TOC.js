@@ -19,7 +19,7 @@ $("li[data-type='copyright-page']").before(
   .addClass("Nonprinting")
   .append(
     $('<a>')
-      .attr("href","toc01.html")
+      .attr("href","toc01.xhtml")
       .append("Contents")
     ));
 
@@ -33,7 +33,7 @@ $("li[data-type='preface'] a").each(function () {
 // edit <a> for Cover: add text 'Cover', edit href, addClass Nonprinting
 $("li[data-type='cover'] a[href='#bookcover01']")
   .text("Cover")
-  .attr('href', "cover.html")
+  .attr('href', "cover.xhtml")
   .parent().addClass("Nonprinting");
 
 
