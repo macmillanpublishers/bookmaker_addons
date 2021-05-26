@@ -84,7 +84,7 @@ if (endnotetxt_id_array.length > 0) {
     // if we find the span.ref related to the id, we add a link, with link text of the id #
     if (target_span.length > 0) {
       reftext = entxt_id.split('_').pop();
-      var newlink = '<a href="' + en_textlink_dict[entxt_id] + '">' + reftext + '</a>';
+      var newlink = '<a href="' + en_textlink_dict[entxt_id] + '">' + reftext + ' </a>';
       target_span.append(newlink);
     }
   }
