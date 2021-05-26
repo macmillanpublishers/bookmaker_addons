@@ -1,6 +1,7 @@
 require 'fileutils'
 require 'net/smtp'
 require 'nokogiri'
+require 'json'
 
 unless (ENV['TRAVIS_TEST']) == 'true'
   require_relative '../bookmaker/core/header.rb'
@@ -35,6 +36,8 @@ epubcheck = File.join(Bkmkr::Paths.core_dir, "epubmaker", "epubcheck", "epubchec
 epubmakerpostprocessingjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "epubmaker_postprocessing.js")
 
 epubmakerpostprocessingTOCjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "epubmaker_postprocessing-TOC.js")
+
+endnote_link_js = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "epubmaker_postprocessing-endnote_link.js")
 
 testing_value_file = File.join(Bkmkr::Paths.resource_dir, "staging.txt")
 
@@ -96,12 +99,44 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def addLinkstoTOC(oebps_dir, file_select_string, epubmakerpostprocessingjs, doctemplatetype, logkey='')
-  searchdir = File.join(oebps_dir, file_select_string)
-  chapfiles = Dir.glob(searchdir)
-  chapfiles.each do |c|
+def getXHTMLfiles(oebps_dir, htmlfilenames, logkey='')
+  allXhtmlFiles = []
+  htmlfilenames.uniq.each { |prefix|
+    file_select_string = "#{prefix}[0-9][0-9]*.xhtml"
+    searchdir = File.join(oebps_dir, file_select_string)
+    xhtmlFiles = Dir.glob(searchdir)
+    allXhtmlFiles += xhtmlFiles
+  }
+  return allXhtmlFiles
+rescue => logstring
+  return []
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
+def addLinkstoTOC(allXhtmlFiles, epubmakerpostprocessingjs, doctemplatetype, logkey='')
+  allXhtmlFiles.each do |c|
     Bkmkr::Tools.runnode(epubmakerpostprocessingjs, "#{c} #{doctemplatetype}")
   end
+rescue => logstring
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
+def prepareArrayForJS(myarray, logkey='')
+  dqarray = myarray.map {|x| "\"#{x}\""}.compact
+  json_array = JSON.generate(dqarray)
+  return json_array
+rescue => logstring
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
+def linkAnyEndnotes(bmfiles, htmlfiles, endnote_link_js, endnotetext_class, enoteref_id_prefix, logkey='')
+  jsready_bmfilelist = prepareArrayForJS(bmfiles, 'prep_bmfiles_array_forJS')
+  jsready_allfilelist = prepareArrayForJS(htmlfiles, 'prep_allfiles_array_forJS')
+  endnote_link_results = Bkmkr::Tools.runnode(endnote_link_js, "#{endnotetext_class} #{enoteref_id_prefix} #{jsready_bmfilelist} #{jsready_allfilelist}")
+  logstring = endnote_link_results
 rescue => logstring
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
@@ -278,22 +313,32 @@ else
   imageclassname = "Illustrationholderill"
 end
 
+endnotetxt_class = "endnotetext"
+
+enoteref_id_prefix = "endnoteref"
+
 styleconfig_hash = readJson(styleconfig_json, 'read_styleconfig_json')
 
 htmlfilenames = getHTMLfilenameTypes(styleconfig_hash, 'get_html_filename-types')
 
 htmlfileshortnames = getHTMLfileShortNames(chunk_xsl, 'get_html_file_short_names')
 
-# combine the 2 arrays of html filename prefix-possiblities
+# # combine the 2 arrays of html filename prefix-possiblities
 htmlfilenames.concat htmlfileshortnames
 
-# for every html file in OEBPS with one of these filename prefixes, create links to TOC for every heading.
-htmlfilenames.uniq.each { |prefix|
-  addLinkstoTOC(oebps_dir, "#{prefix}[0-9][0-9]*.xhtml", epubmakerpostprocessingjs, doctemplatetype, "add_TOC_links_to_heads_in_#{prefix}.html_files")
-}
+all_htmlfiles = getXHTMLfiles(oebps_dir, htmlfilenames, 'getXHTMLfiles_All')
 
-# fix toc entry in ncx
-# fix title page text in ncx
+# for every html file in OEBPS with one of these filename prefixes, create links to TOC for every heading.
+addLinkstoTOC(all_htmlfiles, epubmakerpostprocessingjs, doctemplatetype, "add_TOC_links_to_heads_in_html_files")
+
+appendix_htmlfiles = getXHTMLfiles(oebps_dir, ['app', 'appendix'], 'getXHTMLfiles_appendix')
+
+# finds endnote text in bm html, scans all html for matching refs and links, goes back to Notes section to create reverse links
+# also adds corresponding note numbers to backmatter
+linkAnyEndnotes(appendix_htmlfiles, all_htmlfiles, endnote_link_js, endnotetxt_class, enoteref_id_prefix, 'epubmaker_postprocessing-endnote_find_js')
+
+# # fix toc entry in ncx
+# # fix title page text in ncx
 ncxcontents = readFile("#{oebps_dir}/toc.ncx", 'read_ncxcontents')
 replace = fixTOCandTPtextinNCX(ncxcontents, 'fix_toc_and_tptext_in_NCX')
 overwriteFile("#{oebps_dir}/toc.ncx", replace, 'write_new_ncxcontents')
