@@ -433,7 +433,7 @@ def setPdfCssFile(metatemplate, template, pdf_css_dir, stage_dir, resource_dir, 
   elsif File.file?("#{pdf_css_dir}/#{resource_dir}/pdf.css")
     pdf_css_file = "#{pdf_css_dir}/#{resource_dir}/pdf.css"
   else
-    pdf_css_file = "#{pdf_css_dir}/torDOTcom/pdf.css"
+    pdf_css_file = "#{pdf_css_dir}/generic/pdf.css"
   end
   return pdf_css_file
 rescue => logstring
@@ -640,7 +640,7 @@ submitted_override_js = File.join(Bkmkr::Paths.project_tmp_dir_submitted, "overr
 existing_override_js = File.join(final_dir, "layout", "override_pdf.js")
 override_js_file = File.join(Bkmkr::Paths.project_tmp_dir, "override_pdf.js")
 proj_js_file = File.join(bookmaker_assets_dir, "pdfmaker", "scripts", pdf_resource_dir, "pdf.js")
-fallback_js_file = File.join(bookmaker_assets_dir, "pdfmaker", "scripts", "torDOTcom", "pdf.js")
+fallback_js_file = File.join(bookmaker_assets_dir, "pdfmaker", "scripts", "generic", "pdf.js")
 pdf_js_file = File.join(Bkmkr::Paths.project_tmp_dir, "pdf.js")
 
 # put override js file in tmp if it exists
