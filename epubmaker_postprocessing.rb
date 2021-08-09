@@ -17,7 +17,7 @@ end
 
 local_log_hash, @log_hash = Bkmkr::Paths.setLocalLoghash
 
-styleconfig_json = File.join(Bkmkr::Paths.scripts_dir, "htmlmaker_js", "style_config.json")
+styleconfig_json = File.join(Bkmkr::Paths.scripts_dir, "htmlmaker_js_rsuite", "style_config.json")
 
 chunk_xsl = File.join(Bkmkr::Paths.scripts_dir, "HTMLBook", "htmlbook-xsl", "chunk.xsl")
 
