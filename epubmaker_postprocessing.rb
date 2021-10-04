@@ -195,7 +195,8 @@ end
 def rmOpfMetatag(opfcontents, logkey='')
   new_opf = Nokogiri::XML(opfcontents)
   new_opf.xpath('//xmlns:meta[@id="meta-identifier" and @property="dcterms:identifier"]').remove
-  return new_opf
+  nonpretty_newopf = new_opf.to_xml(:indent => 0)
+  return nonpretty_newopf
 rescue => logstring
   return ''
 ensure
