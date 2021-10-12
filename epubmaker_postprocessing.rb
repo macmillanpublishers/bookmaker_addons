@@ -192,6 +192,17 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
+def rmOpfMetatag(opfcontents, logkey='')
+  new_opf = Nokogiri::XML(opfcontents)
+  new_opf.xpath('//xmlns:meta[@id="meta-identifier" and @property="dcterms:identifier"]').remove
+  nonpretty_newopf = new_opf.to_xml(:indent => 0)
+  return nonpretty_newopf
+rescue => logstring
+  return ''
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
 def listSpacebreakImages(file, imageclassname, logkey='')
   # An array of all the image files referenced in the source html file
   imgarr = File.read(file).scan(/(figure class="#{imageclassname} customimage"><img src="images\/)(\S*)(")/)
@@ -347,10 +358,14 @@ overwriteFile("#{oebps_dir}/toc.ncx", replace, 'write_new_ncxcontents')
 # fix title page text in html toc
 localRunNode(epubmakerpostprocessingTOCjs, toc01_html, 'epubmaker_postprocessing_TOC_js')
 
-# add toc to text flow
+# make edits to contents.opf:
 opfcontents = readFile("#{oebps_dir}/content.opf", 'read_opfcontents')
-replace = addTOCtoTextFlow(opfcontents, 'add_toc_to_text_flow')
-overwriteFile("#{oebps_dir}/content.opf", replace, 'write_new_opfcontents')
+#   add toc to text flow
+opfcontents_b = addTOCtoTextFlow(opfcontents, 'add_toc_to_text_flow')
+#   rm <meta id="meta-identifier"> element from content.opf (wdv-416, as per netgalley)
+opfcontents_c = rmOpfMetatag(opfcontents_b, 'rm_vestigial_meta_tag')
+# write edited donctents.opf content back out to file
+overwriteFile("#{oebps_dir}/content.opf", opfcontents_c, 'write_new_opfcontents')
 
 # remove titlepage.jpg if exists
 podtitlepagetmp = File.join(oebps_dir, "titlepage.jpg")

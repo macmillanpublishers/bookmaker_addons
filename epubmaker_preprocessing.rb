@@ -20,6 +20,7 @@ finalimagedir = File.join(Metadata.final_dir, "images")
 titlepagejs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "epubmaker_preprocessing-titlepage.js")
 newsletterjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "epubmaker_preprocessing-newsletterlinks.js")
 newslettersinglejs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "epubmaker_preprocessing-newsletterlinkssingle.js")
+add_metatag_js = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "add_metatag.js")
 
 # ---------------------- METHODS
 
@@ -420,6 +421,13 @@ filecontents = addHtmlLineBreaks(filecontents, 'add_html_line_breaks')
 
 # write epub-ready html to file
 overwriteFile(epub_tmp_html, filecontents, 'overwrite_epubhtml_final')
+
+# write pub-indentifier metatag
+if galley_run == true
+  localRunNode(add_metatag_js, "#{epub_tmp_html} \"pub-identifier\" \"#{Metadata.pisbn}\"", "add_pub-identifier_meta_tag")
+else
+  localRunNode(add_metatag_js, "#{epub_tmp_html} \"pub-identifier\" \"#{Metadata.eisbn}\"", "add_pub-identifier_meta_tag")
+end
 
 # Write json log:
 Mcmlln::Tools.logtoJson(@log_hash, 'completed', Time.now)
