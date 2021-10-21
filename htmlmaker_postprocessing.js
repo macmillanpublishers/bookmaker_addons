@@ -190,7 +190,7 @@ fs.readFile(file, function editContent(err, contents) {
     $(this).attr('href', myHref);
   });
 
-  $('span.' + hyperlink_cs + ':not(":has(a)")').each(function(){
+  $('span.' + hyperlink_cs + ':not(:has(a))').each(function(){
     var myText = $(this).text();
     myText = myText.replace("[", "%5B").replace("]", "%5D");
     $(this).empty();
