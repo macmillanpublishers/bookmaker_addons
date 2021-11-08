@@ -235,7 +235,7 @@ fs.readFile(file, function editContent(err, contents) {
         }
         // Replace hyphens in any child elements within the para
        $(this).find("*").each(function () {
-          $(this).html($(this).html().replace(/-/g,"<span class='longhyphenhelper' style='font-size: 2pt; vertical-align:top;'> </span>-<span class='longhyphenhelper' style='font-size: 2pt; vertical-align:top;'> </span>"));
+          $(this).html($(this).html().replace(/(\S)-/g,"<span class='bookmaker-keep-togetherbkt'>$1<span class='longhyphenhelper' style='font-size: 2pt; vertical-align:top;'> </span>-</span><span class='longhyphenhelper' style='font-size: 2pt; vertical-align:top;'> </span>"));
         });
         // now remove any instances of those spans that are enclosed in a hyperlinkspan. Have to do this in two steps; previously using a 'not' selector,
         //  but the 'not' was not accounting for nested spans with hyperlink spans at different depths.
@@ -264,7 +264,7 @@ fs.readFile(file, function editContent(err, contents) {
                 // we'll add the parent para id, the source string text, and our new markup to a hash.
                 var oldString = patternMatches[i];
                 // adding the vertical-align, otherwise for some reason the 2pt space disrupts vertical line-spacing.
-                var newString = patternMatches[i].replace(/-/g, "<span class='longhyphenhelper' style='font-size: 2pt; vertical-align:top;'> </span>-<span class='longhyphenhelper' style='font-size: 2pt; vertical-align:top;'> </span>");
+                var newString = patternMatches[i].replace(/(\S)-/g, "<span class='bookmaker-keep-togetherbkt'>$1<span class='longhyphenhelper' style='font-size: 2pt; vertical-align:top;'> </span>-</span><span class='longhyphenhelper' style='font-size: 2pt; vertical-align:top;'> </span>");
                 // Wrap the hyphanted strings in a span for future potential targetting
                 newString = "<span class='longstring'>" + newString + "</span>";
                 hashReplacements[counter] = [];
