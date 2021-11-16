@@ -249,13 +249,12 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-# fixes images in html, keep final words and ellipses from breaking
-# def fixHtmlImageSrcAndKTs(pdf_tmp_html, ftpdirext, logkey='')
+# fixes images in html, keep ellipses from breaking,
+#   keep together last (up to) 5 consecutive letters of final word of a paragraph: including punctuation (emdash too) and optional closing quotes
 def fixHtmlImageSrcAndKTs(pdf_tmp_html, pdftmp_dir, bkmkrkeeptogether_stylename, logkey='')
-  # .gsub(/([a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9]\s\. \. \.)/,"<span class=\"bookmakerkeeptogetherkt\">\\0</span>")
   filecontents = File.read(pdf_tmp_html).gsub(/src="images\//,"src=\"#{pdftmp_dir}/")
                                         .gsub(/([a-zA-Z0-9]?[a-zA-Z0-9]?[a-zA-Z0-9]?\s\. \. \.)/,"<span class=\"#{bkmkrkeeptogether_stylename}\">\\0</span>")
-                                        .gsub(/(\s)(\w\w\w*?\.)(<\/p>)/,"\\1<span class=\"#{bkmkrkeeptogether_stylename}\">\\2</span>\\3")
+                                        .gsub(/(\w{3,5}([.?!]|&#x2014;)?(&#x201D;|))(<\/p>)/,"<span class=\"#{bkmkrkeeptogether_stylename}\">\\1</span>\\2")
   return filecontents
 rescue => logstring
   return ''
