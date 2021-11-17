@@ -251,12 +251,12 @@ end
 
 # fixes images in html, keep ellipses from breaking, and keeptogethers:
 #   (updated as per: wdv-424)
-#   keep together last (up to) 5* consecutive letters of final word of a paragraph: including punctuation (emdash too) and optional closing quotes
+#   keep together last (up to) 5* consecutive letters of final word of a paragraph: requiring std punctuation (or emdash) and optional closing quotes
 #   (*not necessary to protect consec. alphanumeric strings < 5 chars because of prince-hyphenate-before and -after rules in pdf css)
 def fixHtmlImageSrcAndKTs(pdf_tmp_html, pdftmp_dir, bkmkrkeeptogether_stylename, logkey='')
   filecontents = File.read(pdf_tmp_html).gsub(/src="images\//,"src=\"#{pdftmp_dir}/")
                                         .gsub(/([a-zA-Z0-9]?[a-zA-Z0-9]?[a-zA-Z0-9]?\s\. \. \.)/,"<span class=\"#{bkmkrkeeptogether_stylename}\">\\0</span>")
-                                        .gsub(/(\w{5}([.?!]|&#x2014;)?(&#x201D;|))(<\/p>)/,"<span class=\"#{bkmkrkeeptogether_stylename}\">\\1</span>\\4")
+                                        .gsub(/(\w{5}([.?!]|&#x2014;)(&#x201D;|))(<\/p>)/,"<span class=\"#{bkmkrkeeptogether_stylename}\">\\1</span>\\4")
   return filecontents
 rescue => logstring
   return ''
