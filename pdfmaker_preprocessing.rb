@@ -271,8 +271,7 @@ end
 def fixEmdashes(pdf_tmp_html, bkmkrkeeptogether_stylename, logkey='')
   filecontents = File.read(pdf_tmp_html, :encoding=>"UTF-8").gsub(/(.)?(—\??\.?!?”?’?)(.)?/,"\\1\\2&\#8203;\\3")
     .gsub(/(<p class="FrontSalesQuotefsq">“)(A)/,"\\1&\#8202;\\2")
-    .gsub(/(&#x2014;)([\w<])(?!\/p)/,"\\1<span class='emdashhelper' style='font-size: 2pt; vertical-align:top;'> </span>\\2\\3")
-    .gsub(/[\w]+&#x2014;(&#x2019;|&#x201D;)?/,"<span class=\"#{bkmkrkeeptogether_stylename}\">\\0</span>")
+    .gsub(/(&#x2014;)([\w<])(?!\/p)/,"<span class='emdashhelper' style='font-size: 2pt; vertical-align:top;'>&#xA0;</span>\\1<span class='emdashhelper' style='font-size: 2pt; vertical-align:top;'> </span>\\2\\3")
   return filecontents
 rescue => logstring
   return ''
