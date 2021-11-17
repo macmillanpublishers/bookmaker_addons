@@ -254,7 +254,7 @@ end
 def fixHtmlImageSrcAndKTs(pdf_tmp_html, pdftmp_dir, bkmkrkeeptogether_stylename, logkey='')
   filecontents = File.read(pdf_tmp_html).gsub(/src="images\//,"src=\"#{pdftmp_dir}/")
                                         .gsub(/([a-zA-Z0-9]?[a-zA-Z0-9]?[a-zA-Z0-9]?\s\. \. \.)/,"<span class=\"#{bkmkrkeeptogether_stylename}\">\\0</span>")
-                                        .gsub(/(\w{3,5}([.?!]|&#x2014;)?(&#x201D;|))(<\/p>)/,"<span class=\"#{bkmkrkeeptogether_stylename}\">\\1</span>\\2")
+                                        .gsub(/(\w{3,5}([.?!]|&#x2014;)?(&#x201D;|))(<\/p>)/,"<span class=\"#{bkmkrkeeptogether_stylename}\">\\1</span>\\4")
   return filecontents
 rescue => logstring
   return ''
