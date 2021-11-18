@@ -190,7 +190,7 @@ end
 #     https://gist.github.com/ptsefton/1ce30879e9cfef289356
 #   replacement code should be unicode for desired replacement symbol: http://www.fileformat.info/info/unicode/char/search.htm
 #     the desired format is the 'C/C++/Java source code' including the doublequotes
-replace_wsym(filetype, replace_wsym_py, 'F0D3', "\u00A9", 'replace_w:sym_copyright_symbol')
+replace_wsym(filetype, replace_wsym_py, 'F0D3', '\u00A9', 'replace_w:sym_copyright_symbol')
 
 # find out if this file came from (and its output returns to) rsuite
 from_rsuite = false
