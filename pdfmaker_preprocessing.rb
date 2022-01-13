@@ -265,10 +265,14 @@ ensure
 end
 
 
-# fixes em dash breaks (requires UTF 8 encoding)
+# 1st 2 gsubs are to 'fix em dash breaks (requires UTF 8 encoding)'
+# second two are pursuant to wdv-313:
+#   encouraging line breaks after emdashes, by adding a tiny space: following emdash, prior to any word or tag (except </p>)å
+#   and preventing breaks before emdashes or in their preceding words (and trailing endquotes) by wrapping them in a keeptogether span
 def fixEmdashes(pdf_tmp_html, logkey='')
   filecontents = File.read(pdf_tmp_html, :encoding=>"UTF-8").gsub(/(.)?(—\??\.?!?”?’?)(.)?/,"\\1\\2&\#8203;\\3")
-                                                            .gsub(/(<p class="FrontSalesQuotefsq">“)(A)/,"\\1&\#8202;\\2")
+    .gsub(/(<p class="FrontSalesQuotefsq">“)(A)/,"\\1&\#8202;\\2")
+    .gsub(/(&#x2014;)([\w<])(?!\/p)/,"<span class='emdashhelper' style='font-size: 2pt; vertical-align:top;'>&#xA0;</span>\\1<span class='emdashhelper' style='font-size: 2pt; vertical-align:top;'> </span>\\2\\3")
   return filecontents
 rescue => logstring
   return ''
