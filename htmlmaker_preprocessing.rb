@@ -1,4 +1,4 @@
-causingrequire 'fileutils'
+require 'fileutils'
 
 require_relative '../bookmaker/core/header.rb'
 
