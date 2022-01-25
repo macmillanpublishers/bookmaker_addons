@@ -180,6 +180,7 @@ end
 # Check output file(s), attach if present (and not too big)... And if upload to rsuite was successful.
 @log_hash['fileexists_firstpass_epub'] = File.exists?(firstpass_epub)
 @log_hash['fileexists_final_epub'] = File.exists?(final_epub)
+@log_hash['fileexists_finalpdf'] = File.exists?(finalpdf)
 if file_return_api_ok == true && (File.exists?(finalpdf) && (File.exists?(firstpass_epub) || File.exists?(final_epub)))
   output_ok = true
   if File.exists?(final_epub)
@@ -191,10 +192,9 @@ if file_return_api_ok == true && (File.exists?(finalpdf) && (File.exists?(firstp
     attachment_quota, good_attached, toolarge_files = addAttachment(finalpdf, attachment_quota, good_attached, toolarge_files, "attach_#{File.basename(finalpdf)}")
   end
 else
-  @log_hash['output_ok'] = output_ok
   @log_hash['file_return_api_ok_value'] = file_return_api_ok
-  @log_hash['fileexists_finalpdf'] = File.exists?(finalpdf)
 end
+@log_hash['output_ok'] = output_ok
 
 # build message text for success or error, for success get a list of attachment paths
 if output_ok == true && file_return_api_ok == true #&& errfiles == false
