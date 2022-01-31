@@ -367,20 +367,20 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setTemplate(htmlfile, logkey='')
+def getPImetatag(htmlfile, metakey, logkey='')
   # get the page tree via nokogiri
   page = Nokogiri::HTML(open(htmlfile))
   # get meta info from html if it exists
-  metatemplate = page.xpath('//meta[@name="template"]/@content')
-  if !metatemplate.empty?
-    template = HTMLEntities.new.decode(metatemplate)
-    logstring = "#{template}"
+  metaresult = page.xpath("//meta[@name=\"#{metakey}\"]/@content")
+  if !metaresult.empty?
+    value = HTMLEntities.new.decode(metaresult)
+    logstring = "#{value}"
   else
-    template = ""
+    value = ""
     logstring = "default"
   end
-  puts "template: #{logstring}"
-  return metatemplate, template
+  puts "#{metakey}: #{logstring}"
+  return metaresult, value
 rescue => logstring
   return '',''
 ensure
@@ -616,7 +616,8 @@ end
 @log_hash['imprint'] = imprint
 @log_hash['publisher'] = publisher
 
-metatemplate, template = setTemplate(Bkmkr::Paths.outputtmp_html, 'set_design_template')
+metatemplate, template = getPImetatag(Bkmkr::Paths.outputtmp_html, 'template', 'set_design_template')
+metapitstop, pitstop_value = getPImetatag(Bkmkr::Paths.outputtmp_html, 'pitstop', 'set_design_template')
 
 # print and epub css files
 epub_css_dir = File.join(bookmaker_assets_dir, "epubmaker", "css")
@@ -679,6 +680,7 @@ datahash.merge!(stage: stage_dir)
 datahash.merge!(resourcedir: resource_dir)
 datahash.merge!(pdf_resourcedir: pdf_resource_dir)
 datahash.merge!(design_template: template)
+datahash.merge!(pitstop_dir: pitstop_value)
 datahash.merge!(printcss: pdf_css_file)
 datahash.merge!(printjs: pdf_js_file)
 datahash.merge!(ebookcss: epub_css_file)
