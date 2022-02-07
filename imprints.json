@@ -111,6 +111,16 @@
   "searchkey": "Farrar Straus and Giroux FSG Adult"
   },
   {
+  "formalname": "Farrar, Straus and Giroux (BYR)",
+  "shortname": "fsgbyr",
+  "searchkey": "Farrar Straus and Giroux BYR"
+  },
+  {
+  "formalname": "MCD",
+  "shortname": "mcd",
+  "searchkey": "MCD"
+  },
+  {
   "formalname": "Forge Books",
   "shortname": "forge",
   "searchkey": "Forge Books"
