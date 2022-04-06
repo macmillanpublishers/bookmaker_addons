@@ -32,6 +32,10 @@ check_for_element_js = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "
 
 bookmaker_assets_dir = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_assets")
 
+# full path of lookup error file
+dw_lookup_errfile = File.join(Metadata.final_dir, "ISBN_LOOKUP_ERROR.txt")
+testing_value_file = File.join(Bkmkr::Paths.resource_dir, "staging.txt")
+
 # ---------------------- METHODS
 
 def readConfigJson(logkey='')
@@ -55,26 +59,30 @@ end
 def findBookISBNs_metadataPreprocessing(config_hash, isbn_stylename, logkey='')
   eisbn = ''
   allworks = []
+  querystatus = ''
   # if we already have a printid or productid in config.json, use that for pisbn
   if config_hash.has_key?('printid') && config_hash['printid'] != 'TK'
     pisbn = config_hash['printid']
   # else do a lookup
   else
-    pisbn, eisbn, allworks = findBookISBNs(Bkmkr::Paths.outputtmp_html, Bkmkr::Project.filename, isbn_stylename)
+    pisbn, eisbn, allworks, querystatus = findBookISBNs(Bkmkr::Paths.outputtmp_html, Bkmkr::Project.filename, isbn_stylename)
   end
   # if we already have an ebookid in config.json, use that for eisbn
   if config_hash.has_key?('ebookid') && config_hash['ebookid'] != 'TK'
     eisbn = config_hash['ebookid']
   # if we didn't already have an eisbn from config.json or pisbn lookup, lookup from DW here
-  elsif eisbn == ''
-    eisbn, allworks = getEbookIsbn(pisbn)
+  elsif eisbn == '' and (querystatus == '' or querystatus == 'success')
+    eisbn, allworks, querystatus = getEbookIsbn(pisbn)
   end
   if allworks.empty?
     allworks.push(pisbn, eisbn)
   end
-  return pisbn, eisbn, allworks
+  if querystatus != '' and querystatus != 'success'
+    logstring = querystatus
+  end
+  return pisbn, eisbn, allworks, querystatus
 rescue => logstring
-  return '','',''
+  return '','','',''
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
@@ -170,21 +178,28 @@ def databaseLookup(pisbn, eisbn, logkey='')
   # get a hash of edition information, attempt pisbn first, use eisbn as backup
   if test_pisbn_length.length == 13 and test_pisbn_chars.length != 0
     thissql = exactSearchSingleKey(pisbn, "EDITION_EAN")
-    myhash = runQuery(thissql)
-    if myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] and test_eisbn_length.length == 13 and test_eisbn_chars.length != 0
+    myhash, querystatus = runQuery(thissql)
+    if querystatus == 'success' and (myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] and test_eisbn_length.length == 13 and test_eisbn_chars.length != 0)
       thissql = exactSearchSingleKey(eisbn, "EDITION_EAN")
-      myhash = runQuery(thissql)
+      myhash, querystatus = runQuery(thissql)
     end
   elsif test_eisbn_length.length == 13 and test_eisbn_chars.length != 0
     thissql = exactSearchSingleKey(eisbn, "EDITION_EAN")
-    myhash = runQuery(thissql)
+    myhash, querystatus = runQuery(thissql)
   else
     myhash = {}
   end
+  #  setup logstring based on query returns
+  logstring = querystatus
+  if querystatus == 'success' and (myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'])
+    logstring = "No DB record found; removing author links for addons"
+  elsif querystatus == 'success'
+    logstring = "DB Connection SUCCESS: Found an author record"
+  end
 
-  return myhash
+  return myhash, querystatus
 rescue => logstring
-  return {}
+  return {}, ''
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
@@ -537,6 +552,29 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
+def handleSqlQueryError(querystatus, data_hash, dw_lookup_errfile, testing_value_file, logkey='')
+  # write errfile
+  msg = "Data warehouse lookup for ISBN encountered errors. \n"
+  msg += "Customizations based on imprint may be missing (logo(s), custom formatting from CSS, newsletter links, etc)"
+  msg += "\n \n(detailed output:)\n "
+  msg += querystatus
+  Mcmlln::Tools.overwriteFile(dw_lookup_errfile, msg)
+  logstring = "not the first sql err this run, (re)wrote err textfile"
+
+  # if this is the first dw lookup failure on this run, write to cfg.json & send email alert
+  if !data_hash.has_key?('dw_sql_err')
+    # not writing to cfg in this iteration of this function; that's handled elsewhere in this module
+    # data_hash['dw_sql_err'] = querystatus
+    # Mcmlln::Tools.write_json(data_hash, Metadata.configfile)
+    # send mail
+    Mcmlln::Tools.sendAlertMailtoWF('dw_isbn_lookup', msg, testing_value_file, Bkmkr::Project.filename_normalized, Bkmkr::Keys.smtp_address)
+    logstring = "sql err, first this run; logging to cfg.json and sending alert-mail"
+  end
+rescue => logstring
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
 def writeConfigJson(hash, json, logkey='')
   Mcmlln::Tools.write_json(hash, json)
 rescue => logstring
@@ -565,7 +603,7 @@ else
   subtitle_selector = ".TitlepageBookSubtitlestit"
 end
 
-pisbn, eisbn, allworks = findBookISBNs_metadataPreprocessing(prev_cfg_hash, isbn_stylename, 'find_book_ISBNs')
+pisbn, eisbn, allworks, querystatus = findBookISBNs_metadataPreprocessing(prev_cfg_hash, isbn_stylename, 'find_book_ISBNs')
 
 # this all depends on the ISBN; must follow the isbn_finder
 final_dir, @log_hash = Metadata.setupFinalDir(Bkmkr::Paths.project_tmp_dir, Bkmkr::Paths.done_dir, pisbn, Bkmkr::Paths.unique_run_id, @log_hash, 'metadata.rb-setup_final_dir')
@@ -589,27 +627,27 @@ if prev_cfg_hash.has_key?('from_rsuite') and prev_cfg_hash['from_rsuite'] == tru
   booksubtitle = prev_cfg_hash['subtitle']
   imprint = prev_cfg_hash['imprint']
   publisher = prev_cfg_hash['publisher']
-  logstring = 'RSuite->bookmaker run, skipping DB lookup for book metadata'
-  puts logstring
+  mdlookup_status = 'RSuite->bookmaker run, skipping DB lookup for book metadata'
+  puts mdlookup_status
+  querystatus2 = ''
 else
-  myhash = databaseLookup(pisbn, eisbn, 'get_Biblio_metadata')
-  #feedback for plaintext & json log
-  unless myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book']
-    logstring = "DB Connection SUCCESS: Found a book record"
+  if querystatus == 'success' or querystatus == ''
+    myhash, querystatus = databaseLookup(pisbn, eisbn, 'get_Biblio_metadata')
+    mdlookup_status = querystatus
+    # Setting metadata vars for config.json:
+    # Prioritize metainfo from html, then edition info from biblio, then scan html for tagged data
+    authorname = setAuthorInfo(prev_cfg_hash, myhash, Bkmkr::Paths.outputtmp_html, author_selector, 'set_author_info')
+    booktitle = setBookTitle(prev_cfg_hash, myhash, Bkmkr::Paths.outputtmp_html, title_selector, 'set_book_title')
+    booksubtitle = setBookSubtitle(prev_cfg_hash, myhash, Bkmkr::Paths.outputtmp_html, subtitle_selector, 'set_book_subtitle')
+    imprint = setImprint(prev_cfg_hash, myhash, Bkmkr::Paths.outputtmp_html, project_dir, imprint_json, 'set_imprint')
+    publisher = setPublisher(prev_cfg_hash, myhash, Bkmkr::Paths.outputtmp_html, imprint, 'set_publisher')
   else
-    logstring = "No DB record found; falling back to manuscript fields"
+    myhash = {}
+    mdlookup_status = "skipping dw lookup due to previous dw_lookup errors"
   end
-  puts logstring
-  # Setting metadata vars for config.json:
-  # Prioritize metainfo from html, then edition info from biblio, then scan html for tagged data
-  authorname = setAuthorInfo(prev_cfg_hash, myhash, Bkmkr::Paths.outputtmp_html, author_selector, 'set_author_info')
-  booktitle = setBookTitle(prev_cfg_hash, myhash, Bkmkr::Paths.outputtmp_html, title_selector, 'set_book_title')
-  booksubtitle = setBookSubtitle(prev_cfg_hash, myhash, Bkmkr::Paths.outputtmp_html, subtitle_selector, 'set_book_subtitle')
-  imprint = setImprint(prev_cfg_hash, myhash, Bkmkr::Paths.outputtmp_html, project_dir, imprint_json, 'set_imprint')
-  publisher = setPublisher(prev_cfg_hash, myhash, Bkmkr::Paths.outputtmp_html, imprint, 'set_publisher')
 end
 
-@log_hash['query_status'] = logstring
+@log_hash['mdlookup_status'] = mdlookup_status
 @log_hash['author_name'] = authorname
 @log_hash['book_title'] = booktitle
 @log_hash['book_subtitle'] = booksubtitle
@@ -693,6 +731,12 @@ end
 datahash.merge!(doctemplate_version: prev_cfg_hash['doctemplate_version'])
 datahash.merge!(doctemplatetype: doctemplatetype)
 datahash.merge!(from_rsuite: prev_cfg_hash['from_rsuite'])
+if prev_cfg_hash.has_key?('dw_sql_err')
+  datahash.merge!('dw_sql_err': prev_cfg_hash['dw_sql_err'])
+elsif querystatus != 'success' and querystatus != ''
+  datahash.merge!('dw_sql_err': querystatus)
+  handleSqlQueryError(querystatus, prev_cfg_hash, dw_lookup_errfile, testing_value_file, 'handle_sql_query_err')
+end
 
 # write to config.json file
 writeConfigJson(datahash, configfile, 'write_config_jsonfile')
