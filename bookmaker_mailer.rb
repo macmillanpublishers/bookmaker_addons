@@ -175,13 +175,17 @@ end
 # see if upload to rsuite was successful
 if bookmaker_send_result.downcase.match(/^success/)
   file_return_api_ok = true
+else
+  file_return_api_ok = false
 end
+@log_hash['file_return_api_ok'] = file_return_api_ok
 
 # Check output file(s), attach if present (and not too big)... And if upload to rsuite was successful.
 @log_hash['fileexists_firstpass_epub'] = File.exists?(firstpass_epub)
 @log_hash['fileexists_final_epub'] = File.exists?(final_epub)
+@log_hash['fileexists_finalpdf'] = File.exists?(finalpdf)
 if file_return_api_ok == true && (File.exists?(finalpdf) && (File.exists?(firstpass_epub) || File.exists?(final_epub)))
-  output_ok = true
+  output_ok = "success"
   if File.exists?(final_epub)
     attachment_quota, good_attached, toolarge_files = addAttachment(final_epub, attachment_quota, good_attached, toolarge_files, "attach_#{File.basename(final_epub)}")
   elsif File.exists?(firstpass_epub)
@@ -191,20 +195,18 @@ if file_return_api_ok == true && (File.exists?(finalpdf) && (File.exists?(firstp
     attachment_quota, good_attached, toolarge_files = addAttachment(finalpdf, attachment_quota, good_attached, toolarge_files, "attach_#{File.basename(finalpdf)}")
   end
 else
-  @log_hash['output_ok'] = output_ok
-  @log_hash['file_return_api_ok_value'] = file_return_api_ok
-  @log_hash['fileexists_finalpdf'] = File.exists?(finalpdf)
+  output_ok = "error"
 end
+@log_hash['output_ok'] = output_ok
 
 # build message text for success or error, for success get a list of attachment paths
-if output_ok == true && file_return_api_ok == true #&& errfiles == false
+if output_ok == "success" && file_return_api_ok == true #&& errfiles == false
   message = messageBuilder(firstname, title, isbn, errfiles, err_attached, good_attached, toolarge_files, staging_file, runtype, 'build_success_message')
   # consolidate attachments
   all_attachments = good_attached + err_attached
   # prepare arglist for python call
   attachments_argstring = '"' +all_attachments.join('" "') + '"'
 else
-  @log_hash['file_return_api_ok'] = file_return_api_ok
   message = getErrMessage(firstname, title, isbn, workflows_email, staging_file, 'build_error_message')
 end
 
