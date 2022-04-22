@@ -225,6 +225,7 @@ def setNewsletterAuthorLinksSingle(linkauthorarr, linkauthorid, myhash, jsfile, 
   linkauthornameall = Metadata.bookauthor.downcase.gsub(/\s/,"").to_ascii
   Bkmkr::Tools.runnode(jsfile, "#{htmlfile} #{newsletter_pstyle}")
   if myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['PERSON_PARTNERID'].nil? or myhash['book']['PERSON_PARTNERID'].empty? or !myhash['book']['PERSON_PARTNERID']
+    # in this case, a newsletter link with the AUTHORID is not updated and epubcheck errors. (preferableto a unwittint dead link..)
     filecontents = File.read(htmlfile).gsub(/\{\{AUTHORNAMETXT\}\}/,"#{linkauthornametxt}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthornameall}")
   else
     authorid = linkauthorid.pop
@@ -435,7 +436,7 @@ overwriteFile(epub_tmp_html, filecontents, 'overwrite_epubhtml_final')
 # update newsletter author links, for single or multiple authors
 if linkauthorarr.count > 1
   filecontents = setNewsletterAuthorLinksMultiple(linkauthorarr, linkauthorid, myhash, newsletterjs, epub_tmp_html, newsletter_pstyle, 'set_newsletter_auth_links_multiple')
-elsif linkauthorarr.count == 1
+else
   filecontents = setNewsletterAuthorLinksSingle(linkauthorarr, linkauthorid, myhash, newslettersinglejs, epub_tmp_html, newsletter_pstyle, 'set_newsletter_auth_links_single')
 end
 
