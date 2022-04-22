@@ -192,7 +192,9 @@ def getlinkAuthorInfo(confighash, myhash, logkey='')
   linkauthorarr = []
   linkauthorid = []
   if myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['PERSON_REALNAME'].nil? or myhash['book']['PERSON_REALNAME'].empty? or !myhash['book']['PERSON_REALNAME']
-    linkauthorarr = confighash['author'].split(", ")
+    if !confighash['author'].nil?
+      linkauthorarr = confighash['author'].split(", ")
+    end
   else
     linkauthorarr = myhash['book']['PERSON_REALNAME'].clone
     linkauthorid = myhash['book']['PERSON_PARTNERID'].clone
@@ -433,7 +435,7 @@ overwriteFile(epub_tmp_html, filecontents, 'overwrite_epubhtml_final')
 # update newsletter author links, for single or multiple authors
 if linkauthorarr.count > 1
   filecontents = setNewsletterAuthorLinksMultiple(linkauthorarr, linkauthorid, myhash, newsletterjs, epub_tmp_html, newsletter_pstyle, 'set_newsletter_auth_links_multiple')
-else
+elsif linkauthorarr.count == 1
   filecontents = setNewsletterAuthorLinksSingle(linkauthorarr, linkauthorid, myhash, newslettersinglejs, epub_tmp_html, newsletter_pstyle, 'set_newsletter_auth_links_single')
 end
 
