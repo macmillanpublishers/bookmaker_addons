@@ -22,6 +22,10 @@ newsletterjs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "epubmake
 newslettersinglejs = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "epubmaker_preprocessing-newsletterlinkssingle.js")
 add_metatag_js = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "add_metatag.js")
 
+# full path of lookup error file
+dw_lookup_errfile = File.join(Metadata.final_dir, "ISBN_LOOKUP_ERROR.txt")
+testing_value_file = File.join(Bkmkr::Paths.resource_dir, "staging.txt")
+
 # ---------------------- METHODS
 
 def readConfigJson(logkey='')
@@ -170,8 +174,14 @@ end
 
 def databaseLookup(logkey='')
   thissql = personSearchSingleKey(Metadata.eisbn, "EDITION_EAN", "Author")
-  myhash = runPeopleQuery(thissql)
-  return myhash
+  myhash, querystatus = runPeopleQuery(thissql)
+  logstring = querystatus
+  if querystatus == 'success' and (myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'])
+    logstring = "No DB record found; removing author links for addons"
+  elsif querystatus == 'success'
+    logstring = "DB Connection SUCCESS: Found an author record"
+  end
+  return myhash, querystatus
 rescue => logstring
   return {}
 ensure
@@ -182,7 +192,9 @@ def getlinkAuthorInfo(confighash, myhash, logkey='')
   linkauthorarr = []
   linkauthorid = []
   if myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['PERSON_REALNAME'].nil? or myhash['book']['PERSON_REALNAME'].empty? or !myhash['book']['PERSON_REALNAME']
-    linkauthorarr = confighash['author'].split(", ")
+    if !confighash['author'].nil?
+      linkauthorarr = confighash['author'].split(", ")
+    end
   else
     linkauthorarr = myhash['book']['PERSON_REALNAME'].clone
     linkauthorid = myhash['book']['PERSON_PARTNERID'].clone
@@ -213,6 +225,7 @@ def setNewsletterAuthorLinksSingle(linkauthorarr, linkauthorid, myhash, jsfile, 
   linkauthornameall = Metadata.bookauthor.downcase.gsub(/\s/,"").to_ascii
   Bkmkr::Tools.runnode(jsfile, "#{htmlfile} #{newsletter_pstyle}")
   if myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['PERSON_PARTNERID'].nil? or myhash['book']['PERSON_PARTNERID'].empty? or !myhash['book']['PERSON_PARTNERID']
+    # in this case, a newsletter link with the AUTHORID is not updated and epubcheck errors. (preferableto a unwittint dead link..)
     filecontents = File.read(htmlfile).gsub(/\{\{AUTHORNAMETXT\}\}/,"#{linkauthornametxt}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthornameall}")
   else
     authorid = linkauthorid.pop
@@ -270,6 +283,28 @@ def addHtmlLineBreaks(filecontents, logkey='')
   return filecontents
 rescue => logstring
   return ''
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
+def handleSqlQueryError(querystatus, data_hash, dw_lookup_errfile, testing_value_file, logkey='')
+  # write errfile
+  msg = "Data warehouse lookup for ISBN encountered errors. \n"
+  msg += "Customizations based on imprint may be missing (logo(s), custom formatting from CSS, newsletter links, etc)"
+  msg += "\n \n(detailed output:)\n "
+  msg += querystatus
+  Mcmlln::Tools.overwriteFile(dw_lookup_errfile, msg)
+  logstring = "not the first sql err this run, (re)wrote err textfile"
+
+  # if this is the first dw lookup failure on this run, write to cfg.json & send email alert
+  if !data_hash.has_key?('dw_sql_err')
+    data_hash['dw_sql_err'] = querystatus
+    Mcmlln::Tools.write_json(data_hash, Metadata.configfile)
+    # send mail
+    Mcmlln::Tools.sendAlertMailtoWF('dw_isbn_lookup', msg, testing_value_file, Bkmkr::Project.filename_normalized, Bkmkr::Keys.smtp_address)
+    logstring = "sql err, first this run; logging to cfg.json and sending alert-mail"
+  end
+rescue => logstring
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
@@ -385,15 +420,7 @@ filecontents = readHtml(epub_tmp_html, 'read_updated_epub_tmp_html')
 # filecontents = filecontents.gsub(Metadata.bookauthor,"<!--AUTHORSIGNUPSTART<a href=\"#{aulink}\">AUTHORSIGNUPEND-->\\0<!--AUTHORSIGNUPSTART</a>AUTHORSIGNUPEND-->").gsub(auupcase,"<!--AUTHORSIGNUPSTART<a href=\"#{aulink}\">AUTHORSIGNUPEND-->\\0<!--AUTHORSIGNUPSTART</a>AUTHORSIGNUPEND-->")
 
 # find the author ID
-myhash = databaseLookup('biblio_sql_queries')
-
-unless myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book']
-  logstring = "DB Connection SUCCESS: Found an author record"
-else
-  logstring = "No DB record found; removing author links for addons"
-end
-puts logstring
-@log_hash['query_status'] = logstring
+myhash, querystatus = databaseLookup('biblio_sql_queries')
 
 # get author info from sql if available, else scan outputtmp_html
 linkauthorarr, linkauthorid = getlinkAuthorInfo(data_hash, myhash, 'get_author_link_info')
@@ -427,6 +454,10 @@ if galley_run == true
   localRunNode(add_metatag_js, "#{epub_tmp_html} \"pub-identifier\" \"#{Metadata.pisbn}\"", "add_pub-identifier_meta_tag")
 else
   localRunNode(add_metatag_js, "#{epub_tmp_html} \"pub-identifier\" \"#{Metadata.eisbn}\"", "add_pub-identifier_meta_tag")
+end
+
+if querystatus != 'success'
+  handleSqlQueryError(querystatus, data_hash, dw_lookup_errfile, testing_value_file, 'handle_sql_query_err')
 end
 
 # Write json log:
