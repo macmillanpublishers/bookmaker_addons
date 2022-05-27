@@ -59,7 +59,7 @@ end
 def checkHTMLforTemplateVersion(filecontents, logkey='')
   version = filecontents.scan(/<meta name="templateversion"/)
   unless version.nil? or version.empty? or !version
-    templateversion = filecontents.match(/(<meta name="templateversion" content=")(.*)(" \/>)/)[2]
+    templateversion = filecontents.match(/<meta name="templateversion" content="(.*?)"/)[1]
   else
     templateversion = ''
   end
@@ -172,7 +172,7 @@ end
 # versionCompare returns false if:
 #   doctemplate_version < required_version_for_jsconvert, doctemplate_version has any non-digit chars (besides '.'), is nil, or is empty
 rsuite_versioncompare = versionCompare(doctemplate_version, rsuite_template_version, 'rsuite_version_compare')
-if rsuite_versioncompare == true
+if rsuite_versioncompare == true || (filetype == "html" && doctemplate_version == '')
   doctemplatetype = "rsuite"
 else
   sectionstart_versioncompare = versionCompare(doctemplate_version, sectionstart_template_version, 'sectionstart_version_compare')
@@ -258,6 +258,9 @@ if !cfg_hash['publisher'] || cfg_hash["publisher"] == 'TK' || cfg_hash["publishe
     cfg_hash.merge!(publisher: "TK")
   end
 end
+if !cfg_hash['doctemplatetype'] || cfg_hash["doctemplatetype"] == 'TK' || cfg_hash["doctemplatetype"].empty?
+  cfg_hash.merge!(doctemplatetype: doctemplatetype)
+end
 cfg_hash.merge!(project: "TK")
 cfg_hash.merge!(stage: "TK")
 cfg_hash.merge!(printcss: "TK")
@@ -268,7 +271,6 @@ cfg_hash.merge!(frontcover: "TK")
 cfg_hash.merge!(epubtitlepage: "TK")
 cfg_hash.merge!(podtitlepage: "TK")
 cfg_hash.merge!(doctemplate_version: doctemplate_version)
-cfg_hash.merge!(doctemplatetype: doctemplatetype)
 cfg_hash.merge!(from_rsuite: from_rsuite)
 
 # Printing the final JSON object
