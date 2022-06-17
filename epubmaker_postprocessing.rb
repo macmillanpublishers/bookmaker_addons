@@ -1,3 +1,4 @@
+#encoding: UTF-8
 require 'fileutils'
 require 'net/smtp'
 require 'nokogiri'
@@ -398,6 +399,8 @@ copyFile("#{Bkmkr::Paths.project_tmp_dir}/#{csfilename}.epub", Metadata.final_di
 
 # validate epub file
 epubcheck_output = localRunJar(epubcheck, "#{Metadata.final_dir}/#{csfilename}.epub")
+# handle utf-8 unfriendly chars
+epubcheck_output = epubcheck_output.force_encoding("ISO-8859-1").encode("utf-8", replace: nil)
 @log_hash['epubcheck_output'] = epubcheck_output
 puts epubcheck_output  #for log (so warnings are still visible)
 
