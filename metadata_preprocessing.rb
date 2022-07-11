@@ -634,17 +634,17 @@ else
   if querystatus == 'success' or querystatus == ''
     myhash, querystatus = databaseLookup(pisbn, eisbn, 'get_Biblio_metadata')
     mdlookup_status = querystatus
-    # Setting metadata vars for config.json:
-    # Prioritize metainfo from html, then edition info from biblio, then scan html for tagged data
-    authorname = setAuthorInfo(prev_cfg_hash, myhash, Bkmkr::Paths.outputtmp_html, author_selector, 'set_author_info')
-    booktitle = setBookTitle(prev_cfg_hash, myhash, Bkmkr::Paths.outputtmp_html, title_selector, 'set_book_title')
-    booksubtitle = setBookSubtitle(prev_cfg_hash, myhash, Bkmkr::Paths.outputtmp_html, subtitle_selector, 'set_book_subtitle')
-    imprint = setImprint(prev_cfg_hash, myhash, Bkmkr::Paths.outputtmp_html, project_dir, imprint_json, 'set_imprint')
-    publisher = setPublisher(prev_cfg_hash, myhash, Bkmkr::Paths.outputtmp_html, imprint, 'set_publisher')
   else
     myhash = {}
     mdlookup_status = "skipping dw lookup due to previous dw_lookup errors"
   end
+  # Setting metadata vars for config.json:
+  # Prioritize metainfo from html, then edition info from biblio, then scan html for tagged data
+  authorname = setAuthorInfo(prev_cfg_hash, myhash, Bkmkr::Paths.outputtmp_html, author_selector, 'set_author_info')
+  booktitle = setBookTitle(prev_cfg_hash, myhash, Bkmkr::Paths.outputtmp_html, title_selector, 'set_book_title')
+  booksubtitle = setBookSubtitle(prev_cfg_hash, myhash, Bkmkr::Paths.outputtmp_html, subtitle_selector, 'set_book_subtitle')
+  imprint = setImprint(prev_cfg_hash, myhash, Bkmkr::Paths.outputtmp_html, project_dir, imprint_json, 'set_imprint')
+  publisher = setPublisher(prev_cfg_hash, myhash, Bkmkr::Paths.outputtmp_html, imprint, 'set_publisher')
 end
 
 @log_hash['mdlookup_status'] = mdlookup_status
