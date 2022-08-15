@@ -46,7 +46,7 @@ testing_value_file = File.join(Bkmkr::Paths.resource_dir, "staging.txt")
 epubcheck_errfile = File.join(Metadata.final_dir, "EPUBCHECK_ERROR.txt")
 
 unless (ENV['TRAVIS_TEST']) == 'true'
-  @smtp_address = Mcmlln::Tools.readFile("#{$scripts_dir}/bookmaker_authkeys/smtp.txt")
+  @smtp_address = Mcmlln::Tools.readFile("#{$scripts_dir}/bookmaker_authkeys/smtp.txt").strip()
 end
 
 # ---------------------- METHODS
