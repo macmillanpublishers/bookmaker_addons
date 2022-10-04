@@ -455,6 +455,8 @@ if galley_run == true
 else
   localRunNode(add_metatag_js, "#{epub_tmp_html} \"pub-identifier\" \"#{Metadata.eisbn}\"", "add_pub-identifier_meta_tag")
 end
+# write rights metatag
+localRunNode(add_metatag_js, "#{epub_tmp_html} \"rights\" \"All rights reserved\"", "add_rights_meta_tag")
 
 if querystatus != 'success'
   handleSqlQueryError(querystatus, data_hash, dw_lookup_errfile, testing_value_file, 'handle_sql_query_err')
