@@ -279,7 +279,7 @@ def writeErrfile(epubcheck_status, epubcheck_output, epubcheck_errfile, logkey='
   	File.open(epubcheck_errfile, 'w') do |output|
   		output.puts "Epub validation via epubcheck encountered errors."
       output.puts "\n \n--Epubcheck status: \n#{epubcheck_status}"
-      output.puts "\n \n--Epubcheck detailed output:"
+      output.puts "\n--Epubcheck detailed output:"
       output.puts epubcheck_output
   	end
   else
