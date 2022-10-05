@@ -267,19 +267,20 @@ ensure
 end
 
 ## wrapping Bkmkr::Tools.runJar in a new method for this script; to return a result for json_logfile
-def localRunJar(jar_script, input_file, logkey='')
-	Bkmkr::Tools.runjar(jar_script, input_file)
+def localRunJar(java_opts, jar_script, input_file, logkey='')
+	Bkmkr::Tools.runjar(java_opts, jar_script, input_file)
 rescue => logstring
 ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def writeErrfile(epubcheck_output, epubcheck_errfile, logkey='')
-  if epubcheck_output =~ /ERROR/ || epubcheck_output =~ /Check finished with errors/
+def writeErrfile(epubcheck_status, epubcheck_output, epubcheck_errfile, logkey='')
+  if epubcheck_status.exitstatus != 0 || epubcheck_output =~ /ERROR/ || epubcheck_output =~ /Check finished with errors/
   	File.open(epubcheck_errfile, 'w') do |output|
   		output.puts "Epub validation via epubcheck encountered errors."
-  		output.puts "\n \n(Epubcheck detailed output:)\n "
-  		output.puts epubcheck_output
+      output.puts "\n \n--Epubcheck status: \n#{epubcheck_status}"
+      output.puts "\n--Epubcheck detailed output:"
+      output.puts epubcheck_output
   	end
   else
     logstring = 'n-a'
@@ -289,8 +290,8 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def sendAlertMail(epubcheck_output, testing_value_file, message, logkey='')
-  if epubcheck_output =~ /ERROR/ || epubcheck_output =~ /Check finished with errors/
+def sendAlertMail(epubcheck_status, epubcheck_output, testing_value_file, message, logkey='')
+  if epubcheck_status.exitstatus != 0 || epubcheck_output =~ /ERROR/ || epubcheck_output =~ /Check finished with errors/
     unless File.file?(testing_value_file)
       Net::SMTP.start(@smtp_address) do |smtp|
         smtp.send_message message, 'workflows@macmillan.com',
@@ -397,15 +398,17 @@ localRunPython(zipepub_py, "#{csfilename}.epub #{Bkmkr::Paths.project_tmp_dir}",
 # copy epub to archival dir
 copyFile("#{Bkmkr::Paths.project_tmp_dir}/#{csfilename}.epub", Metadata.final_dir, 'copy_epub_to_Done_dir')
 
-# validate epub file
-epubcheck_output = localRunJar(epubcheck, "#{Metadata.final_dir}/#{csfilename}.epub")
+# validate epub file, include flag to prevent stackoverflow error with epubcheck 4
+epubcheck_output, epubcheck_status = localRunJar("-Xss1024k", epubcheck, "#{Metadata.final_dir}/#{csfilename}.epub")
+@log_hash['epubcheck_status'] = epubcheck_status
+puts "epubcheck_status: #{epubcheck_status}"
 # handle utf-8 unfriendly chars
 epubcheck_output = epubcheck_output.force_encoding("ISO-8859-1").encode("utf-8", replace: nil)
 @log_hash['epubcheck_output'] = epubcheck_output
 puts epubcheck_output  #for log (so warnings are still visible)
 
 #if error in epubcheck, write file for user, and email workflows
-writeErrfile(epubcheck_output, epubcheck_errfile, 'write_errfile_as_needed')
+writeErrfile(epubcheck_status, epubcheck_output, epubcheck_errfile, 'write_errfile_as_needed')
 message = <<MESSAGE_END
 From: Workflows <workflows@macmillan.com>
 To: Workflows <workflows@macmillan.com>
@@ -414,10 +417,11 @@ Subject: ERROR: epubcheck errors for #{csfilename}.epub
 Epubcheck validation found errors for file:
 #{Metadata.final_dir}/#{csfilename}.epub
 
+Epubcheck status:  #{epubcheck_status}
 Epubcheck output:
 #{epubcheck_output}
 MESSAGE_END
-sendAlertMail(epubcheck_output, testing_value_file, message, 'send_alert_mail')
+sendAlertMail(epubcheck_status, epubcheck_output, testing_value_file, message, 'send_alert_mail')
 
 
 # Write json log:
