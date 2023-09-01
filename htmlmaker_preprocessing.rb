@@ -155,7 +155,7 @@ end
 cfg_hash = readJson(configfile, 'read_config_json')
 
 #convert .doc to .docx via powershell script, ignore html files
-convertDocToDocxPSscript(filetype, 'convert_doc_to_docx')
+# convertDocToDocxPSscript(filetype, 'convert_doc_to_docx')
 
 # if filetype is html, check for version in metatag, else...
 if filetype == "html"
