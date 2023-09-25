@@ -13,8 +13,8 @@ local_log_hash, @log_hash = Bkmkr::Paths.setLocalLoghash
 image_error = File.join(Metadata.final_dir, "IMAGE_ERROR.txt")
 
 # specs for image resizing
-maxheight = 5.5
-maxwidth = 3.5
+maxheight = 6.5
+maxwidth = 5
 grid = 16.0
 
 pdftmp_dir = File.join(Bkmkr::Paths.project_tmp_dir_img, "pdftmp")
@@ -72,7 +72,7 @@ def convertTitlepage(podfiletype, podtitlepagearc, podtitlepagetmp, logkey='')
     FileUtils.cp(podtitlepagearc, podtitlepagetmp)
     logstring = 'already a jpg, just moved file'
   else
-    `convert "#{podtitlepagearc}" "#{podtitlepagetmp}"`
+    `convert -units pixelsperinch "#{podtitlepagearc}" "#{podtitlepagetmp}"`
     logstring = "moved and converted (file was #{podfiletype})"
   end
 rescue => logstring
@@ -90,7 +90,7 @@ def prepareTitlepage(finalimagedir, filecontents, logkey='')
     if podfiletype == "jpg"
       FileUtils.cp(podtitlepagearc, podtitlepagetmp)
     else
-      `convert "#{podtitlepagearc}" "#{podtitlepagetmp}"`
+      `convert -units pixelsperinch "#{podtitlepagearc}" "#{podtitlepagetmp}"`
     end
     # insert titlepage image
     filecontents = filecontents.gsub(/(<section data-type="titlepage")/,"\\1 data-titlepage=\"yes\"")
@@ -107,19 +107,19 @@ end
 # gets image conversion specs to fit the images to the grid
 def calcImgSizes(res, file, maxheight, maxwidth, grid)
   myres = res.to_f
-  myheight = `identify -format "%h" "#{file}"`
+  myheight = `identify -units pixelsperinch -format "%h" "#{file}"`
   myheight = myheight.to_f
   myheightininches = (myheight / myres)
-  mywidth = `identify -format "%w" "#{file}"`
+  mywidth = `identify -units pixelsperinch -format "%w" "#{file}"`
   mywidth = mywidth.to_f
   mywidthininches = (mywidth / myres)
   # if current height or width exceeds max, resize to max, proportionately
   if mywidthininches > maxwidth or myheightininches > maxheight then
     targetheight = maxheight * myres
     targetwidth = maxwidth * myres
-    `convert "#{file}" -density #{myres} -resize "#{targetwidth}x#{targetheight}>" -quality 100 "#{file}"`
+    `convert -units pixelsperinch "#{file}" -density #{myres} -resize "#{targetwidth}x#{targetheight}>" -quality 100 "#{file}"`
   end
-  myheight = `identify -format "%h" "#{file}"`
+  myheight = `identify -units pixelsperinch -format "%h" "#{file}"`
   myheight = myheight.to_f
   myheightininches = (myheight / myres)
   mymultiple = ((myheight / myres) * 72.0) / grid
@@ -138,6 +138,7 @@ end
 def prepDoneDirImages(pdftmp_dir, maxheight, maxwidth, grid, logkey='')
   images = Dir["#{Bkmkr::Paths.project_tmp_dir_img}/*"].select {|f| File.file? f}
   image_count = images.count
+  puts Bkmkr::Paths.project_tmp_dir_img
   corrupt = []
   processed = []
 
@@ -148,17 +149,17 @@ def prepDoneDirImages(pdftmp_dir, maxheight, maxwidth, grid, logkey='')
       puts "resizing and grayscaling #{i}"
       pdfimage = File.join(pdftmp_dir, "#{i}")
       if i.include?("fullpage")
-        #convert command for ImageMagick should work the same on any platform
-        `convert "#{pdfimage}" -colorspace gray "#{pdfimage}"`
+        #convert -units pixelsperinch command for ImageMagick should work the same on any platform
+        `convert -units pixelsperinch "#{pdfimage}" -colorspace gray "#{pdfimage}"`
         processed << pdfimage
       else
-        myres = `identify -format "%y" "#{pdfimage}"`
+        myres = `identify -units pixelsperinch -format "%y" "#{pdfimage}"`
         if myres.nil? or myres.empty? or !myres
           corrupt << pdfimage
         else
           resize = calcImgSizes(myres, pdfimage, maxheight, maxwidth, grid)
           if !resize.match(/^error/)
-            `convert "#{pdfimage}" -density #{myres} #{resize}-quality 100 -colorspace gray "#{pdfimage}"`
+            `convert -units pixelsperinch "#{pdfimage}" -density #{myres} #{resize}-quality 100 -colorspace gray "#{pdfimage}"`
           else
             logstring = resize  #log any errors returned from calcImgSizes method
           end
