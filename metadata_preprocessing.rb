@@ -440,17 +440,19 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setPdfCssFile(metatemplate, template, pdf_css_dir, stage_dir, resource_dir, pdf_resource_dir, logkey='')
-  if !metatemplate.nil? and File.file?("#{pdf_css_dir}/#{pdf_resource_dir}/#{template}.css")
-    pdf_css_file = "#{pdf_css_dir}/#{pdf_resource_dir}/#{template}.css"
-  elsif File.file?("#{pdf_css_dir}/#{resource_dir}/#{stage_dir}.css")
-    pdf_css_file = "#{pdf_css_dir}/#{resource_dir}/#{stage_dir}.css"
-  elsif File.file?("#{pdf_css_dir}/#{resource_dir}/pdf.css")
-    pdf_css_file = "#{pdf_css_dir}/#{resource_dir}/pdf.css"
+def setPdfScssFile(metatemplate, template, pdf_css_dir, stage_dir, resource_dir, pdf_resource_dir, logkey='')
+  if !metatemplate.nil? and File.file?("#{pdf_css_dir}/#{pdf_resource_dir}/#{template}.scss")
+    pdf_scss_file = "#{pdf_css_dir}/#{pdf_resource_dir}/#{template}.scss"
+  # if !metatemplate.nil? and File.file?("#{pdf_css_dir}/global_templates/#{template}.css")
+  #   pdf_scss_file = "#{pdf_css_dir}/global_templates/#{template}.css"
+  elsif File.file?("#{pdf_css_dir}/#{resource_dir}/#{stage_dir}.scss")
+    pdf_scss_file = "#{pdf_css_dir}/#{resource_dir}/#{stage_dir}.scss"
+  elsif File.file?("#{pdf_css_dir}/#{resource_dir}/pdf.scss")
+    pdf_scss_file = "#{pdf_css_dir}/#{resource_dir}/pdf.scss"
   else
-    pdf_css_file = "#{pdf_css_dir}/generic/pdf.css"
+    pdf_scss_file = "#{pdf_css_dir}/generic/pdf.scss"
   end
-  return pdf_css_file
+  return pdf_scss_file
 rescue => logstring
   return ''
 ensure
@@ -667,9 +669,9 @@ puts "Resource dir: #{resource_dir}"
 
 pdf_resource_dir, template = setRSuiteTemplate(template, resource_dir, 'RS-recheck_template_and_resourcedir_values')
 
-pdf_css_file = setPdfCssFile(metatemplate, template, pdf_css_dir, stage_dir, resource_dir, pdf_resource_dir, 'set_pdf_CSS_file')
-@log_hash['pdf_css_file'] = pdf_css_file
-puts "PDF CSS file: #{pdf_css_file}"
+pdf_scss_file = setPdfScssFile(metatemplate, template, pdf_css_dir, stage_dir, resource_dir, pdf_resource_dir, 'set_pdf_scss_file')
+@log_hash['pdf_scss_file'] = pdf_scss_file
+puts "PDF SCSS file: #{pdf_scss_file}"
 
 epub_css_file = setEpubCssFile(metatemplate, template, epub_css_dir, stage_dir, resource_dir, 'set_epub_CSS_file')
 @log_hash['epub_css_file'] = epub_css_file
@@ -719,7 +721,7 @@ datahash.merge!(resourcedir: resource_dir)
 datahash.merge!(pdf_resourcedir: pdf_resource_dir)
 datahash.merge!(design_template: template)
 datahash.merge!(pitstop_dir: pitstop_value)
-datahash.merge!(printcss: pdf_css_file)
+datahash.merge!(printcss: pdf_scss_file)
 datahash.merge!(printjs: pdf_js_file)
 datahash.merge!(ebookcss: epub_css_file)
 datahash.merge!(pod_toc: toc_value)
