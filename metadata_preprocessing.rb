@@ -68,11 +68,15 @@ def findBookISBNs_metadataPreprocessing(config_hash, isbn_stylename, logkey='')
     pisbn, eisbn, allworks, querystatus = findBookISBNs(Bkmkr::Paths.outputtmp_html, Bkmkr::Project.filename, isbn_stylename)
   end
   # if we already have an ebookid in config.json, use that for eisbn
-  if config_hash.has_key?('ebookid') && config_hash['ebookid'] != 'TK'
+  if config_hash.has_key?('ebookid') && (config_hash['ebookid'] != 'TK' && !config_hash['ebookid'].empty?)
     eisbn = config_hash['ebookid']
   # if we didn't already have an eisbn from config.json or pisbn lookup, lookup from DW here
   elsif eisbn == '' and (querystatus == '' or querystatus == 'success')
     eisbn, allworks, querystatus = getEbookIsbn(pisbn)
+    # we need something for eisbn for lookups/naming in epubmaker, and we encounterd an old reprint where no ebook product existed.
+    if eisbn.empty?
+      eisbn = pisbn
+    end
   end
   if allworks.empty?
     allworks.push(pisbn, eisbn)
