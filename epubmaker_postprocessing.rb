@@ -45,6 +45,13 @@ testing_value_file = File.join(Bkmkr::Paths.resource_dir, "staging.txt")
 # full path of epubcheck error file
 epubcheck_errfile = File.join(Metadata.final_dir, "EPUBCHECK_ERROR.txt")
 
+# default is galley
+epubtype = "galley"
+daisy_status = 0
+daisy_report_dir = File.join(Metadata.final_dir, "daisy_report")
+daisy_report_html = File.join(daisy_report_dir, "report.html")
+daisy_report_html_moved = File.join(Metadata.final_dir, "EPUB_accessibility_report.html")
+
 unless (ENV['TRAVIS_TEST']) == 'true'
   @smtp_address = Mcmlln::Tools.readFile("#{$scripts_dir}/bookmaker_authkeys/smtp.txt").strip()
 end
@@ -274,13 +281,27 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def writeErrfile(epubcheck_status, epubcheck_output, epubcheck_errfile, logkey='')
-  if epubcheck_status.exitstatus != 0 || epubcheck_output =~ /ERROR/ || epubcheck_output =~ /Check finished with errors/
+def runDaisyChecker(daisy_report_dir, input_file, logkey='')
+    Bkmkr::Tools.runace(daisy_report_dir, input_file)
+rescue => logstring
+ensure
+  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
+
+def writeErrfile(epubcheck_status, epubcheck_output, epubcheck_errfile, daisy_status, logkey='')
+  if epubcheck_status.exitstatus != 0 || epubcheck_output =~ /ERROR/ || epubcheck_output =~ /Check finished with errors/ || daisy_status != 0
   	File.open(epubcheck_errfile, 'w') do |output|
-  		output.puts "Epub validation via epubcheck encountered errors."
-      output.puts "\n \n--Epubcheck status: \n#{epubcheck_status}"
-      output.puts "\n--Epubcheck detailed output:"
-      output.puts epubcheck_output
+      if epubcheck_status.exitstatus != 0 || epubcheck_output =~ /ERROR/ || epubcheck_output =~ /Check finished with errors/
+    		output.puts "Epub validation via epubcheck encountered errors."
+        output.puts "\n \n--Epubcheck status: \n#{epubcheck_status}"
+        output.puts "\n--Epubcheck detailed output:"
+        output.puts epubcheck_output
+        output.puts "\n"
+      end
+      if daisy_status != 0
+        output.puts "\n--Daisy ACE EPUB Accessibility Checker encountered a fatal error while analyzing this epub"
+      end
   	end
   else
     logstring = 'n-a'
@@ -390,6 +411,7 @@ if stage_dir.include?("egalley") || stage_dir.include?("galley") || stage_dir.in
   deleteFileIfPresent(nonfirstpass_epubfile, 'rm_non-firstpass_epub')
 else
   csfilename = "#{Metadata.eisbn}_EPUB"
+  epubtype = "final"
 end
 
 # zip epub
@@ -407,8 +429,20 @@ epubcheck_output = epubcheck_output.force_encoding("ISO-8859-1").encode("utf-8",
 @log_hash['epubcheck_output'] = epubcheck_output
 puts epubcheck_output  #for log (so warnings are still visible)
 
+if epubtype == 'final'
+  daisy_output, daisy_status = runDaisyChecker(daisy_report_dir, "#{Metadata.final_dir}/#{csfilename}.epub", 'run_daisy_checker')
+  @log_hash['daisy_output'] = daisy_output
+  puts "daisy_output: #{daisy_output}"
+  @log_hash['daisy_status'] = daisy_status
+  puts "daisy_status: #{daisy_status}"
+
+  if daisy_status == 0
+    check = Mcmlln::Tools.copyFile(daisy_report_html, daisy_report_html_moved)
+  end
+end
+
 #if error in epubcheck, write file for user, and email workflows
-writeErrfile(epubcheck_status, epubcheck_output, epubcheck_errfile, 'write_errfile_as_needed')
+writeErrfile(epubcheck_status, epubcheck_output, epubcheck_errfile, daisy_status, 'write_errfile_as_needed')
 message = <<MESSAGE_END
 From: Workflows <workflows@macmillan.com>
 To: Workflows <workflows@macmillan.com>

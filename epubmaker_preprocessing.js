@@ -50,7 +50,7 @@ fs.readFile(file, function editContent (err, contents) {
   	header = '<h1 class="ChapTitleNonprintingctnp">Title Page</h1>';
   	$('section[data-type="titlepage"]').prepend(header);
   	//add image holder
-  	image = '<img class="titlepage" src="epubtitlepage.jpg"/>';
+  	image = '<img class="titlepage" src="epubtitlepage.jpg" alt="ALT_TEXT_TP_IMAGE"/>';
   	$('section[data-type="titlepage"]').append(image);
   }
 
