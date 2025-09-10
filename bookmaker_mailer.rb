@@ -9,6 +9,7 @@ finalpdf = File.join(Metadata.final_dir, "#{Metadata.pisbn}_POD.pdf")
 firstpass_epub = File.join(Metadata.final_dir, "#{Metadata.pisbn}_EPUBfirstpass.epub")
 final_epub = File.join(Metadata.final_dir, "#{Metadata.eisbn}_EPUB.epub")
 errfiles_regexp = File.join(Metadata.final_dir, "*_ERROR.txt")
+daisy_report = File.join(Metadata.final_dir, "EPUB_accessibility_report.html")
 message_txtfile = File.join(Metadata.final_dir, "user_email.txt")
 sendmail_py = File.join(Bkmkr::Paths.scripts_dir, "utilities", "python_utils", "sendmail.py")
 workflows_email = 'workflows@macmillan.com'
@@ -184,6 +185,7 @@ end
 @log_hash['fileexists_firstpass_epub'] = File.exists?(firstpass_epub)
 @log_hash['fileexists_final_epub'] = File.exists?(final_epub)
 @log_hash['fileexists_finalpdf'] = File.exists?(finalpdf)
+@log_hash['daisy_report'] = File.exists?(daisy_report)
 if file_return_api_ok == true && (File.exists?(finalpdf) && (File.exists?(firstpass_epub) || File.exists?(final_epub)))
   output_ok = "success"
   if File.exists?(final_epub)
@@ -193,6 +195,9 @@ if file_return_api_ok == true && (File.exists?(finalpdf) && (File.exists?(firstp
   end
   if File.exists?(finalpdf)
     attachment_quota, good_attached, toolarge_files = addAttachment(finalpdf, attachment_quota, good_attached, toolarge_files, "attach_#{File.basename(finalpdf)}")
+  end
+  if File.exists?(daisy_report)
+    attachment_quota, good_attached, toolarge_files = addAttachment(daisy_report, attachment_quota, good_attached, toolarge_files, "attach_#{File.basename(daisy_report)}")
   end
 else
   output_ok = "error"
