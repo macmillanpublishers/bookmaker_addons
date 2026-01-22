@@ -317,6 +317,7 @@ end
 
 def altTitlepageHTMLEdit(file, titlepage_ALT_default, titlepage_ALT_placeholder, logkey='')
   filecontents = File.read(file)
+  titlepageAlt = "none"
 
   # get user provided alt text for cover, or prepare to use default
   ms_titlepage_alt_txt = titlepage_ALT_default
@@ -324,9 +325,13 @@ def altTitlepageHTMLEdit(file, titlepage_ALT_default, titlepage_ALT_placeholder,
   unless ms_titlepage_alt.nil? or ms_titlepage_alt.empty? or !ms_titlepage_alt
     ms_titlepage_alt_txt = filecontents.match(/(<meta name="altTP" content=")(.*?)(")/)[2]
     logstring = "found user provided alt text for TP image, updating placeholder text"
+    titlepageAlt = "custom"
   else
     logstring = "no user provided alt text for TP image found, using default"
+    titlepageAlt = "default"
   end
+
+  @log_hash['titlepageAlt'] = titlepageAlt
 
   # overwrite cover alt text placeholder with default
   filecontents = filecontents.gsub(/#{titlepage_ALT_placeholder}/, ms_titlepage_alt_txt)

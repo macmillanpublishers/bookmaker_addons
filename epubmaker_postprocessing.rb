@@ -47,6 +47,7 @@ epubcheck_errfile = File.join(Metadata.final_dir, "EPUBCHECK_ERROR.txt")
 
 # default is galley
 epubtype = "galley"
+altTextHelpUrl = "https://test"
 daisy_status = 0
 daisy_report_dir = File.join(Metadata.final_dir, "daisy_report")
 daisy_report_html = File.join(daisy_report_dir, "report.html")
@@ -289,8 +290,8 @@ ensure
 end
 
 
-def writeErrfile(epubcheck_status, epubcheck_output, epubcheck_errfile, daisy_status, logkey='')
-  if epubcheck_status.exitstatus != 0 || epubcheck_output =~ /ERROR/ || epubcheck_output =~ /Check finished with errors/ || daisy_status != 0
+def writeErrfile(epubcheck_status, epubcheck_output, epubcheck_errfile, daisy_status, alttextalertList, logkey='')
+  if epubcheck_status.exitstatus != 0 || epubcheck_output =~ /ERROR/ || epubcheck_output =~ /Check finished with errors/ || daisy_status != 0 || alttextalertList.size > 0
   	File.open(epubcheck_errfile, 'w') do |output|
       if epubcheck_status.exitstatus != 0 || epubcheck_output =~ /ERROR/ || epubcheck_output =~ /Check finished with errors/
     		output.puts "Epub validation via epubcheck encountered errors."
@@ -301,6 +302,12 @@ def writeErrfile(epubcheck_status, epubcheck_output, epubcheck_errfile, daisy_st
       end
       if daisy_status != 0
         output.puts "\n--Daisy ACE EPUB Accessibility Checker encountered a fatal error while analyzing this epub"
+      end
+      if alttextalertList.length > 0
+        output.puts "\nAlternate text values are missing from one or more images:\n"
+        alttextalertList.each do |a|
+          output.puts a
+        end
       end
   	end
   else
@@ -430,6 +437,7 @@ epubcheck_output = epubcheck_output.force_encoding("ISO-8859-1").encode("utf-8",
 puts epubcheck_output  #for log (so warnings are still visible)
 
 if epubtype == 'final'
+  # daisy accessibility checks
   daisy_output, daisy_status = runDaisyChecker(daisy_report_dir, "#{Metadata.final_dir}/#{csfilename}.epub", 'run_daisy_checker')
   @log_hash['daisy_output'] = daisy_output
   puts "daisy_output: #{daisy_output}"
@@ -439,10 +447,50 @@ if epubtype == 'final'
   if daisy_status == 0
     check = Mcmlln::Tools.copyFile(daisy_report_html, daisy_report_html_moved)
   end
+
+  # check for placeholder image alt texts: all images, titlepage, and cover:
+  alttxt_alerts = "\n"
+  alttextalertList = []
+  jsonlog_hash = readJson(Bkmkr::Paths.json_log, 'read_jsonlog')
+  if jsonlog_hash.key?("epubmaker.rb") && jsonlog_hash["epubmaker.rb"].key?("coverALT")
+    coverALTcheck = jsonlog_hash["epubmaker.rb"]["coverALT"]
+    if coverALTcheck == "default"
+      alttextalertList.push(" - No alt-text is specified for the cover image. Please set alt-text for the cover image\n")
+    end
+  end
+  if jsonlog_hash.key?("epubmaker_preprocessing.rb") && jsonlog_hash["epubmaker_preprocessing.rb"].key?("titlepageAlt")
+    tpALTcheck = jsonlog_hash["epubmaker_preprocessing.rb"]["titlepageAlt"]
+    submitted_images = []
+    if jsonlog_hash.key?("tmparchive_direct.rb") && jsonlog_hash["tmparchive_direct.rb"].key?("submitted_files")
+      submitted_images = jsonlog_hash["tmparchive_direct.rb"]["submitted_files"]
+      if tpALTcheck == "default" && (submitted_images.include?("epubtitlepage.jpg") || submitted_images.include?("titlepage.jpg"))
+        alttextalertList.push(" - No alt-text is specified for your custom titlepage image. Please set alt-text for the custom titlepage image\n")
+      end
+    end
+  end
+  if jsonlog_hash.key?("imagechecker.rb") && jsonlog_hash["imagechecker.rb"].key?("alt_txt_is_image_name")
+    alttxtcheck = jsonlog_hash["imagechecker.rb"]["alt_txt_is_image_name"]
+    if alttxtcheck.length > 0
+      alttxt_alert_present = true
+      alttxtcheck.each do |i|
+        alttextalertList.push(" - No alt-text is specified for image '#{i}'. Please set alt-text for the image\n")
+      end
+    end
+  end
+end
+
+@log_hash['alttextalertList'] = alttextalertList
+if alttextalertList.size > 0
+  instructionsStr = "(instructions on adding alt-text for images here: " + altTextHelpUrl + ")"
+  alttxt_alerts = "Accessibility errors:\n"
+  alttextalertList.each do |a|
+    alttxt_alerts = alttxt_alerts + a
+  end
+  alttxt_alerts = alttxt_alerts + "\n" + instructionsStr + "\n"
 end
 
 #if error in epubcheck, write file for user, and email workflows
-writeErrfile(epubcheck_status, epubcheck_output, epubcheck_errfile, daisy_status, 'write_errfile_as_needed')
+writeErrfile(epubcheck_status, epubcheck_output, epubcheck_errfile, daisy_status, alttextalertList, 'write_errfile_as_needed')
 message = <<MESSAGE_END
 From: Workflows <workflows@macmillan.com>
 To: Workflows <workflows@macmillan.com>
@@ -451,7 +499,7 @@ Subject: ERROR: epubcheck errors for #{csfilename}.epub
 Epubcheck validation found errors for file:
 #{Metadata.final_dir}/#{csfilename}.epub
 
-Epubcheck status:  #{epubcheck_status}
+#{alttxt_alerts}Epubcheck status:  #{epubcheck_status}
 Epubcheck output:
 #{epubcheck_output}
 MESSAGE_END
