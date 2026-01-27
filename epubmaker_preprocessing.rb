@@ -26,6 +26,12 @@ add_metatag_js = File.join(Bkmkr::Paths.scripts_dir, "bookmaker_addons", "add_me
 dw_lookup_errfile = File.join(Metadata.final_dir, "ISBN_LOOKUP_ERROR.txt")
 testing_value_file = File.join(Bkmkr::Paths.resource_dir, "staging.txt")
 
+# default tp ALT text
+titlepage_ALT_default = "Generic text-only titlepage: book title, author, publisher name and logo"
+# titlepage ALT text placeholder
+titlepage_ALT_placeholder = 'ALT_TEXT_TP_IMAGE'
+
+
 # ---------------------- METHODS
 
 def readConfigJson(logkey='')
@@ -309,6 +315,36 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
+def altTitlepageHTMLEdit(file, titlepage_ALT_default, titlepage_ALT_placeholder, logkey='')
+  filecontents = File.read(file)
+  titlepageAlt = "none"
+
+  # get user provided alt text for cover, or prepare to use default
+  ms_titlepage_alt_txt = titlepage_ALT_default
+  ms_titlepage_alt = filecontents.scan(/<meta name="altTP"/)
+  unless ms_titlepage_alt.nil? or ms_titlepage_alt.empty? or !ms_titlepage_alt
+    ms_titlepage_alt_txt = filecontents.match(/(<meta name="altTP" content=")(.*?)(")/)[2]
+    logstring = "found user provided alt text for TP image, updating placeholder text"
+    titlepageAlt = "custom"
+  else
+    logstring = "no user provided alt text for TP image found, using default"
+    titlepageAlt = "default"
+  end
+
+  @log_hash['titlepageAlt'] = titlepageAlt
+
+  # overwrite cover alt text placeholder with default
+  filecontents = filecontents.gsub(/#{titlepage_ALT_placeholder}/, ms_titlepage_alt_txt)
+
+  return filecontents
+rescue => logstring
+  return ''
+ensure
+    Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+end
+
+
+
 # ---------------------- PROCESSES
 
 data_hash = readConfigJson('read_config_json')
@@ -457,6 +493,11 @@ else
 end
 # write rights metatag
 localRunNode(add_metatag_js, "#{epub_tmp_html} \"rights\" \"All rights reserved\"", "add_rights_meta_tag")
+
+# add titlepage alt text
+filecontents = altTitlepageHTMLEdit(epub_tmp_html, titlepage_ALT_default, titlepage_ALT_placeholder, 'update_titlepage_alt_text')
+overwriteFile(epub_tmp_html, filecontents, 'overwrite_epubtmp_html-post_titlepage_alt_update')
+
 
 if querystatus != 'success'
   handleSqlQueryError(querystatus, data_hash, dw_lookup_errfile, testing_value_file, 'handle_sql_query_err')
