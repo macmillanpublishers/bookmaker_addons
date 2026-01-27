@@ -47,7 +47,7 @@ epubcheck_errfile = File.join(Metadata.final_dir, "EPUBCHECK_ERROR.txt")
 
 # default is galley
 epubtype = "galley"
-altTextHelpUrl = "https://test"
+altTextHelpUrl = "https://macmillan.app.lumapps.com/trade/ls/content/6293941102049499/customize-the-layout-via-processing-instructions#ALTTXT"
 daisy_status = 0
 daisy_report_dir = File.join(Metadata.final_dir, "daisy_report")
 daisy_report_html = File.join(daisy_report_dir, "report.html")
@@ -290,7 +290,7 @@ ensure
 end
 
 
-def writeErrfile(epubcheck_status, epubcheck_output, epubcheck_errfile, daisy_status, alttextalertList, logkey='')
+def writeErrfile(epubcheck_status, epubcheck_output, epubcheck_errfile, daisy_status, alttextalertList, altTextHelpUrl, logkey='')
   if epubcheck_status.exitstatus != 0 || epubcheck_output =~ /ERROR/ || epubcheck_output =~ /Check finished with errors/ || daisy_status != 0 || alttextalertList.size > 0
   	File.open(epubcheck_errfile, 'w') do |output|
       if epubcheck_status.exitstatus != 0 || epubcheck_output =~ /ERROR/ || epubcheck_output =~ /Check finished with errors/
@@ -308,6 +308,7 @@ def writeErrfile(epubcheck_status, epubcheck_output, epubcheck_errfile, daisy_st
         alttextalertList.each do |a|
           output.puts a
         end
+        output.puts "\nFor help adding alt-text to images, refer to documentation here:\n#{altTextHelpUrl}"
       end
   	end
   else
@@ -490,7 +491,7 @@ if alttextalertList.size > 0
 end
 
 #if error in epubcheck, write file for user, and email workflows
-writeErrfile(epubcheck_status, epubcheck_output, epubcheck_errfile, daisy_status, alttextalertList, 'write_errfile_as_needed')
+writeErrfile(epubcheck_status, epubcheck_output, epubcheck_errfile, daisy_status, alttextalertList, altTextHelpUrl, 'write_errfile_as_needed')
 message = <<MESSAGE_END
 From: Workflows <workflows@macmillan.com>
 To: Workflows <workflows@macmillan.com>
