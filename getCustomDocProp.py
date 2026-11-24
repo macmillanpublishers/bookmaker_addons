@@ -44,4 +44,4 @@ else:
 	custom_doc_prop_value = check_xml_for_version(xmlstring, custom_doc_property_name)
 
 # pass value back to parent script
-print custom_doc_prop_value
+print(custom_doc_prop_value)
