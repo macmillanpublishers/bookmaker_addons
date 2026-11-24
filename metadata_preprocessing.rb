@@ -5,8 +5,8 @@ require 'nokogiri'
 unless (ENV['TRAVIS_TEST']) == 'true'
   require_relative '../bookmaker/core/header.rb'
   require_relative '../bookmaker/core/metadata.rb'
-  require_relative '../utilities/oraclequery.rb'
-  require_relative '../utilities/isbn_finder.rb'
+  # require_relative '../utilities/oraclequery.rb'
+  # require_relative '../utilities/isbn_finder.rb'
 else
   puts " --- testing mode:  running travis build"
   require_relative './unit_testing/for_travis-bookmaker_submodule/bookmaker/core/header.rb'
@@ -56,40 +56,40 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def findBookISBNs_metadataPreprocessing(config_hash, isbn_stylename, logkey='')
-  eisbn = ''
-  allworks = []
-  querystatus = ''
-  # if we already have a printid or productid in config.json, use that for pisbn
-  if config_hash.has_key?('printid') && config_hash['printid'] != 'TK'
-    pisbn = config_hash['printid']
-  # else do a lookup
-  else
-    pisbn, eisbn, allworks, querystatus = findBookISBNs(Bkmkr::Paths.outputtmp_html, Bkmkr::Project.filename, isbn_stylename)
-  end
-  # if we already have an ebookid in config.json, use that for eisbn
-  if config_hash.has_key?('ebookid') && (config_hash['ebookid'] != 'TK' && !config_hash['ebookid'].empty?)
-    eisbn = config_hash['ebookid']
-  # if we didn't already have an eisbn from config.json or pisbn lookup, lookup from DW here
-  elsif eisbn == '' and (querystatus == '' or querystatus == 'success')
-    eisbn, allworks, querystatus = getEbookIsbn(pisbn)
-    # we need something for eisbn for lookups/naming in epubmaker, and we encounterd an old reprint where no ebook product existed.
-    if eisbn.empty?
-      eisbn = pisbn
-    end
-  end
-  if allworks.empty?
-    allworks.push(pisbn, eisbn)
-  end
-  if querystatus != '' and querystatus != 'success'
-    logstring = querystatus
-  end
-  return pisbn, eisbn, allworks, querystatus
-rescue => logstring
-  return '','','',''
-ensure
-  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
-end
+# def findBookISBNs_metadataPreprocessing(config_hash, isbn_stylename, logkey='')
+#   eisbn = ''
+#   allworks = []
+#   querystatus = ''
+#   # if we already have a printid or productid in config.json, use that for pisbn
+#   if config_hash.has_key?('printid') && config_hash['printid'] != 'TK'
+#     pisbn = config_hash['printid']
+#   # else do a lookup
+#   else
+#     pisbn, eisbn, allworks, querystatus = findBookISBNs(Bkmkr::Paths.outputtmp_html, Bkmkr::Project.filename, isbn_stylename)
+#   end
+#   # if we already have an ebookid in config.json, use that for eisbn
+#   if config_hash.has_key?('ebookid') && (config_hash['ebookid'] != 'TK' && !config_hash['ebookid'].empty?)
+#     eisbn = config_hash['ebookid']
+#   # if we didn't already have an eisbn from config.json or pisbn lookup, lookup from DW here
+#   elsif eisbn == '' and (querystatus == '' or querystatus == 'success')
+#     eisbn, allworks, querystatus = getEbookIsbn(pisbn)
+#     # we need something for eisbn for lookups/naming in epubmaker, and we encounterd an old reprint where no ebook product existed.
+#     if eisbn.empty?
+#       eisbn = pisbn
+#     end
+#   end
+#   if allworks.empty?
+#     allworks.push(pisbn, eisbn)
+#   end
+#   if querystatus != '' and querystatus != 'success'
+#     logstring = querystatus
+#   end
+#   return pisbn, eisbn, allworks, querystatus
+# rescue => logstring
+#   return '','','',''
+# ensure
+#   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+# end
 
 def findTitlepageImages(allimg, finalimg, logkey='')
   #get images matching name from dir
@@ -172,219 +172,219 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def databaseLookup(pisbn, eisbn, logkey='')
-  # validate 13 digit isbn
-  test_pisbn_chars = pisbn.scan(/\d\d\d\d\d\d\d\d\d\d\d\d\d/)
-  test_pisbn_length = pisbn.split(%r{\s*})
-  test_eisbn_chars = eisbn.scan(/\d\d\d\d\d\d\d\d\d\d\d\d\d/)
-  test_eisbn_length = eisbn.split(%r{\s*})
+# def databaseLookup(pisbn, eisbn, logkey='')
+#   # validate 13 digit isbn
+#   test_pisbn_chars = pisbn.scan(/\d\d\d\d\d\d\d\d\d\d\d\d\d/)
+#   test_pisbn_length = pisbn.split(%r{\s*})
+#   test_eisbn_chars = eisbn.scan(/\d\d\d\d\d\d\d\d\d\d\d\d\d/)
+#   test_eisbn_length = eisbn.split(%r{\s*})
 
-  # get a hash of edition information, attempt pisbn first, use eisbn as backup
-  if test_pisbn_length.length == 13 and test_pisbn_chars.length != 0
-    thissql = exactSearchSingleKey(pisbn, "EDITION_EAN")
-    myhash, querystatus = runQuery(thissql)
-    if querystatus == 'success' and (myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] and test_eisbn_length.length == 13 and test_eisbn_chars.length != 0)
-      thissql = exactSearchSingleKey(eisbn, "EDITION_EAN")
-      myhash, querystatus = runQuery(thissql)
-    end
-  elsif test_eisbn_length.length == 13 and test_eisbn_chars.length != 0
-    thissql = exactSearchSingleKey(eisbn, "EDITION_EAN")
-    myhash, querystatus = runQuery(thissql)
-  else
-    myhash = {}
-  end
-  #  setup logstring based on query returns
-  logstring = querystatus
-  if querystatus == 'success' and (myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'])
-    logstring = "No DB record found; removing author links for addons"
-  elsif querystatus == 'success'
-    logstring = "DB Connection SUCCESS: Found an author record"
-  end
+#   # get a hash of edition information, attempt pisbn first, use eisbn as backup
+#   if test_pisbn_length.length == 13 and test_pisbn_chars.length != 0
+#     thissql = exactSearchSingleKey(pisbn, "EDITION_EAN")
+#     myhash, querystatus = runQuery(thissql)
+#     if querystatus == 'success' and (myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] and test_eisbn_length.length == 13 and test_eisbn_chars.length != 0)
+#       thissql = exactSearchSingleKey(eisbn, "EDITION_EAN")
+#       myhash, querystatus = runQuery(thissql)
+#     end
+#   elsif test_eisbn_length.length == 13 and test_eisbn_chars.length != 0
+#     thissql = exactSearchSingleKey(eisbn, "EDITION_EAN")
+#     myhash, querystatus = runQuery(thissql)
+#   else
+#     myhash = {}
+#   end
+#   #  setup logstring based on query returns
+#   logstring = querystatus
+#   if querystatus == 'success' and (myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'])
+#     logstring = "No DB record found; removing author links for addons"
+#   elsif querystatus == 'success'
+#     logstring = "DB Connection SUCCESS: Found an author record"
+#   end
 
-  return myhash, querystatus
-rescue => logstring
-  return {}, ''
-ensure
-  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
-end
+#   return myhash, querystatus
+# rescue => logstring
+#   return {}, ''
+# ensure
+#   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+# end
 
-def setAuthorInfo(config_hash, myhash, htmlfile, author_selector, logkey='')
-  if config_hash.has_key?('author') && config_hash['author'] != 'TK'
-    authorname = config_hash['author']
-  else
-    # get the page tree via nokogiri
-    page = Nokogiri::HTML(open(htmlfile))
-    # get meta info from html if it exists
-    metabookauthor = page.xpath('//meta[@name="author"]/@content')
-    # Finding book title
-    if !metabookauthor.empty?
-      puts "Getting book AUTHOR from meta element"
-      authorname = HTMLEntities.new.decode(metabookauthor).encode('utf-8')
-    elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_COVERTITLE"].nil? or myhash["book"]["WORK_COVERTITLE"].empty? or !myhash["book"]["WORK_COVERTITLE"]
-      puts "Getting book AUTHOR from titlepage"
-      names = []
-      authorname = page.css(author_selector)
-      authorname.each do |t|
-        names << t.text
-      end
-      authorname = names.join(", ")
-      authorname = HTMLEntities.new.decode(authorname).encode('utf-8')
-    else
-      puts "Getting book AUTHOR from config"
-      authorname = myhash['book']['WORK_COVERAUTHOR']
-      authorname = authorname.encode('utf-8')
-    end
-  end
-  return authorname
-rescue => logstring
-  return ''
-ensure
-  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
-end
+# def setAuthorInfo(config_hash, myhash, htmlfile, author_selector, logkey='')
+#   if config_hash.has_key?('author') && config_hash['author'] != 'TK'
+#     authorname = config_hash['author']
+#   else
+#     # get the page tree via nokogiri
+#     page = Nokogiri::HTML(open(htmlfile))
+#     # get meta info from html if it exists
+#     metabookauthor = page.xpath('//meta[@name="author"]/@content')
+#     # Finding book title
+#     if !metabookauthor.empty?
+#       puts "Getting book AUTHOR from meta element"
+#       authorname = HTMLEntities.new.decode(metabookauthor).encode('utf-8')
+#     elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_COVERTITLE"].nil? or myhash["book"]["WORK_COVERTITLE"].empty? or !myhash["book"]["WORK_COVERTITLE"]
+#       puts "Getting book AUTHOR from titlepage"
+#       names = []
+#       authorname = page.css(author_selector)
+#       authorname.each do |t|
+#         names << t.text
+#       end
+#       authorname = names.join(", ")
+#       authorname = HTMLEntities.new.decode(authorname).encode('utf-8')
+#     else
+#       puts "Getting book AUTHOR from config"
+#       authorname = myhash['book']['WORK_COVERAUTHOR']
+#       authorname = authorname.encode('utf-8')
+#     end
+#   end
+#   return authorname
+# rescue => logstring
+#   return ''
+# ensure
+#   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+# end
 
-def setBookTitle(config_hash, myhash, htmlfile, title_selector, logkey='')
-  if config_hash.has_key?('title') && config_hash['title'] != 'TK'
-    booktitle = config_hash['title']
-  else
-    # get the page tree via nokogiri
-    page = Nokogiri::HTML(open(htmlfile))
-    # get meta info from html if it exists
-    metabooktitle = page.xpath('//meta[@name="title"]/@content')
-    # Finding book title
-    if !metabooktitle.empty?
-      puts "Getting book TITLE from meta element"
-      booktitle = HTMLEntities.new.decode(metabooktitle).encode('utf-8')
-    elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_COVERTITLE"].nil? or myhash["book"]["WORK_COVERTITLE"].empty? or !myhash["book"]["WORK_COVERTITLE"]
-      puts "Getting book TITLE from titlepage"
-      titles = []
-      booktitle = page.css(title_selector)
-      booktitle.each do |t|
-        titles << t.text
-      end
-      booktitle = titles.join(" ")
-      booktitle = HTMLEntities.new.decode(booktitle).encode('utf-8')
-    else
-      puts "Getting book TITLE from config"
-      booktitle = myhash["book"]["WORK_COVERTITLE"]
-      booktitle = booktitle.encode('utf-8')
-    end
-  end
-  return booktitle
-rescue => logstring
-  return ''
-ensure
-  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
-end
+# def setBookTitle(config_hash, myhash, htmlfile, title_selector, logkey='')
+#   if config_hash.has_key?('title') && config_hash['title'] != 'TK'
+#     booktitle = config_hash['title']
+#   else
+#     # get the page tree via nokogiri
+#     page = Nokogiri::HTML(open(htmlfile))
+#     # get meta info from html if it exists
+#     metabooktitle = page.xpath('//meta[@name="title"]/@content')
+#     # Finding book title
+#     if !metabooktitle.empty?
+#       puts "Getting book TITLE from meta element"
+#       booktitle = HTMLEntities.new.decode(metabooktitle).encode('utf-8')
+#     elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_COVERTITLE"].nil? or myhash["book"]["WORK_COVERTITLE"].empty? or !myhash["book"]["WORK_COVERTITLE"]
+#       puts "Getting book TITLE from titlepage"
+#       titles = []
+#       booktitle = page.css(title_selector)
+#       booktitle.each do |t|
+#         titles << t.text
+#       end
+#       booktitle = titles.join(" ")
+#       booktitle = HTMLEntities.new.decode(booktitle).encode('utf-8')
+#     else
+#       puts "Getting book TITLE from config"
+#       booktitle = myhash["book"]["WORK_COVERTITLE"]
+#       booktitle = booktitle.encode('utf-8')
+#     end
+#   end
+#   return booktitle
+# rescue => logstring
+#   return ''
+# ensure
+#   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+# end
 
-def setBookSubtitle(config_hash, myhash, htmlfile, subtitle_selector, logkey='')
-  if config_hash.has_key?('subtitle') && config_hash['subtitle'] != 'TK'
-    booksubtitle = config_hash['subtitle']
-  else
-    # get the page tree via nokogiri
-    page = Nokogiri::HTML(open(htmlfile))
-    # get meta info from html if it exists
-    metabooksubtitle = page.xpath('//meta[@name="subtitle"]/@content')
-    # Finding book title
-    if !metabooksubtitle.empty?
-      puts "Getting book SUBTITLE from meta element"
-      booksubtitle = HTMLEntities.new.decode(metabooksubtitle).encode('utf-8')
-    elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_COVERTITLE"].nil? or myhash["book"]["WORK_COVERTITLE"].empty? or !myhash["book"]["WORK_COVERTITLE"]
-      puts "Getting book SUBTITLE from titlepage"
-      subtitles = []
-      booksubtitle = page.css(subtitle_selector)
-      booksubtitle.each do |t|
-        subtitles << t.text
-      end
-      booksubtitle = subtitles.join(" ")
-      booksubtitle = HTMLEntities.new.decode(booksubtitle).encode('utf-8')
-    else
-      puts "Getting book SUBTITLE from config"
-      booksubtitle = myhash["book"]["WORK_SUBTITLE"]
-      booksubtitle = booksubtitle.encode('utf-8')
-    end
-  end
-  return booksubtitle
-rescue => logstring
-  return ''
-ensure
-  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
-end
+# def setBookSubtitle(config_hash, myhash, htmlfile, subtitle_selector, logkey='')
+#   if config_hash.has_key?('subtitle') && config_hash['subtitle'] != 'TK'
+#     booksubtitle = config_hash['subtitle']
+#   else
+#     # get the page tree via nokogiri
+#     page = Nokogiri::HTML(open(htmlfile))
+#     # get meta info from html if it exists
+#     metabooksubtitle = page.xpath('//meta[@name="subtitle"]/@content')
+#     # Finding book title
+#     if !metabooksubtitle.empty?
+#       puts "Getting book SUBTITLE from meta element"
+#       booksubtitle = HTMLEntities.new.decode(metabooksubtitle).encode('utf-8')
+#     elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["WORK_COVERTITLE"].nil? or myhash["book"]["WORK_COVERTITLE"].empty? or !myhash["book"]["WORK_COVERTITLE"]
+#       puts "Getting book SUBTITLE from titlepage"
+#       subtitles = []
+#       booksubtitle = page.css(subtitle_selector)
+#       booksubtitle.each do |t|
+#         subtitles << t.text
+#       end
+#       booksubtitle = subtitles.join(" ")
+#       booksubtitle = HTMLEntities.new.decode(booksubtitle).encode('utf-8')
+#     else
+#       puts "Getting book SUBTITLE from config"
+#       booksubtitle = myhash["book"]["WORK_SUBTITLE"]
+#       booksubtitle = booksubtitle.encode('utf-8')
+#     end
+#   end
+#   return booksubtitle
+# rescue => logstring
+#   return ''
+# ensure
+#   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+# end
 
-# find the publisher imprint based on the imprints.json database
-# only called (by the following method) if biblio data & html metadata unavailable
-def getImprint(projectdir, json, logkey='')
-  data_hash = Mcmlln::Tools.readjson(json)
-  arr = []
-  # loop through each json record to see if imprint name matches formalname
-  data_hash['imprints'].each do |p|
-    if p['shortname'] == projectdir
-      arr << p['formalname']
-    end
-  end
-  # in case of multiples, grab just the last entry and return it
-  if arr.nil? or arr.empty?
-    path = "Macmillan"
-  else
-    path = arr.pop
-  end
-  return path
-rescue => logstring
-  return ''
-ensure
-  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
-end
+# # find the publisher imprint based on the imprints.json database
+# # only called (by the following method) if biblio data & html metadata unavailable
+# def getImprint(projectdir, json, logkey='')
+#   data_hash = Mcmlln::Tools.readjson(json)
+#   arr = []
+#   # loop through each json record to see if imprint name matches formalname
+#   data_hash['imprints'].each do |p|
+#     if p['shortname'] == projectdir
+#       arr << p['formalname']
+#     end
+#   end
+#   # in case of multiples, grab just the last entry and return it
+#   if arr.nil? or arr.empty?
+#     path = "Macmillan"
+#   else
+#     path = arr.pop
+#   end
+#   return path
+# rescue => logstring
+#   return ''
+# ensure
+#   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+# end
 
-def setImprint(config_hash, myhash, htmlfile, project_dir, imprint_json, logkey='')
-  if config_hash.has_key?('imprint') && config_hash['imprint'] != 'TK'
-    imprint = config_hash['imprint']
-  else
-    # get the page tree via nokogiri
-    page = Nokogiri::HTML(open(htmlfile))
-    # get meta info from html if it exists
-    metaimprint = page.xpath('//meta[@name="imprint"]/@content')
-    # Finding imprint name
-    if !metaimprint.empty?
-      puts "Getting book IMPRINT from meta element"
-      imprint = HTMLEntities.new.decode(metaimprint)
-    elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["IMPRINT_DESC"].nil? or myhash["book"]["IMPRINT_DESC"].empty? or !myhash["book"]["IMPRINT_DESC"]
-      puts "Getting book IMPRINT from config json"
-      imprint = getImprint(project_dir, imprint_json, 'get_imprint_from_json')
-    else
-      puts "Getting book IMPRINT from database"
-      imprint = myhash["book"]["IMPRINT_DESC"]
-      imprint = imprint.encode('utf-8')
-    end
-  end
-  return imprint
-rescue => logstring
-  return ''
-ensure
-  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
-end
+# def setImprint(config_hash, myhash, htmlfile, project_dir, imprint_json, logkey='')
+#   if config_hash.has_key?('imprint') && config_hash['imprint'] != 'TK'
+#     imprint = config_hash['imprint']
+#   else
+#     # get the page tree via nokogiri
+#     page = Nokogiri::HTML(open(htmlfile))
+#     # get meta info from html if it exists
+#     metaimprint = page.xpath('//meta[@name="imprint"]/@content')
+#     # Finding imprint name
+#     if !metaimprint.empty?
+#       puts "Getting book IMPRINT from meta element"
+#       imprint = HTMLEntities.new.decode(metaimprint)
+#     elsif myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash["book"]["IMPRINT_DESC"].nil? or myhash["book"]["IMPRINT_DESC"].empty? or !myhash["book"]["IMPRINT_DESC"]
+#       puts "Getting book IMPRINT from config json"
+#       imprint = getImprint(project_dir, imprint_json, 'get_imprint_from_json')
+#     else
+#       puts "Getting book IMPRINT from database"
+#       imprint = myhash["book"]["IMPRINT_DESC"]
+#       imprint = imprint.encode('utf-8')
+#     end
+#   end
+#   return imprint
+# rescue => logstring
+#   return ''
+# ensure
+#   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+# end
 
-def setPublisher(config_hash, myhash, htmlfile, imprint, logkey='')
-  if config_hash.has_key?('publisher') && config_hash['publisher'] != 'TK'
-    publisher = config_hash['publisher']
-  else
-    # get the page tree via nokogiri
-    page = Nokogiri::HTML(open(htmlfile))
-    # get meta info from html if it exists
-    metapublisher = page.xpath('//meta[@name="publisher"]/@content')
-    # Finding publisher
-    if !metapublisher.empty?
-      puts "Getting book PUBLISHER from meta element"
-      publisher = HTMLEntities.new.decode(metapublisher)
-    else
-      puts "Getting book PUBLISHER from imprint"
-      publisher = imprint
-    end
-  end
-  return publisher
-rescue => logstring
-  return ''
-ensure
-  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
-end
+# def setPublisher(config_hash, myhash, htmlfile, imprint, logkey='')
+#   if config_hash.has_key?('publisher') && config_hash['publisher'] != 'TK'
+#     publisher = config_hash['publisher']
+#   else
+#     # get the page tree via nokogiri
+#     page = Nokogiri::HTML(open(htmlfile))
+#     # get meta info from html if it exists
+#     metapublisher = page.xpath('//meta[@name="publisher"]/@content')
+#     # Finding publisher
+#     if !metapublisher.empty?
+#       puts "Getting book PUBLISHER from meta element"
+#       publisher = HTMLEntities.new.decode(metapublisher)
+#     else
+#       puts "Getting book PUBLISHER from imprint"
+#       publisher = imprint
+#     end
+#   end
+#   return publisher
+# rescue => logstring
+#   return ''
+# ensure
+#   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+# end
 
 def getPImetatag(htmlfile, metakey, logkey='')
   # get the page tree via nokogiri
@@ -406,28 +406,28 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-# determine directory name for assets e.g. css, js, logo images
-def getResourceDir(imprint, json, logkey='')
-  data_hash = Mcmlln::Tools.readjson(json)
-  arr = []
-  # loop through each json record to see if imprint name matches formalname
-  data_hash['imprints'].each do |p|
-    if p['formalname'] == imprint
-      arr << p['shortname']
-    end
-  end
-  # in case of multiples, grab just the last entry and return it
-  if arr.nil? or arr.empty?
-    path = "generic"
-  else
-    path = arr.pop
-  end
-  return path
-rescue => logstring
-  return ''
-ensure
-  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
-end
+# # determine directory name for assets e.g. css, js, logo images
+# def getResourceDir(imprint, json, logkey='')
+#   data_hash = Mcmlln::Tools.readjson(json)
+#   arr = []
+#   # loop through each json record to see if imprint name matches formalname
+#   data_hash['imprints'].each do |p|
+#     if p['formalname'] == imprint
+#       arr << p['shortname']
+#     end
+#   end
+#   # in case of multiples, grab just the last entry and return it
+#   if arr.nil? or arr.empty?
+#     path = "generic"
+#   else
+#     path = arr.pop
+#   end
+#   return path
+# rescue => logstring
+#   return ''
+# ensure
+#   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+# end
 
 def setRSuiteTemplate(template, resource_dir, logkey='')
   if template.include?('__')
@@ -598,18 +598,20 @@ doctemplatetype = prev_cfg_hash['doctemplatetype']
 # set bookmaker_assets path based on presence of rsuite styles
 if doctemplatetype == "rsuite"
   bookmaker_assets_dir = File.join(bookmaker_assets_dir, "rsuite_assets")
-  isbn_stylename = "cs-isbnisbn"
-  author_selector = 'section[data-type="titlepage"] > .Author1Au1'
-  title_selector = 'section[data-type="titlepage"] > .TitleTtl'
-  subtitle_selector = 'section[data-type="titlepage"] > .SubtitleSttl'
-else
-  isbn_stylename = "spanISBNisbn"
-  author_selector = ".TitlepageAuthorNameau"
-  title_selector = ".TitlepageBookTitletit"
-  subtitle_selector = ".TitlepageBookSubtitlestit"
+  # isbn_stylename = "cs-isbnisbn"
+  # author_selector = 'section[data-type="titlepage"] > .Author1Au1'
+  # title_selector = 'section[data-type="titlepage"] > .TitleTtl'
+  # subtitle_selector = 'section[data-type="titlepage"] > .SubtitleSttl'
+# else
+  # isbn_stylename = "spanISBNisbn"
+  # author_selector = ".TitlepageAuthorNameau"
+  # title_selector = ".TitlepageBookTitletit"
+  # subtitle_selector = ".TitlepageBookSubtitlestit"
 end
 
-pisbn, eisbn, allworks, querystatus = findBookISBNs_metadataPreprocessing(prev_cfg_hash, isbn_stylename, 'find_book_ISBNs')
+# pisbn, eisbn, allworks, querystatus = findBookISBNs_metadataPreprocessing(prev_cfg_hash, isbn_stylename, 'find_book_ISBNs')
+pisbn = prev_cfg_hash['printid'].to_s
+allworks = Array(prev_cfg_hash['allworks'])
 
 # this all depends on the ISBN; must follow the isbn_finder
 final_dir, @log_hash = Metadata.setupFinalDir(Bkmkr::Paths.project_tmp_dir, Bkmkr::Paths.done_dir, pisbn, Bkmkr::Paths.unique_run_id, @log_hash, 'metadata.rb-setup_final_dir')
@@ -626,39 +628,39 @@ epubtitlepage, podtitlepage = findTitlepageImages(allimg, finalimg, 'find_titlep
 frontcover = findFrontCover(final_dir, allimg, allworks, 'find_frontcover')
 @log_hash['frontcover'] = frontcover
 
-# connect to DB for all other metadata, unless we're coming from RSuite
-if prev_cfg_hash.has_key?('from_rsuite') and prev_cfg_hash['from_rsuite'] == true
-  authorname = prev_cfg_hash['author']
-  booktitle = prev_cfg_hash['title']
-  booksubtitle = prev_cfg_hash['subtitle']
-  imprint = prev_cfg_hash['imprint']
-  publisher = prev_cfg_hash['publisher']
-  mdlookup_status = 'RSuite->bookmaker run, skipping DB lookup for book metadata'
-  puts mdlookup_status
-  querystatus2 = ''
-else
-  if querystatus == 'success' or querystatus == ''
-    myhash, querystatus = databaseLookup(pisbn, eisbn, 'get_Biblio_metadata')
-    mdlookup_status = querystatus
-  else
-    myhash = {}
-    mdlookup_status = "skipping dw lookup due to previous dw_lookup errors"
-  end
-  # Setting metadata vars for config.json:
-  # Prioritize metainfo from html, then edition info from biblio, then scan html for tagged data
-  authorname = setAuthorInfo(prev_cfg_hash, myhash, Bkmkr::Paths.outputtmp_html, author_selector, 'set_author_info')
-  booktitle = setBookTitle(prev_cfg_hash, myhash, Bkmkr::Paths.outputtmp_html, title_selector, 'set_book_title')
-  booksubtitle = setBookSubtitle(prev_cfg_hash, myhash, Bkmkr::Paths.outputtmp_html, subtitle_selector, 'set_book_subtitle')
-  imprint = setImprint(prev_cfg_hash, myhash, Bkmkr::Paths.outputtmp_html, project_dir, imprint_json, 'set_imprint')
-  publisher = setPublisher(prev_cfg_hash, myhash, Bkmkr::Paths.outputtmp_html, imprint, 'set_publisher')
-end
+# # connect to DB for all other metadata, unless we're coming from RSuite
+# if prev_cfg_hash.has_key?('from_rsuite') and prev_cfg_hash['from_rsuite'] == true
+#   authorname = prev_cfg_hash['author']
+#   booktitle = prev_cfg_hash['title']
+#   booksubtitle = prev_cfg_hash['subtitle']
+#   imprint = prev_cfg_hash['imprint']
+#   publisher = prev_cfg_hash['publisher']
+#   mdlookup_status = 'RSuite->bookmaker run, skipping DB lookup for book metadata'
+#   puts mdlookup_status
+#   querystatus2 = ''
+# else
+#   if querystatus == 'success' or querystatus == ''
+#     myhash, querystatus = databaseLookup(pisbn, eisbn, 'get_Biblio_metadata')
+#     mdlookup_status = querystatus
+#   else
+#     myhash = {}
+#     mdlookup_status = "skipping dw lookup due to previous dw_lookup errors"
+#   end
+#   # Setting metadata vars for config.json:
+#   # Prioritize metainfo from html, then edition info from biblio, then scan html for tagged data
+#   authorname = setAuthorInfo(prev_cfg_hash, myhash, Bkmkr::Paths.outputtmp_html, author_selector, 'set_author_info')
+#   booktitle = setBookTitle(prev_cfg_hash, myhash, Bkmkr::Paths.outputtmp_html, title_selector, 'set_book_title')
+#   booksubtitle = setBookSubtitle(prev_cfg_hash, myhash, Bkmkr::Paths.outputtmp_html, subtitle_selector, 'set_book_subtitle')
+#   imprint = setImprint(prev_cfg_hash, myhash, Bkmkr::Paths.outputtmp_html, project_dir, imprint_json, 'set_imprint')
+#   publisher = setPublisher(prev_cfg_hash, myhash, Bkmkr::Paths.outputtmp_html, imprint, 'set_publisher')
+# end
 
-@log_hash['mdlookup_status'] = mdlookup_status
-@log_hash['author_name'] = authorname
-@log_hash['book_title'] = booktitle
-@log_hash['book_subtitle'] = booksubtitle
-@log_hash['imprint'] = imprint
-@log_hash['publisher'] = publisher
+# @log_hash['mdlookup_status'] = mdlookup_status
+# @log_hash['author_name'] = authorname
+# @log_hash['book_title'] = booktitle
+# @log_hash['book_subtitle'] = booksubtitle
+# @log_hash['imprint'] = imprint
+# @log_hash['publisher'] = publisher
 
 metatemplate, template = getPImetatag(Bkmkr::Paths.outputtmp_html, 'template', 'set_design_template')
 metapitstop, pitstop_value = getPImetatag(Bkmkr::Paths.outputtmp_html, 'pitstop', 'set_design_template')
@@ -667,9 +669,10 @@ metapitstop, pitstop_value = getPImetatag(Bkmkr::Paths.outputtmp_html, 'pitstop'
 epub_css_dir = File.join(bookmaker_assets_dir, "epubmaker", "css")
 pdf_css_dir = File.join(bookmaker_assets_dir, "pdfmaker", "css")
 
-resource_dir = getResourceDir(imprint, imprint_json, 'get_resource_dir')
-@log_hash['resource_dir'] = resource_dir
-puts "Resource dir: #{resource_dir}"
+resource_dir = prev_cfg_hash['resourcedir'].to_s
+# resource_dir = getResourceDir(imprint, imprint_json, 'get_resource_dir')
+# @log_hash['resource_dir'] = resource_dir
+# puts "Resource dir: #{resource_dir}"
 
 pdf_resource_dir, template = setRSuiteTemplate(template, resource_dir, 'RS-recheck_template_and_resourcedir_values')
 
@@ -692,6 +695,8 @@ pdf_js_file = File.join(Bkmkr::Paths.project_tmp_dir, "pdf.js")
 moveOverridePdfJS(submitted_override_js, existing_override_js, override_js_file, 'move_override_jsfile')
 
 # get JS file for pdf and edit title info to match our book
+authorname = prev_cfg_hash['author']
+booktitle = prev_cfg_hash['title']
 setupPdfJSfile(override_js_file, proj_js_file, fallback_js_file, pdf_js_file, booktitle, authorname, 'setup_pdf_JS_file')
 
 # check the html or xml for toc_value depending on doctemplatetype
@@ -711,17 +716,17 @@ else
 end
 
 datahash = {}
-datahash.merge!(title: booktitle)
-datahash.merge!(subtitle: booksubtitle)
-datahash.merge!(author: authorname)
-datahash.merge!(productid: pisbn)
-datahash.merge!(printid: pisbn)
-datahash.merge!(ebookid: eisbn)
-datahash.merge!(imprint: imprint)
-datahash.merge!(publisher: publisher)
-datahash.merge!(project: project_dir)
-datahash.merge!(stage: stage_dir)
-datahash.merge!(resourcedir: resource_dir)
+# datahash.merge!(title: booktitle)
+# datahash.merge!(subtitle: booksubtitle)
+# datahash.merge!(author: authorname)
+# datahash.merge!(productid: pisbn)
+# datahash.merge!(printid: pisbn)
+# datahash.merge!(ebookid: eisbn)
+# datahash.merge!(imprint: imprint)
+# datahash.merge!(publisher: publisher)
+# datahash.merge!(project: project_dir)
+# datahash.merge!(stage: stage_dir)
+# datahash.merge!(resourcedir: resource_dir)
 datahash.merge!(pdf_resourcedir: pdf_resource_dir)
 datahash.merge!(design_template: template)
 datahash.merge!(pitstop_dir: pitstop_value)
@@ -739,15 +744,16 @@ end
 datahash.merge!(doctemplate_version: prev_cfg_hash['doctemplate_version'])
 datahash.merge!(doctemplatetype: doctemplatetype)
 datahash.merge!(from_rsuite: prev_cfg_hash['from_rsuite'])
-if prev_cfg_hash.has_key?('dw_sql_err')
-  datahash.merge!('dw_sql_err': prev_cfg_hash['dw_sql_err'])
-elsif querystatus != 'success' and querystatus != ''
-  datahash.merge!('dw_sql_err': querystatus)
-  handleSqlQueryError(querystatus, prev_cfg_hash, dw_lookup_errfile, testing_value_file, 'handle_sql_query_err')
-end
+# if prev_cfg_hash.has_key?('dw_sql_err')
+#   datahash.merge!('dw_sql_err': prev_cfg_hash['dw_sql_err'])
+# elsif querystatus != 'success' and querystatus != ''
+#   datahash.merge!('dw_sql_err': querystatus)
+#   handleSqlQueryError(querystatus, prev_cfg_hash, dw_lookup_errfile, testing_value_file, 'handle_sql_query_err')
+# end
 
 # write to config.json file
-writeConfigJson(datahash, configfile, 'write_config_jsonfile')
+# writeConfigJson(datahash, configfile, 'write_config_jsonfile')
+writeConfigJson(prev_cfg_hash.merge(datahash.transform_keys(&:to_s)), configfile, 'write_config_jsonfile')
 
 # set html title to match JSON
 if booktitle.nil? or booktitle.empty? or !booktitle

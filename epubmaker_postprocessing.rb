@@ -49,6 +49,8 @@ epubcheck_errfile = File.join(Metadata.final_dir, "EPUBCHECK_ERROR.txt")
 epubtype = "galley"
 altTextHelpUrl = "https://macmillan.app.lumapps.com/trade/ls/content/6293941102049499/customize-the-layout-via-processing-instructions#ALTTXT"
 daisy_status = 0
+alttextalertList = []
+alttxt_alerts = ""
 daisy_report_dir = File.join(Metadata.final_dir, "daisy_report")
 daisy_report_html = File.join(daisy_report_dir, "report.html")
 daisy_report_html_moved = File.join(Metadata.final_dir, "EPUB_accessibility_report.html")
@@ -433,7 +435,7 @@ epubcheck_output, epubcheck_status = localRunJar("-Xss1024k", epubcheck, "#{Meta
 @log_hash['epubcheck_status'] = epubcheck_status
 puts "epubcheck_status: #{epubcheck_status}"
 # handle utf-8 unfriendly chars
-epubcheck_output = epubcheck_output.force_encoding("ISO-8859-1").encode("utf-8", replace: nil)
+epubcheck_output = epubcheck_output.to_s.force_encoding("ISO-8859-1").encode("utf-8", replace: nil)
 @log_hash['epubcheck_output'] = epubcheck_output
 puts epubcheck_output  #for log (so warnings are still visible)
 
@@ -450,8 +452,8 @@ if epubtype == 'final'
   end
 
   # check for placeholder image alt texts: all images, titlepage, and cover:
-  alttxt_alerts = "\n"
-  alttextalertList = []
+  # alttxt_alerts = "\n"
+  # alttextalertList = []
   jsonlog_hash = readJson(Bkmkr::Paths.json_log, 'read_jsonlog')
   if jsonlog_hash.key?("epubmaker.rb") && jsonlog_hash["epubmaker.rb"].key?("coverALT")
     coverALTcheck = jsonlog_hash["epubmaker.rb"]["coverALT"]

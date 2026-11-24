@@ -5,7 +5,7 @@ require 'nokogiri'
 
 require_relative '../bookmaker/core/header.rb'
 require_relative '../bookmaker/core/metadata.rb'
-require_relative '../utilities/oraclequery.rb'
+# require_relative '../utilities/oraclequery.rb'
 
 # These commands should run immediately prior to epubmaker
 
@@ -178,42 +178,43 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def databaseLookup(logkey='')
-  thissql = personSearchSingleKey(Metadata.eisbn, "EDITION_EAN", "Author")
-  myhash, querystatus = runPeopleQuery(thissql)
-  logstring = querystatus
-  if querystatus == 'success' and (myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'])
-    logstring = "No DB record found; removing author links for addons"
-  elsif querystatus == 'success'
-    logstring = "DB Connection SUCCESS: Found an author record"
-  end
-  return myhash, querystatus
-rescue => logstring
-  return {}
-ensure
-  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
-end
+# def databaseLookup(logkey='')
+#   thissql = personSearchSingleKey(Metadata.eisbn, "EDITION_EAN", "Author")
+#   myhash, querystatus = runPeopleQuery(thissql)
+#   logstring = querystatus
+#   if querystatus == 'success' and (myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'])
+#     logstring = "No DB record found; removing author links for addons"
+#   elsif querystatus == 'success'
+#     logstring = "DB Connection SUCCESS: Found an author record"
+#   end
+#   return myhash, querystatus
+# rescue => logstring
+#   return {}
+# ensure
+#   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+# end
 
-def getlinkAuthorInfo(confighash, myhash, logkey='')
-  linkauthorarr = []
-  linkauthorid = []
-  if myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['PERSON_REALNAME'].nil? or myhash['book']['PERSON_REALNAME'].empty? or !myhash['book']['PERSON_REALNAME']
-    if !confighash['author'].nil?
-      linkauthorarr = confighash['author'].split(", ")
-    end
-  else
-    linkauthorarr = myhash['book']['PERSON_REALNAME'].clone
-    linkauthorid = myhash['book']['PERSON_PARTNERID'].clone
-  end
-  return linkauthorarr, linkauthorid
-rescue => logstring
-  return [],[]
-ensure
-  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
-end
+# def getlinkAuthorInfo(confighash, linkauthorarr, linkauthorid, logkey='')
+#   linkauthorarr = []
+#   linkauthorid = []
+#   if myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['PERSON_REALNAME'].nil? or myhash['book']['PERSON_REALNAME'].empty? or !myhash['book']['PERSON_REALNAME']
+#     if !confighash['author'].nil?
+#       linkauthorarr = confighash['author'].split(", ")
+#     end
+#   else
+#     linkauthorarr = myhash['book']['PERSON_REALNAME'].clone
+#     linkauthorid = myhash['book']['PERSON_PARTNERID'].clone
+#   end
+#   return linkauthorarr, linkauthorid
+# rescue => logstring
+#   return [],[]
+# ensure
+#   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+# end
 
-def activateAuthorLinks(myhash, filecontents, logkey='')
-  unless myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['PERSON_PARTNERID'].nil? or myhash['book']['PERSON_PARTNERID'].empty? or !myhash['book']['PERSON_PARTNERID']
+def activateAuthorLinks(linkauthorid, filecontents, logkey='')
+  unless linkauthorid.empty?
+  # unless myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['PERSON_PARTNERID'].nil? or myhash['book']['PERSON_PARTNERID'].empty? or !myhash['book']['PERSON_PARTNERID']
     filecontents = filecontents.gsub(/<!--AUTHORSIGNUPSTART/,"").gsub(/AUTHORSIGNUPEND-->/,"")
   end
   return filecontents
@@ -223,14 +224,14 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setNewsletterAuthorLinksSingle(linkauthorarr, linkauthorid, myhash, jsfile, htmlfile, newsletter_pstyle, logkey='')
+def setNewsletterAuthorLinksSingle(linkauthorarr, linkauthorid, jsfile, htmlfile, newsletter_pstyle, logkey='')
   # for books with just one author
   # add author link to ATA section
   filecontents = File.read(htmlfile)
   linkauthornametxt = Metadata.bookauthor.downcase.gsub(/\s/,"").gsub(/\W/,"").to_ascii
   linkauthornameall = Metadata.bookauthor.downcase.gsub(/\s/,"").to_ascii
   Bkmkr::Tools.runnode(jsfile, "#{htmlfile} #{newsletter_pstyle}")
-  if myhash.nil? or myhash.empty? or !myhash or myhash['book'].nil? or myhash['book'].empty? or !myhash['book'] or myhash['book']['PERSON_PARTNERID'].nil? or myhash['book']['PERSON_PARTNERID'].empty? or !myhash['book']['PERSON_PARTNERID']
+  if linkauthorid.empty?
     # in this case, a newsletter link with the AUTHORID is not updated and epubcheck errors. (preferableto a unwittint dead link..)
     filecontents = File.read(htmlfile).gsub(/\{\{AUTHORNAMETXT\}\}/,"#{linkauthornametxt}").gsub(/\{\{AUTHORNAME\}\}/,"#{linkauthornameall}")
   else
@@ -244,7 +245,7 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def setNewsletterAuthorLinksMultiple(linkauthorarr, linkauthorid, myhash, jsfile, htmlfile, newsletter_pstyle,logkey='')
+def setNewsletterAuthorLinksMultiple(linkauthorarr, linkauthorid, jsfile, htmlfile, newsletter_pstyle,logkey='')
   # for books with multiple authors,
   # make mini toc entry plural,
   # insert new author links in newsletter,
@@ -275,7 +276,7 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def updateImprintandEISBNPlaceholders(myhash, filecontents, logkey='')
+def updateImprintandEISBNPlaceholders(filecontents, logkey='')
   filecontents = filecontents.gsub(/\{\{IMPRINT\}\}/,"#{Metadata.imprint}").gsub(/\{\{EISBN\}\}/,"#{Metadata.eisbn}")
   return filecontents
 rescue => logstring
@@ -293,27 +294,27 @@ ensure
   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
 end
 
-def handleSqlQueryError(querystatus, data_hash, dw_lookup_errfile, testing_value_file, logkey='')
-  # write errfile
-  msg = "Data warehouse lookup for ISBN encountered errors. \n"
-  msg += "Customizations based on imprint may be missing (logo(s), custom formatting from CSS, newsletter links, etc)"
-  msg += "\n \n(detailed output:)\n "
-  msg += querystatus
-  Mcmlln::Tools.overwriteFile(dw_lookup_errfile, msg)
-  logstring = "not the first sql err this run, (re)wrote err textfile"
+# def handleSqlQueryError(querystatus, data_hash, dw_lookup_errfile, testing_value_file, logkey='')
+#   # write errfile
+#   msg = "Data warehouse lookup for ISBN encountered errors. \n"
+#   msg += "Customizations based on imprint may be missing (logo(s), custom formatting from CSS, newsletter links, etc)"
+#   msg += "\n \n(detailed output:)\n "
+#   msg += querystatus
+#   Mcmlln::Tools.overwriteFile(dw_lookup_errfile, msg)
+#   logstring = "not the first sql err this run, (re)wrote err textfile"
 
-  # if this is the first dw lookup failure on this run, write to cfg.json & send email alert
-  if !data_hash.has_key?('dw_sql_err')
-    data_hash['dw_sql_err'] = querystatus
-    Mcmlln::Tools.write_json(data_hash, Metadata.configfile)
-    # send mail
-    Mcmlln::Tools.sendAlertMailtoWF('dw_isbn_lookup', msg, testing_value_file, Bkmkr::Project.filename_normalized, Bkmkr::Keys.smtp_address)
-    logstring = "sql err, first this run; logging to cfg.json and sending alert-mail"
-  end
-rescue => logstring
-ensure
-  Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
-end
+#   # if this is the first dw lookup failure on this run, write to cfg.json & send email alert
+#   if !data_hash.has_key?('dw_sql_err')
+#     data_hash['dw_sql_err'] = querystatus
+#     Mcmlln::Tools.write_json(data_hash, Metadata.configfile)
+#     # send mail
+#     Mcmlln::Tools.sendAlertMailtoWF('dw_isbn_lookup', msg, testing_value_file, Bkmkr::Project.filename_normalized, Bkmkr::Keys.smtp_address)
+#     logstring = "sql err, first this run; logging to cfg.json and sending alert-mail"
+#   end
+# rescue => logstring
+# ensure
+#   Mcmlln::Tools.logtoJson(@log_hash, logkey, logstring)
+# end
 
 def altTitlepageHTMLEdit(file, titlepage_ALT_default, titlepage_ALT_placeholder, logkey='')
   filecontents = File.read(file)
@@ -353,6 +354,14 @@ resource_dir = data_hash['resourcedir']
 doctemplatetype = data_hash['doctemplatetype']
 stage_dir = data_hash['stage']
 project_name = data_hash['project']
+
+linkauthorarr = Array(data_hash['linkauthorarr'])
+linkauthorid = Array(data_hash['linkauthorid'])
+if linkauthorarr.empty? || linkauthorid.empty?
+  linkauthorarr = data_hash['author'].to_s.split(", ")
+  linkauthorid  = []
+end
+
 if stage_dir.include?("egalley") || stage_dir.include?("galley") || stage_dir.include?("firstpass") || \
   (project_name == 'validator' && stage_dir == 'direct')
   galley_run = true
@@ -455,29 +464,24 @@ filecontents = readHtml(epub_tmp_html, 'read_updated_epub_tmp_html')
 # auupcase = Metadata.bookauthor.upcase
 # filecontents = filecontents.gsub(Metadata.bookauthor,"<!--AUTHORSIGNUPSTART<a href=\"#{aulink}\">AUTHORSIGNUPEND-->\\0<!--AUTHORSIGNUPSTART</a>AUTHORSIGNUPEND-->").gsub(auupcase,"<!--AUTHORSIGNUPSTART<a href=\"#{aulink}\">AUTHORSIGNUPEND-->\\0<!--AUTHORSIGNUPSTART</a>AUTHORSIGNUPEND-->")
 
-# find the author ID
-myhash, querystatus = databaseLookup('biblio_sql_queries')
-
-# get author info from sql if available, else scan outputtmp_html
-linkauthorarr, linkauthorid = getlinkAuthorInfo(data_hash, myhash, 'get_author_link_info')
 @log_hash['linkauthorarr'] = linkauthorarr
 @log_hash['linkauthorid'] = linkauthorid
 
 # uncomment newsletter link placeholders
-filecontents = activateAuthorLinks(myhash, filecontents, 'uncomment_newsletter_links')
+filecontents = activateAuthorLinks(linkauthorid, filecontents, 'uncomment_newsletter_links')
 
 # write epub-ready html to file
 overwriteFile(epub_tmp_html, filecontents, 'overwrite_epubhtml_final')
 
 # update newsletter author links, for single or multiple authors
 if linkauthorarr.count > 1
-  filecontents = setNewsletterAuthorLinksMultiple(linkauthorarr, linkauthorid, myhash, newsletterjs, epub_tmp_html, newsletter_pstyle, 'set_newsletter_auth_links_multiple')
+  filecontents = setNewsletterAuthorLinksMultiple(linkauthorarr, linkauthorid, newsletterjs, epub_tmp_html, newsletter_pstyle, 'set_newsletter_auth_links_multiple')
 else
-  filecontents = setNewsletterAuthorLinksSingle(linkauthorarr, linkauthorid, myhash, newslettersinglejs, epub_tmp_html, newsletter_pstyle, 'set_newsletter_auth_links_single')
+  filecontents = setNewsletterAuthorLinksSingle(linkauthorarr, linkauthorid, newslettersinglejs, epub_tmp_html, newsletter_pstyle, 'set_newsletter_auth_links_single')
 end
 
 #replace imprint, eisbn placeholders
-filecontents = updateImprintandEISBNPlaceholders(myhash, filecontents, 'update_eisbn_&_imprint_placeholders')
+filecontents = updateImprintandEISBNPlaceholders(filecontents, 'update_eisbn_&_imprint_placeholders')
 
 # add some line breaks to make the html easier to deal with
 filecontents = addHtmlLineBreaks(filecontents, 'add_html_line_breaks')
@@ -499,9 +503,9 @@ filecontents = altTitlepageHTMLEdit(epub_tmp_html, titlepage_ALT_default, titlep
 overwriteFile(epub_tmp_html, filecontents, 'overwrite_epubtmp_html-post_titlepage_alt_update')
 
 
-if querystatus != 'success'
-  handleSqlQueryError(querystatus, data_hash, dw_lookup_errfile, testing_value_file, 'handle_sql_query_err')
-end
+# if querystatus != 'success'
+#   handleSqlQueryError(querystatus, data_hash, dw_lookup_errfile, testing_value_file, 'handle_sql_query_err')
+# end
 
 # Write json log:
 Mcmlln::Tools.logtoJson(@log_hash, 'completed', Time.now)
